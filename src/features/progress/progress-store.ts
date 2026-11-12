@@ -10,10 +10,12 @@ import {
   emptySnapshot,
   type DerivedProgress,
 } from "../../domain/progression.ts";
+import { buildAttempt, type AttemptInput, type AttemptResult } from "../../domain/attempts.ts";
 import type { ProgressSnapshot, ValidationReceipt } from "../../domain/types.ts";
 import {
   createMemoryStorage,
   createStorageRepository,
+  LEGACY_PROGRESS_STORAGE_KEY,
   PROGRESS_STORAGE_KEY,
   type KeyValueStorage,
 } from "../../persistence/progress-repository.ts";
@@ -35,6 +37,8 @@ export interface ProgressStore {
   getSnapshot(): ProgressState;
   getServerSnapshot(): ProgressState;
   submit(itemId: string, receipt: ValidationReceipt): SubmitResult;
+  /** Record learning evidence for one graded submission (never awards XP). */
+  recordAttempt(input: Omit<AttemptInput, "now" | "newId">): AttemptResult;
   resetLearnerProgress(): void;
   loadScenario(id: string): boolean;
   exitScenario(): void;
@@ -52,12 +56,12 @@ export function createProgressStore(opts: StoreOptions): ProgressStore & {
 } {
   const catalog = opts.catalog ?? defaultCatalog;
   const validators = opts.validators ?? ACTIVE_VALIDATORS;
-  const learner = createStorageRepository(opts.storage, PROGRESS_STORAGE_KEY, "learner");
-  const scenario = createStorageRepository(
-    opts.storage,
-    DEV_SCENARIO_STORAGE_KEY,
-    "dev-scenario",
-  );
+  const learner = createStorageRepository(opts.storage, {
+    key: PROGRESS_STORAGE_KEY,
+    origin: "learner",
+    legacyKey: LEGACY_PROGRESS_STORAGE_KEY,
+  });
+  const scenario = createStorageRepository(opts.storage, { key: DEV_SCENARIO_STORAGE_KEY, origin: "dev-scenario" });
 
   const serverState: ProgressState = {
     ready: false,
@@ -100,6 +104,12 @@ export function createProgressStore(opts: StoreOptions): ProgressStore & {
         itemId,
         receipt,
       });
+      if (result.ok && !learner.append(result.event)) return { ok: false, reason: "storage-unavailable" };
+      return result;
+    },
+    recordAttempt(input) {
+      // Attempts, like completions, only ever go to the real learner log.
+      const result = buildAttempt(learner.read(), catalog, input);
       if (result.ok) learner.append(result.event);
       return result;
     },

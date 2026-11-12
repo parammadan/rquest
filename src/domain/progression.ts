@@ -10,11 +10,11 @@ import { levelForXp, type LevelInfo } from "./levels.ts";
 import type {
   Achievement,
   AchievementCriterion,
+  ItemCompletedEvent,
   Mission,
   MissionId,
   MissionItem,
   MissionStatus,
-  ProgressEvent,
   ProgressOrigin,
   ProgressSnapshot,
   XpEvent,
@@ -115,7 +115,7 @@ export function unmetPrerequisites(
 
 /** Check one event against the rules, given what is already completed. */
 export function checkEvent(
-  event: ProgressEvent,
+  event: ItemCompletedEvent,
   catalog: Catalog,
   done: ReadonlySet<string>,
 ): RejectionReason | null {
@@ -179,6 +179,8 @@ export function deriveProgress(
 
   // Replay events in stored order; first valid completion of an item wins.
   for (const event of snapshot.events) {
+    // Attempts are learning evidence only; XP, unlocks, and achievements come from completions.
+    if (event.type !== "item.completed") continue;
     const reason = checkEvent(event, catalog, done);
     if (reason) {
       rejected.push({ eventId: event.id, reason });
@@ -311,5 +313,5 @@ export function deriveProgress(
 }
 
 export function emptySnapshot(learnerId = "demo-learner"): ProgressSnapshot {
-  return { schemaVersion: 1, learnerId, origin: "learner", events: [] };
+  return { schemaVersion: 2, learnerId, origin: "learner", events: [] };
 }

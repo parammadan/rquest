@@ -272,7 +272,7 @@ export interface ValidationReceipt {
   evidenceDigest?: string;
 }
 
-/** The only event type that can change progress. */
+/** The only event type that can change progress (XP, unlocks, achievements). */
 export interface ItemCompletedEvent {
   id: string;
   type: "item.completed";
@@ -283,18 +283,51 @@ export interface ItemCompletedEvent {
   receipt: ValidationReceipt;
 }
 
-export type ProgressEvent = ItemCompletedEvent;
+/**
+ * How one graded submission ended.
+ * passed / failed: the code ran and the checks were evaluated.
+ * syntax-error / runtime-error: the code could not be parsed, or stopped with an error.
+ * timeout: the code ran past the time limit. integrity: it changed base R, so it wasn't graded.
+ * (If R itself can't start, nothing was evaluated and no attempt is recorded.)
+ */
+export type AttemptOutcome = "passed" | "failed" | "syntax-error" | "runtime-error" | "timeout" | "integrity";
+
+/**
+ * Learning evidence for one challenge submission (schema v2). Never awards XP.
+ * Holds no learner code and no personal data.
+ */
+export interface ChallengeAttemptedEvent {
+  id: string;
+  type: "challenge.attempted";
+  itemId: string;
+  missionId: MissionId;
+  occurredAt: string;
+  /** 1-based sequence number of this attempt for this challenge. */
+  attempt: number;
+  outcome: AttemptOutcome;
+  /** Ids of the validator checks that failed (empty unless outcome === "failed"). */
+  failedCheckIds: string[];
+  /** Active time on the challenge since the previous attempt (or since opening it), in ms. */
+  activeMs: number;
+}
+
+export type ProgressEvent = ItemCompletedEvent | ChallengeAttemptedEvent;
 
 /** Where a snapshot came from. Seeded data is never shown as real. */
 export type ProgressOrigin = "learner" | "dev-scenario";
 
+/** Stored progress that couldn't be read. It is never overwritten; writes are refused until reset. */
+export type StorageIssue = "unreadable" | "unsupported-version";
+
 export interface ProgressSnapshot {
-  schemaVersion: 1;
+  /** v1 held completions only; v2 adds challenge.attempted. v1 data is read and migrated. */
+  schemaVersion: 2;
   learnerId: string;
   origin: ProgressOrigin;
   /** Set when origin === "dev-scenario". */
   scenarioName?: string;
   events: ProgressEvent[];
+  storageIssue?: StorageIssue;
 }
 
 /** An XP award derived from a completion event (never stored directly). */

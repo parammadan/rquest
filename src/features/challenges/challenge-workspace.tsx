@@ -29,7 +29,8 @@ import { getDebrief } from "@/content/videos";
 import { validatorForChallenge } from "@/content/validators";
 import type { CheckOutcome, EvaluationResult } from "@/domain/evaluation";
 import type { Challenge } from "@/domain/types";
-import { useProgress, useRecordValidatedCompletion } from "@/features/progress/progress-provider";
+import { evidenceFromEvaluation } from "@/domain/attempts";
+import { useProgress, useRecordAttempt, useRecordValidatedCompletion } from "@/features/progress/progress-provider";
 import { LockedMissionScreen } from "@/features/missions/mission-detail";
 import { RCode } from "@/features/missions/r-code";
 import { evaluateChallenge, runChallengeCode } from "@/features/runtime/evaluate-challenge";
@@ -40,6 +41,7 @@ import { accentStyle } from "@/features/worlds/world-visuals";
 import { cn } from "@/lib/cn";
 import { formatMinutes } from "@/lib/format";
 import { REditor } from "./r-editor";
+import { useActiveTime } from "./use-active-time";
 
 const draftKey = (id: string) => `rquest:draft:v1:${id}`;
 
@@ -120,6 +122,8 @@ function ChallengeWorkspace({ challenge, completed }: { challenge: Challenge; co
   const mission = catalog.getMission(challenge.missionId)!;
   const def = validatorForChallenge(challenge.id)!;
   const record = useRecordValidatedCompletion();
+  const recordAttempt = useRecordAttempt();
+  const takeActiveMs = useActiveTime();
   const { progress } = useProgress();
 
   const [code, setCode] = useState(challenge.starterCode);
@@ -162,6 +166,11 @@ function ChallengeWorkspace({ challenge, completed }: { challenge: Challenge; co
     const before = progressRef.current;
     const { result, receipt } = await evaluateChallenge(challenge, code);
     setEvaluation(result);
+    // Learning evidence: one attempt per graded submission (nothing if R itself was unavailable).
+    const evidence = evidenceFromEvaluation(result);
+    if (evidence) {
+      recordAttempt({ challengeId: challenge.id, ...evidence, activeMs: takeActiveMs(), checkIds: def.checks.map((c) => c.id) });
+    }
     if (receipt) {
       const r = record(challenge.id, receipt);
       if (r.ok) {

@@ -36,7 +36,7 @@ export type SubmitResult =
   | { ok: true; event: ItemCompletedEvent }
   | {
       ok: false;
-      reason: RejectionReason | "item-not-available" | "validator-unavailable";
+      reason: RejectionReason | "item-not-available" | "validator-unavailable" | "storage-unavailable";
     };
 
 export interface SubmitInput {

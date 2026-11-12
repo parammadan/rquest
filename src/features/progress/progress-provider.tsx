@@ -8,7 +8,7 @@ import {
   type ProgressState,
   type ProgressStore,
 } from "./progress-store";
-import { createMemoryStorage, PROGRESS_STORAGE_KEY } from "@/persistence/progress-repository";
+import { createMemoryStorage, LEGACY_PROGRESS_STORAGE_KEY, PROGRESS_STORAGE_KEY } from "@/persistence/progress-repository";
 
 const StoreContext = createContext<ProgressStore | null>(null);
 
@@ -22,7 +22,7 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   // Keep tabs in sync when another tab changes progress.
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === null || e.key === PROGRESS_STORAGE_KEY || e.key === DEV_SCENARIO_STORAGE_KEY) {
+      if (e.key === null || e.key === PROGRESS_STORAGE_KEY || e.key === LEGACY_PROGRESS_STORAGE_KEY || e.key === DEV_SCENARIO_STORAGE_KEY) {
         (store as ProgressStore & { invalidate?: () => void }).invalidate?.();
       }
     };
@@ -54,6 +54,11 @@ export function useProgress(): ProgressState {
  */
 export function useRecordValidatedCompletion() {
   return useStore().submit;
+}
+
+/** Records one graded submission as learning evidence. Only the challenge workspace uses this. */
+export function useRecordAttempt() {
+  return useStore().recordAttempt;
 }
 
 export function useProgressActions() {

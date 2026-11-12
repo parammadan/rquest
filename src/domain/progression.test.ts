@@ -279,7 +279,7 @@ test("every level is reachable, thresholds increase, and a fully completed learn
   // A Phase 2 learner with every challenge but no lessons: 1,800 XP, Level 6, 200 XP from the top.
   const everyEvent = buildScenarioSnapshot(DEV_SCENARIOS[2], catalog).events;
   const challengesOnly = deriveProgress(
-    { ...emptySnapshot(), events: everyEvent.filter((e) => e.itemKind === "challenge") },
+    { ...emptySnapshot(), events: everyEvent.filter((e) => e.type === "item.completed" && e.itemKind === "challenge") },
     catalog,
   );
   assert.equal(challengesOnly.totalXp, 1800);
@@ -471,4 +471,155 @@ test("no lesson reproduces a challenge's reference solution", () => {
       assert.deepEqual(shared, [], `${l.id} defines ${shared.join(", ")}, which ${challengeId} asks the learner to write`);
     }
   }
+});
+
+/* --------------- Milestone 4A: schema v2, migration, attempt evidence --------------- */
+
+import { LEGACY_PROGRESS_STORAGE_KEY } from "../persistence/progress-repository.ts";
+import { attemptsFor, buildAttempt, evidenceFromEvaluation } from "./attempts.ts";
+import { ActiveTimeMeter, IDLE_AFTER_MS } from "./active-time.ts";
+import type { ChallengeAttemptedEvent } from "./types.ts";
+
+const v1Raw = (events: unknown[]) => JSON.stringify({ schemaVersion: 1, learnerId: "v1-learner", events });
+const learnerRepo = (storage: ReturnType<typeof createMemoryStorage>) =>
+  createStorageRepository(storage, { key: PROGRESS_STORAGE_KEY, origin: "learner", legacyKey: LEGACY_PROGRESS_STORAGE_KEY });
+const fullEvents = () => buildScenarioSnapshot(DEV_SCENARIOS[2], catalog).events;
+
+test("a fully completed v1 learner migrates with every XP point, level 7, and all achievements", () => {
+  const raw = v1Raw(fullEvents());
+  const storage = createMemoryStorage({ [LEGACY_PROGRESS_STORAGE_KEY]: raw });
+  const repo = learnerRepo(storage);
+  const p = deriveProgress(repo.read(), catalog);
+  assert.equal(p.totalXp, 2100);
+  assert.equal(p.level.level, 7);
+  assert.equal(p.unlockedAchievementCount, 8);
+  assert.equal(p.clearedMissionCount, 5);
+  assert.equal(repo.read().schemaVersion, 2);
+  assert.equal(repo.read().learnerId, "v1-learner");
+  assert.equal(attemptsFor(repo.read(), "data-lab.boss").length, 0, "no invented attempt history");
+  // The first new event writes v2 (legacy events + the new one); v1 is left untouched.
+  const at = buildAttempt(repo.read(), catalog, { challengeId: "data-lab.boss", outcome: "passed", failedCheckIds: [], activeMs: 1000, checkIds: [] });
+  assert.ok(at.ok && repo.append(at.event));
+  assert.equal(storage.getItem(LEGACY_PROGRESS_STORAGE_KEY), raw);
+  const stored = JSON.parse(storage.getItem(PROGRESS_STORAGE_KEY)!);
+  assert.equal(stored.schemaVersion, 2);
+  assert.equal(stored.events.length, fullEvents().length + 1);
+  assert.equal(deriveProgress(learnerRepo(storage).read(), catalog).totalXp, 2100, "attempts never add XP");
+});
+
+test("a Phase 2 v1 learner (challenges only) keeps 1,800 XP after migration", () => {
+  const challengeEvents = fullEvents().filter((e) => e.type === "item.completed" && e.itemKind === "challenge");
+  const repo = learnerRepo(createMemoryStorage({ [LEGACY_PROGRESS_STORAGE_KEY]: v1Raw(challengeEvents) }));
+  const p = deriveProgress(repo.read(), catalog);
+  assert.equal(p.totalXp, 1800);
+  assert.equal(p.clearedMissionCount, 5);
+  assert.deepEqual(p.rejected, []);
+});
+
+test("completions a stale v1 tab records after migration are merged in by event id", () => {
+  const events = fullEvents().filter((e) => e.missionId === "data-lab");
+  const storage = createMemoryStorage({ [LEGACY_PROGRESS_STORAGE_KEY]: v1Raw(events.slice(0, 2)) });
+  const repo = learnerRepo(storage);
+  const at = buildAttempt(repo.read(), catalog, { challengeId: "data-lab.challenge-1", outcome: "failed", failedCheckIds: ["unseen"], activeMs: 5, checkIds: ["unseen"] });
+  assert.ok(at.ok);
+  repo.append(at.event); // v2 now exists
+  storage.setItem(LEGACY_PROGRESS_STORAGE_KEY, v1Raw(events.slice(0, 3))); // old tab adds one completion
+  repo.invalidate();
+  const snap = repo.read();
+  assert.equal(snap.events.filter((e) => e.type === "item.completed").length, 3);
+  assert.equal(attemptsFor(snap, "data-lab.challenge-1").length, 1);
+});
+
+test("unreadable or future-version progress is never overwritten", () => {
+  for (const [raw, issue] of [
+    ["{not json", "unreadable"],
+    [JSON.stringify({ schemaVersion: 3, events: [] }), "unsupported-version"],
+    [JSON.stringify({ schemaVersion: 2, events: "nope" }), "unreadable"],
+  ] as const) {
+    const storage = createMemoryStorage({ [PROGRESS_STORAGE_KEY]: raw, [LEGACY_PROGRESS_STORAGE_KEY]: v1Raw(fullEvents()) });
+    const repo = learnerRepo(storage);
+    assert.equal(repo.read().storageIssue, issue);
+    assert.equal(repo.read().events.length, 0, "a bad v2 record is not silently replaced by v1 data");
+    const ok = repo.append(fullEvents()[0]);
+    assert.equal(ok, false);
+    assert.equal(storage.getItem(PROGRESS_STORAGE_KEY), raw, "left exactly as found");
+    repo.reset();
+    assert.equal(storage.getItem(PROGRESS_STORAGE_KEY), null);
+    assert.equal(storage.getItem(LEGACY_PROGRESS_STORAGE_KEY), null, "reset clears v1 too, so nothing resurrects");
+    assert.equal(learnerRepo(storage).read().storageIssue, undefined);
+  }
+});
+
+test("events from a newer version are kept on write; malformed attempts are ignored", () => {
+  const future = { id: "f1", type: "hint.revealed", itemId: "data-lab.challenge-1", tier: 2 };
+  const badAttempt = { id: "b1", type: "challenge.attempted", itemId: "data-lab.challenge-1", attempt: 0, outcome: "nope" };
+  const storage = createMemoryStorage({ [PROGRESS_STORAGE_KEY]: JSON.stringify({ schemaVersion: 2, learnerId: "x", events: [future, badAttempt] }) });
+  const repo = learnerRepo(storage);
+  assert.equal(repo.read().events.length, 0);
+  const at = buildAttempt(repo.read(), catalog, { challengeId: "data-lab.challenge-1", outcome: "passed", failedCheckIds: [], activeMs: 1, checkIds: [] });
+  assert.ok(at.ok);
+  repo.append(at.event);
+  const stored = JSON.parse(storage.getItem(PROGRESS_STORAGE_KEY)!).events;
+  assert.deepEqual(stored.slice(0, 2), [future, badAttempt]);
+  assert.equal(stored.length, 3);
+});
+
+test("attempts: sequence numbers, failed checks, outcomes, persistence, and no duplicate XP", () => {
+  const storage = createMemoryStorage();
+  const repo = learnerRepo(storage);
+  const def = validatorForChallenge("data-lab.challenge-1")!;
+  const checkIds = def.checks.map((c) => c.id);
+  const add = (outcome: ChallengeAttemptedEvent["outcome"], failed: string[] = []) => {
+    const r = buildAttempt(repo.read(), catalog, { challengeId: def.challengeId, outcome, failedCheckIds: failed, activeMs: 2500.4, checkIds });
+    assert.ok(r.ok);
+    repo.append(r.event);
+    return r.event;
+  };
+  const a1 = add("failed", ["unseen", "unseen", "not-a-check"]);
+  assert.equal(a1.attempt, 1);
+  assert.deepEqual(a1.failedCheckIds, ["unseen"], "deduplicated, unknown ids dropped");
+  assert.equal(a1.activeMs, 2500);
+  assert.equal(add("syntax-error", ["unseen"]).failedCheckIds.length, 0, "error outcomes carry no failed checks");
+  assert.equal(add("passed").attempt, 3);
+  // A completion is recorded once; a repeat pass adds an attempt but no XP.
+  const receipt = { validatorId: def.validatorId, verdict: "passed" as const, checkedAt: "t" };
+  const c1 = submitCompletion(repo.read(), catalog, ACTIVE_VALIDATORS, { itemId: def.challengeId, receipt });
+  assert.ok(c1.ok);
+  repo.append(c1.event);
+  add("passed");
+  const c2 = submitCompletion(repo.read(), catalog, ACTIVE_VALIDATORS, { itemId: def.challengeId, receipt });
+  assert.ok(!c2.ok && c2.reason === "duplicate");
+  // Survives a "refresh" (a new repository over the same storage).
+  const reloaded = learnerRepo(storage).read();
+  assert.deepEqual(attemptsFor(reloaded, def.challengeId).map((a) => a.outcome), ["failed", "syntax-error", "passed", "passed"]);
+  assert.equal(deriveProgress(reloaded, catalog).totalXp, catalog.getItem(def.challengeId)!.xp);
+  // Lessons are not challenges.
+  const bad = buildAttempt(reloaded, catalog, { challengeId: "data-lab.lesson-1", outcome: "passed", failedCheckIds: [], activeMs: 0, checkIds: [] });
+  assert.ok(!bad.ok && bad.reason === "not-a-challenge");
+});
+
+test("grading results map onto attempt evidence; R being unavailable records nothing", () => {
+  const checks = [{ id: "a", description: "", hint: "", passed: true }, { id: "b", description: "", hint: "", passed: false }];
+  assert.deepEqual(evidenceFromEvaluation({ status: "failed", checks }), { outcome: "failed", failedCheckIds: ["b"] });
+  assert.equal(evidenceFromEvaluation({ status: "passed", checks })?.outcome, "passed");
+  assert.equal(evidenceFromEvaluation({ status: "error", kind: "syntax", message: "", checks })?.outcome, "syntax-error");
+  assert.deepEqual(evidenceFromEvaluation({ status: "error", kind: "runtime", message: "", checks }), { outcome: "runtime-error", failedCheckIds: [] });
+  assert.equal(evidenceFromEvaluation({ status: "timeout", message: "" })?.outcome, "timeout");
+  assert.equal(evidenceFromEvaluation({ status: "integrity", message: "" })?.outcome, "integrity");
+  assert.equal(evidenceFromEvaluation({ status: "runtime-error", message: "R could not start" }), null);
+});
+
+test("active time counts only attended, non-idle time", () => {
+  const m = new ActiveTimeMeter(0);
+  m.input(0, true);
+  for (let t = 1000; t <= 10_000; t += 1000) m.tick(t, true);
+  assert.equal(m.take(10_000, true), 10_000);
+  for (let t = 11_000; t <= 15_000; t += 1000) m.tick(t, false); // tab hidden
+  assert.equal(m.take(15_000, false), 0);
+  m.input(15_000, true);
+  for (let t = 16_000; t <= 15_000 + IDLE_AFTER_MS + 30_000; t += 1000) m.tick(t, true); // no input: idle after 60 s
+  assert.equal(m.take(15_000 + IDLE_AFTER_MS + 30_000, true), IDLE_AFTER_MS);
+  m.input(200_000, true);
+  m.tick(10_000_000, true); // laptop asleep: one long gap counts at most 5 s
+  assert.ok(m.take(10_000_000, true) <= 5_000);
 });

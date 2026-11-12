@@ -67,7 +67,7 @@ export function buildScenarioSnapshot(
   ];
   const base = Date.UTC(2026, 0, 5, 14, 0, 0);
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     learnerId: "dev-scenario",
     origin: "dev-scenario",
     scenarioName: scenario.name,
