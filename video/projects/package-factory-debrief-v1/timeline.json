@@ -1,0 +1,199 @@
+{
+  "videoId": "package-factory-debrief-v1",
+  "worldLabel": "WORLD 2 · PACKAGE FACTORY",
+  "fps": 30,
+  "intro": 3.5,
+  "outro": 4,
+  "totalSec": 100.60000000000001,
+  "totalFrames": 3018,
+  "sentenceStarts": {
+    "x01": [
+      0.6,
+      6.38,
+      10.72,
+      13.82
+    ],
+    "x02": [
+      0.6,
+      4.66,
+      8.68,
+      11.38,
+      13.22
+    ],
+    "x03": [
+      0.6,
+      5.3,
+      7.76,
+      12.38
+    ],
+    "x04": [
+      0.6,
+      3.06,
+      8.72,
+      13.32
+    ],
+    "x05": [
+      0.6,
+      3.06,
+      9.08,
+      10.92
+    ]
+  },
+  "segments": [
+    {
+      "id": "x01",
+      "chapter": "brief",
+      "lessonId": null,
+      "chapterTitle": "What the boss asked",
+      "text": "This is the debrief for Ship lab tools, where two functions become a package that passes every package check. First, the public interface and its documentation come from roxygen two comments. Second, every example runs exactly as written. Third, every function from another package is declared, so the check finds nothing undefined.",
+      "caption": "This is the debrief for Ship labtools 0.1.0, where two functions become a package that passes every package check. First, the public interface and its documentation come from roxygen comments. Second, every example runs exactly as written. Third, every function from another package is declared, so the check finds nothing undefined.",
+      "visual": {
+        "type": "brief",
+        "title": "Two functions, one clean package",
+        "items": [
+          "Exports and docs from roxygen comments",
+          "Examples that run as written",
+          "Every dependency declared"
+        ]
+      },
+      "startSec": 3.5,
+      "startFrame": 105,
+      "frames": 589,
+      "audioSec": 18.24
+    },
+    {
+      "id": "x02",
+      "chapter": "clean-site",
+      "lessonId": null,
+      "chapterTitle": "Documenting clean_site",
+      "text": "Each exported function documents every parameter and its return value. The examples section uses small inline data, so it runs on any machine. The export tag puts clean site in the namespace. Helpers without it stay internal. The body is the rule from the first challenge: trim, upper-case, and insert the hyphen, with missing values left missing.",
+      "caption": "Each exported function documents every parameter and its return value. The @examples section uses small inline data, so it runs on any machine. The @export tag puts clean_site() in the NAMESPACE. Helpers without it stay internal. The body is the rule from the first challenge: trim, upper-case, and insert the hyphen, with NA left as NA.",
+      "visual": {
+        "type": "code",
+        "title": "Documentation that builds",
+        "file": "R/clean_site.R",
+        "from": 1,
+        "to": 11,
+        "highlights": [
+          [
+            3,
+            4
+          ],
+          [
+            5,
+            6
+          ],
+          [
+            7
+          ],
+          [
+            7
+          ],
+          [
+            9,
+            10
+          ]
+        ]
+      },
+      "startSec": 23.133333333333333,
+      "startFrame": 694,
+      "frames": 616,
+      "audioSec": 19.136
+    },
+    {
+      "id": "x03",
+      "chapter": "imports",
+      "lessonId": null,
+      "chapterTitle": "Declaring imports",
+      "text": "Summarise arm follows the same pattern: parameters, return value, and an example. The import lines are what most attempts miss. Group by and summarise come from dee plier, and S D comes from stats, not base R. The body returns one row per arm, and passes the missing-value setting straight through to mean and S D.",
+      "caption": "summarise_arm() follows the same pattern: parameters, return value, and an example. The @importFrom lines are what most attempts miss. group_by() and summarise() come from dplyr, and sd() comes from stats, not base R. The body returns one row per arm, and passes na_rm straight through to mean() and sd().",
+      "visual": {
+        "type": "code",
+        "title": "Every dependency declared",
+        "file": "R/summarise_arm.R",
+        "from": 13,
+        "to": 26,
+        "highlights": [
+          [
+            15,
+            16,
+            17,
+            18,
+            19
+          ],
+          [
+            20,
+            21
+          ],
+          [
+            20,
+            21
+          ],
+          [
+            24,
+            25
+          ]
+        ]
+      },
+      "startSec": 43.66666666666667,
+      "startFrame": 1310,
+      "frames": 569,
+      "audioSec": 17.578667
+    },
+    {
+      "id": "x04",
+      "chapter": "mistakes",
+      "lessonId": null,
+      "chapterTitle": "Mistakes that fail checks",
+      "text": "Three mistakes account for most failed attempts. Calling S D, or group by, without importing them leaves undefined globals, and the globals check fails. An example that reads a file the reader doesn't have will not run, and the examples check fails. And a missing param or return tag leaves the help page incomplete, which fails the docs check.",
+      "caption": "Three mistakes account for most failed attempts. Calling group_by() or sd() without importing them leaves undefined globals, and the globals check fails. An example that reads a file the reader doesn't have will not run, and the examples check fails. And a missing @param or @return tag leaves the help page incomplete, which fails the docs check.",
+      "visual": {
+        "type": "mistakes",
+        "title": "Mistakes that fail the checks",
+        "items": [
+          {
+            "mistake": "group_by() or sd() used without @importFrom",
+            "check": "globals"
+          },
+          {
+            "mistake": "An example that reads a missing file",
+            "check": "examples"
+          },
+          {
+            "mistake": "A missing @param or @return",
+            "check": "docs"
+          }
+        ]
+      },
+      "startSec": 62.63333333333334,
+      "startFrame": 1879,
+      "frames": 583,
+      "audioSec": 18.048
+    },
+    {
+      "id": "x05",
+      "chapter": "checks",
+      "lessonId": null,
+      "chapterTitle": "Every check passes",
+      "text": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+      "caption": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+      "visual": {
+        "type": "checks",
+        "title": "All seven checks pass",
+        "items": [
+          "roxygen2 builds NAMESPACE and man/",
+          "Exports exactly the two functions",
+          "Complete Rd for both exports",
+          "Every example runs",
+          "No undefined globals",
+          "clean_site() on unseen codes",
+          "summarise_arm() on three arms"
+        ]
+      },
+      "startSec": 82.06666666666668,
+      "startFrame": 2462,
+      "frames": 436,
+      "audioSec": 13.141333
+    }
+  ]
+}

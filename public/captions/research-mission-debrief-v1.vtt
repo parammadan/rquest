@@ -1,0 +1,77 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:10.270
+This is the debrief for The Reviewer Re-run, where a reviewer must re-create your output files byte for byte, from a clean session.
+
+2
+00:00:10.620 --> 00:00:13.850
+First, define the analysis set and fit the specified model.
+
+3
+00:00:13.980 --> 00:00:16.190
+Second, pin every source of randomness.
+
+4
+00:00:16.200 --> 00:00:19.670
+Third, write outputs and provenance that never change between runs.
+
+5
+00:00:21.600 --> 00:00:24.910
+The analysis set is every participant with a week12 value.
+
+6
+00:00:25.120 --> 00:00:30.260
+Change is week12 minus baseline, and arm becomes a factor with Placebo as the reference.
+
+7
+00:00:30.260 --> 00:00:32.980
+The model adjusts the treatment effect for baseline.
+
+8
+00:00:32.980 --> 00:00:37.390
+The treatment row, its confidence interval, and n go into a single results row.
+
+9
+00:00:39.200 --> 00:00:49.530
+The audit sample is drawn inside withr::with_seed() with every RNG kind pinned, so the draw is the same in any session, and the caller's random state is left untouched.
+
+10
+00:00:50.260 --> 00:00:53.810
+Files are written with row.names = FALSE, and nothing in them depends on the session.
+
+11
+00:00:54.140 --> 00:00:57.870
+Provenance records the R version, the seed, and the input file's checksum.
+
+12
+00:00:59.570 --> 00:01:01.940
+Three mistakes account for most failed attempts.
+
+13
+00:01:02.210 --> 00:01:07.720
+Calling set.seed() and never restoring the random state changes the caller's stream, and the clean-session check fails.
+
+14
+00:01:08.290 --> 00:01:13.270
+A timestamp in provenance.txt differs on every run, so the reviewer's re-run is not byte-identical.
+
+15
+00:01:13.270 --> 00:01:18.560
+And keeping rows with a missing week12 value changes the model, which fails the model check.
+
+16
+00:01:20.400 --> 00:01:22.490
+This solution passes all eight checks.
+
+17
+00:01:22.760 --> 00:01:28.550
+The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades.
+
+18
+00:01:28.720 --> 00:01:30.490
+Your own solution can look different.
+
+19
+00:01:30.540 --> 00:01:32.850
+What matters is that it passes the same checks.

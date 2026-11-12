@@ -1,0 +1,81 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:10.550
+This is the debrief for Independent QC, where you double-program a demographics table and report every disagreement with production.
+
+2
+00:00:10.960 --> 00:00:13.950
+First, build an independent QC table from the specification.
+
+3
+00:00:14.340 --> 00:00:17.690
+Second, compare it with production cell by cell, using a tolerance.
+
+4
+00:00:17.920 --> 00:00:21.930
+Third, report one row per discrepancy, and none when the tables agree.
+
+5
+00:00:23.730 --> 00:00:27.660
+qc_demographics() finds the arms from the data, instead of assuming their names.
+
+6
+00:00:27.770 --> 00:00:30.360
+For each arm, it takes that arm's subjects only.
+
+7
+00:00:30.530 --> 00:00:33.740
+Then it computes n, the mean age, and its standard deviation.
+
+8
+00:00:34.230 --> 00:00:39.060
+pct_female divides by the subjects in that arm, which is exactly where production went wrong.
+
+9
+00:00:40.900 --> 00:00:44.630
+compare_tables() looks at every column the two tables share, except arm.
+
+10
+00:00:44.820 --> 00:00:50.930
+It starts from an empty data frame with the report's columns, so a clean comparison returns zero rows of the right shape.
+
+11
+00:00:51.120 --> 00:00:54.110
+Then it walks every arm and every column, cell by cell.
+
+12
+00:00:54.420 --> 00:00:59.370
+A difference counts only when it exceeds the tolerance, so floating-point noise is never reported.
+
+13
+00:01:01.200 --> 00:01:03.680
+Three mistakes account for most failed attempts.
+
+14
+00:01:03.680 --> 00:01:08.950
+Comparing with == flags differences that are only rounding noise, and the tolerance check fails.
+
+15
+00:01:09.400 --> 00:01:13.740
+Checking only the column you know is wrong misses discrepancies in a different production table.
+
+16
+00:01:13.740 --> 00:01:18.950
+And returning NULL when everything matches, instead of an empty data frame, fails the clean check.
+
+17
+00:01:20.830 --> 00:01:23.100
+This solution passes all seven checks.
+
+18
+00:01:23.290 --> 00:01:29.100
+The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades.
+
+19
+00:01:29.310 --> 00:01:31.080
+Your own solution can look different.
+
+20
+00:01:31.150 --> 00:01:33.460
+What matters is that it passes the same checks.

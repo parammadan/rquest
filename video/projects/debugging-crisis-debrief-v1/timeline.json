@@ -1,0 +1,186 @@
+{
+  "videoId": "debugging-crisis-debrief-v1",
+  "worldLabel": "WORLD 3 · DEBUGGING CRISIS",
+  "fps": 30,
+  "intro": 3.5,
+  "outro": 4,
+  "totalSec": 100.76666666666665,
+  "totalFrames": 3023,
+  "sentenceStarts": {
+    "x01": [
+      0.6,
+      6.68,
+      10.2,
+      14.46
+    ],
+    "x02": [
+      0.6,
+      7.26,
+      12.46,
+      17.74
+    ],
+    "x03": [
+      0.6,
+      3.82,
+      7.14
+    ],
+    "x04": [
+      0.6,
+      3.1,
+      8.98,
+      14.22
+    ],
+    "x05": [
+      0.6,
+      3.06,
+      9.08,
+      10.92
+    ]
+  },
+  "segments": [
+    {
+      "id": "x01",
+      "chapter": "brief",
+      "lessonId": null,
+      "chapterTitle": "What the boss asked",
+      "text": "This is the debrief for Works On My Machine, where a fragile report has to give identical results in any session. First, find files from the argument, not the working directory. Second, depend on nothing in the session, no attached packages and no options. Third, record exactly what the report ran on.",
+      "caption": "This is the debrief for Works On My Machine, where a fragile report has to give identical results in any session. First, find files from the argument, not the working directory. Second, depend on nothing in the session: no attached packages and no options. Third, record exactly what the report ran on.",
+      "visual": {
+        "type": "brief",
+        "title": "Identical results in any session",
+        "items": [
+          "Paths from the argument, not the working directory",
+          "No dependence on attached packages or options",
+          "A provenance record of what it ran on"
+        ]
+      },
+      "startSec": 3.5,
+      "startFrame": 105,
+      "frames": 551,
+      "audioSec": 16.981333
+    },
+    {
+      "id": "x02",
+      "chapter": "table",
+      "lessonId": null,
+      "chapterTitle": "A session-proof table",
+      "text": "Line two builds the path from the data directory argument with file dot path, so the working directory no longer matters. Every call outside base R carries its package prefix, so nothing depends on what happens to be attached. Missing outcomes are dropped first, so n counts only real values, and each statistic is computed per arm. The label uses sprint F, which always prints a decimal point, unlike format, which follows the session's options.",
+      "caption": "Line 2 builds the path from the data_dir argument with file.path(), so the working directory no longer matters. Every call outside base R carries its package prefix, so nothing depends on what happens to be attached. Missing outcomes are dropped first, so n counts only real values, and each statistic is computed per arm. The label uses sprintf(), which always prints a decimal point, unlike format(), which follows options(OutDec).",
+      "visual": {
+        "type": "code",
+        "title": "Nothing borrowed from the session",
+        "file": "run_report.R",
+        "from": 1,
+        "to": 8,
+        "highlights": [
+          [
+            2
+          ],
+          [
+            3,
+            7
+          ],
+          [
+            4,
+            6,
+            7
+          ],
+          [
+            8
+          ]
+        ]
+      },
+      "startSec": 21.866666666666667,
+      "startFrame": 656,
+      "frames": 734,
+      "audioSec": 23.061333
+    },
+    {
+      "id": "x03",
+      "chapter": "provenance",
+      "lessonId": null,
+      "chapterTitle": "Recording provenance",
+      "text": "The function returns the table together with a session record. It records the R version and the exact dee plier version. And it stores an M D five checksum of the input file, so anyone can confirm the same data went in.",
+      "caption": "The function returns the table together with a session record. It records the R version and the exact dplyr version. And it stores an MD5 checksum of the input file, so anyone can confirm the same data went in.",
+      "visual": {
+        "type": "code",
+        "title": "Record what it ran on",
+        "file": "run_report.R",
+        "from": 9,
+        "to": 17,
+        "highlights": [
+          [
+            10,
+            11
+          ],
+          [
+            12,
+            13
+          ],
+          [
+            14
+          ]
+        ]
+      },
+      "startSec": 46.33333333333333,
+      "startFrame": 1390,
+      "frames": 428,
+      "audioSec": 12.864
+    },
+    {
+      "id": "x04",
+      "chapter": "mistakes",
+      "lessonId": null,
+      "chapterTitle": "Mistakes that fail checks",
+      "text": "Three mistakes account for most failed attempts. Reading visits dot C S V by its bare name only works from one folder, and the working directory check fails. Building the label with format changes the decimal mark under different options, and the options check fails. And changing options or the working directory without restoring them breaks the caller's session, which fails the side effects check.",
+      "caption": "Three mistakes account for most failed attempts. Reading \"visits.csv\" by its bare name only works from one folder, and the wd check fails. Building the label with format() changes the decimal mark under different options, and the options check fails. And changing options() or setwd() without restoring them breaks the caller's session, which fails the side-effects check.",
+      "visual": {
+        "type": "mistakes",
+        "title": "Mistakes that fail the checks",
+        "items": [
+          {
+            "mistake": "read.csv(\"visits.csv\") by bare name",
+            "check": "wd"
+          },
+          {
+            "mistake": "format() for the label",
+            "check": "options"
+          },
+          {
+            "mistake": "options() or setwd() never restored",
+            "check": "no-side-effects"
+          }
+        ]
+      },
+      "startSec": 60.599999999999994,
+      "startFrame": 1818,
+      "frames": 649,
+      "audioSec": 20.245333
+    },
+    {
+      "id": "x05",
+      "chapter": "checks",
+      "lessonId": null,
+      "chapterTitle": "Every check passes",
+      "text": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+      "caption": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+      "visual": {
+        "type": "checks",
+        "title": "All seven checks pass",
+        "items": [
+          "run_report(data_dir) is defined",
+          "Summary table and label correct",
+          "Works from any working directory",
+          "Same output under other options",
+          "Works with or without dplyr attached",
+          "Leaves the caller's session unchanged",
+          "Records R, dplyr and input MD5"
+        ]
+      },
+      "startSec": 82.23333333333332,
+      "startFrame": 2467,
+      "frames": 436,
+      "audioSec": 13.141333
+    }
+  ]
+}

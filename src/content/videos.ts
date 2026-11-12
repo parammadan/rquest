@@ -5,6 +5,11 @@ import { generated as packageFactoryV1 } from "./videos/package-factory-v1.gener
 import { generated as debuggingCrisisV1 } from "./videos/debugging-crisis-v1.generated.ts";
 import { generated as qualityControlV1 } from "./videos/quality-control-v1.generated.ts";
 import { generated as researchMissionV1 } from "./videos/research-mission-v1.generated.ts";
+import { generated as dataLabDebrief } from "./videos/data-lab-debrief-v1.generated.ts";
+import { generated as packageFactoryDebrief } from "./videos/package-factory-debrief-v1.generated.ts";
+import { generated as debuggingCrisisDebrief } from "./videos/debugging-crisis-debrief-v1.generated.ts";
+import { generated as qualityControlDebrief } from "./videos/quality-control-debrief-v1.generated.ts";
+import { generated as researchMissionDebrief } from "./videos/research-mission-debrief-v1.generated.ts";
 
 /*
  * One instructional video per world, shared by that world's lessons.
@@ -138,11 +143,11 @@ const debrief = (missionId: MissionId, title: string, summary: string, generated
 };
 
 export const DEBRIEF_VIDEOS: VideoAsset[] = [
-  debrief("data-lab", "Debrief: The Messy Export", "How a passing prepare_enrollment() reads, parses, and types the export, and the mistakes that fail the checks.", null),
-  debrief("package-factory", "Debrief: Ship labtools 0.1.0", "How the documentation, examples, and imports pass every package check, and the mistakes that fail them.", null),
-  debrief("debugging-crisis", "Debrief: Works On My Machine", "How run_report() stops borrowing from the session and records its provenance, and the mistakes that fail the checks.", null),
-  debrief("quality-control", "Debrief: Independent QC", "How the QC table and a tolerance-based comparison find the production bug and nothing else, and the mistakes that fail the checks.", null),
-  debrief("research-mission", "Debrief: The Reviewer Re-run", "How the analysis, pinned randomness, and stable files survive a reviewer's re-run, and the mistakes that fail the checks.", null),
+  debrief("data-lab", "Debrief: The Messy Export", "How a passing prepare_enrollment() reads, parses, and types the export, and the mistakes that fail the checks.", dataLabDebrief),
+  debrief("package-factory", "Debrief: Ship labtools 0.1.0", "How the documentation, examples, and imports pass every package check, and the mistakes that fail them.", packageFactoryDebrief),
+  debrief("debugging-crisis", "Debrief: Works On My Machine", "How run_report() stops borrowing from the session and records its provenance, and the mistakes that fail the checks.", debuggingCrisisDebrief),
+  debrief("quality-control", "Debrief: Independent QC", "How the QC table and a tolerance-based comparison find the production bug and nothing else, and the mistakes that fail the checks.", qualityControlDebrief),
+  debrief("research-mission", "Debrief: The Reviewer Re-run", "How the analysis, pinned randomness, and stable files survive a reviewer's re-run, and the mistakes that fail the checks.", researchMissionDebrief),
 ];
 
 const byId = new Map([...VIDEOS, ...DEBRIEF_VIDEOS].map((v) => [v.id, v]));

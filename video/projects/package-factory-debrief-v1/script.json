@@ -4,7 +4,7 @@
     "chapter": "brief",
     "lessonId": null,
     "chapterTitle": "What the boss asked",
-    "text": "This is the debrief for Ship lab tools, where two functions become a package that passes every package check. First, the public interface and its documentation come from roxygen comments. Second, every example runs exactly as written. Third, every function from another package is declared, so the check finds nothing undefined.",
+    "text": "This is the debrief for Ship lab tools, where two functions become a package that passes every package check. First, the public interface and its documentation come from roxygen two comments. Second, every example runs exactly as written. Third, every function from another package is declared, so the check finds nothing undefined.",
     "caption": "This is the debrief for Ship labtools 0.1.0, where two functions become a package that passes every package check. First, the public interface and its documentation come from roxygen comments. Second, every example runs exactly as written. Third, every function from another package is declared, so the check finds nothing undefined.",
     "visual": {
       "type": "brief",
@@ -92,7 +92,7 @@
     "chapter": "mistakes",
     "lessonId": null,
     "chapterTitle": "Mistakes that fail checks",
-    "text": "Three mistakes account for most failed attempts. Calling group by or S D without importing them leaves undefined globals, and the globals check fails. An example that reads a file the reader doesn't have will not run, and the examples check fails. And a missing param or return tag leaves the help page incomplete, which fails the docs check.",
+    "text": "Three mistakes account for most failed attempts. Calling S D, or group by, without importing them leaves undefined globals, and the globals check fails. An example that reads a file the reader doesn't have will not run, and the examples check fails. And a missing param or return tag leaves the help page incomplete, which fails the docs check.",
     "caption": "Three mistakes account for most failed attempts. Calling group_by() or sd() without importing them leaves undefined globals, and the globals check fails. An example that reads a file the reader doesn't have will not run, and the examples check fails. And a missing @param or @return tag leaves the help page incomplete, which fails the docs check.",
     "visual": {
       "type": "mistakes",

@@ -21,7 +21,7 @@
     "chapter": "read",
     "lessonId": null,
     "chapterTitle": "Read, then parse dates",
-    "text": "Line two reads every column as character, trims whitespace, and treats empty strings and N A as missing. Then unique drops the exact duplicate rows the export contains. Dates arrive in three formats, so parse them in passes. Try year, month, day first, then fill only the values still missing, first with the American format, and finally with day, month name, year.",
+    "text": "Line two reads every column as character, trims whitespace, and treats both empty strings and the text N, A, as missing values. Then unique drops the exact duplicate rows the export contains. Dates arrive in three formats, so parse them in passes. Try year, month, day first, then fill only the values still missing, first with the American format, and finally with day, month name, year.",
     "caption": "Line 2 reads every column as character, trims whitespace, and treats empty strings and \"NA\" as missing. Then unique() drops the exact duplicate rows the export contains. Dates arrive in three formats, so parse them in passes. Try %Y-%m-%d first, then fill only the values still missing, first with %m/%d/%Y, and finally with %d %b %Y.",
     "visual": {
       "type": "code",

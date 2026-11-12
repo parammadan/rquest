@@ -1,0 +1,85 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:09.630
+This is the debrief for Ship labtools 0.1.0, where two functions become a package that passes every package check.
+
+2
+00:00:09.880 --> 00:00:13.970
+First, the public interface and its documentation come from roxygen comments.
+
+3
+00:00:14.220 --> 00:00:16.950
+Second, every example runs exactly as written.
+
+4
+00:00:17.320 --> 00:00:21.770
+Third, every function from another package is declared, so the check finds nothing undefined.
+
+5
+00:00:23.730 --> 00:00:27.600
+Each exported function documents every parameter and its return value.
+
+6
+00:00:27.790 --> 00:00:31.540
+The @examples section uses small inline data, so it runs on any machine.
+
+7
+00:00:31.810 --> 00:00:34.300
+The @export tag puts clean_site() in the NAMESPACE.
+
+8
+00:00:34.510 --> 00:00:36.200
+Helpers without it stay internal.
+
+9
+00:00:36.350 --> 00:00:42.460
+The body is the rule from the first challenge: trim, upper-case, and insert the hyphen, with NA left as NA.
+
+10
+00:00:44.270 --> 00:00:48.740
+summarise_arm() follows the same pattern: parameters, return value, and an example.
+
+11
+00:00:48.970 --> 00:00:51.200
+The @importFrom lines are what most attempts miss.
+
+12
+00:00:51.430 --> 00:00:55.940
+group_by() and summarise() come from dplyr, and sd() comes from stats, not base R.
+
+13
+00:00:56.050 --> 00:01:01.360
+The body returns one row per arm, and passes na_rm straight through to mean() and sd().
+
+14
+00:01:03.230 --> 00:01:05.560
+Three mistakes account for most failed attempts.
+
+15
+00:01:05.690 --> 00:01:10.920
+Calling group_by() or sd() without importing them leaves undefined globals, and the globals check fails.
+
+16
+00:01:11.350 --> 00:01:15.900
+An example that reads a file the reader doesn't have will not run, and the examples check fails.
+
+17
+00:01:15.950 --> 00:01:20.840
+And a missing @param or @return tag leaves the help page incomplete, which fails the docs check.
+
+18
+00:01:22.670 --> 00:01:24.940
+This solution passes all seven checks.
+
+19
+00:01:25.130 --> 00:01:30.940
+The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades.
+
+20
+00:01:31.150 --> 00:01:32.920
+Your own solution can look different.
+
+21
+00:01:32.990 --> 00:01:35.300
+What matters is that it passes the same checks.

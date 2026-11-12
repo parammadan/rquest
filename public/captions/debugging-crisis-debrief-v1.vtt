@@ -1,0 +1,77 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:09.670
+This is the debrief for Works On My Machine, where a fragile report has to give identical results in any session.
+
+2
+00:00:10.180 --> 00:00:13.470
+First, find files from the argument, not the working directory.
+
+3
+00:00:13.700 --> 00:00:17.690
+Second, depend on nothing in the session: no attached packages and no options.
+
+4
+00:00:17.960 --> 00:00:20.710
+Third, record exactly what the report ran on.
+
+5
+00:00:22.470 --> 00:00:29.130
+Line 2 builds the path from the data_dir argument with file.path(), so the working directory no longer matters.
+
+6
+00:00:29.130 --> 00:00:33.900
+Every call outside base R carries its package prefix, so nothing depends on what happens to be attached.
+
+7
+00:00:34.330 --> 00:00:39.560
+Missing outcomes are dropped first, so n counts only real values, and each statistic is computed per arm.
+
+8
+00:00:39.610 --> 00:00:45.080
+The label uses sprintf(), which always prints a decimal point, unlike format(), which follows options(OutDec).
+
+9
+00:00:46.930 --> 00:00:50.000
+The function returns the table together with a session record.
+
+10
+00:00:50.150 --> 00:00:53.340
+It records the R version and the exact dplyr version.
+
+11
+00:00:53.470 --> 00:00:59.340
+And it stores an MD5 checksum of the input file, so anyone can confirm the same data went in.
+
+12
+00:01:01.200 --> 00:01:03.590
+Three mistakes account for most failed attempts.
+
+13
+00:01:03.700 --> 00:01:09.230
+Reading "visits.csv" by its bare name only works from one folder, and the wd check fails.
+
+14
+00:01:09.580 --> 00:01:14.650
+Building the label with format() changes the decimal mark under different options, and the options check fails.
+
+15
+00:01:14.820 --> 00:01:21.010
+And changing options() or setwd() without restoring them breaks the caller's session, which fails the side-effects check.
+
+16
+00:01:22.830 --> 00:01:25.100
+This solution passes all seven checks.
+
+17
+00:01:25.290 --> 00:01:31.100
+The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades.
+
+18
+00:01:31.310 --> 00:01:33.080
+Your own solution can look different.
+
+19
+00:01:33.150 --> 00:01:35.460
+What matters is that it passes the same checks.

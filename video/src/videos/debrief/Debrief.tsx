@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame } from "remotion";
-import { AbsoluteFrame, Appear, C, Chip, ease, FONT, Frame, Heading, highlightR, LogoMark, Panel, useBeats, useFonts, useSec, useSpring, VideoContext, type VideoTimeline } from "../../kit";
+import { AbsoluteFrame, Appear, C, Chip, ease, FONT, Frame, Heading, highlightR, LogoMark, NO_LIGATURES, Panel, useBeats, useFonts, useSec, useSpring, VideoContext, type VideoTimeline } from "../../kit";
 
 /*
  * Generic boss-debrief video, driven entirely by data in projects/<debrief-id>/:
@@ -32,9 +32,12 @@ const Code: React.FC<{ seg: Seg; v: Extract<DebriefVisual, { type: "code" }>; co
     if (t >= (b[k] ?? Infinity)) active = k;
   });
   const hl = active >= 0 ? v.highlights[active] : [];
+  // Size by line count, capped so the longest line fits the panel (mono glyphs are ~0.6em wide).
+  const longest = Math.max(...lines.map((l) => l.length));
+  const fontSize = Math.min(lines.length > 14 ? 22 : lines.length > 11 ? 24 : 27, Math.floor(1700 / (0.6 * longest)));
   return (
     <Panel title={v.file} style={{ opacity: ease(t, 0.1, 0.4) }}>
-      <div style={{ padding: "16px 24px", fontFamily: FONT.mono, fontSize: lines.length > 16 ? 21 : 24, lineHeight: 1.55 }}>
+      <div style={{ padding: "18px 24px", fontFamily: FONT.mono, fontSize, lineHeight: 1.6, ...NO_LIGATURES }}>
         {lines.map((l, i) => {
           const n = v.from + i;
           const on = hl.includes(n);
@@ -115,7 +118,7 @@ const Card: React.FC<{ data: DebriefData; worldLabel: string; title: string; sub
   const t = useSec();
   const s = useSpring(0.15);
   return (
-    <AbsoluteFill style={{ background: C.bg, display: "grid", placeItems: "center" }}>
+    <AbsoluteFill style={{ background: C.bg, display: "grid", placeItems: "center", fontFamily: FONT.sans }}>
       <AbsoluteFill style={{ background: `radial-gradient(50% 45% at 50% 45%, color-mix(in srgb, ${data.accent} 22%, transparent), transparent 70%)` }} />
       <div style={{ textAlign: "center", opacity: s, transform: `scale(${0.92 + 0.08 * s})` }}>
         <div style={{ display: "flex", justifyContent: "center" }}>

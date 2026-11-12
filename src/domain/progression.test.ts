@@ -259,7 +259,7 @@ test("level curve", () => {
 /* ---------------------------- Phase 3A: lessons ---------------------------- */
 
 import { gradeKnowledgeCheck } from "./knowledge-check.ts";
-import { getVideo, VIDEOS } from "../content/videos.ts";
+import { DEBRIEF_VIDEOS, getDebrief, getVideo, VIDEOS } from "../content/videos.ts";
 import { LESSON_CHECK_IDS } from "../content/validators/index.ts";
 import type { Lesson } from "./types.ts";
 
@@ -396,4 +396,17 @@ test("existing World 1 completions still count after World 2 lessons ship", () =
   assert.equal(p.missions["data-lab"].status, "completed");
   assert.equal(p.missions["package-factory"].status, "available");
   assert.equal(p.totalXp, 320);
+});
+
+test("one boss debrief per world, ready with media, captions, and a transcript", () => {
+  assert.equal(DEBRIEF_VIDEOS.length, catalog.missions.length);
+  for (const m of catalog.missions) {
+    const d = getDebrief(m.id)!;
+    assert.equal(d.kind, "debrief");
+    assert.equal(d.status, "ready", m.id);
+    assert.ok(d.sources.mp4?.endsWith(`${m.id}-debrief-v1.mp4`) && d.captionsVtt && d.poster);
+    assert.ok(d.durationSec! > 80 && d.durationSec! < 160, `${m.id} debrief ${d.durationSec}`);
+    assert.ok(d.transcript.length >= 15 && d.chapters.length === 5);
+    assert.ok(m.items.some((i) => i.kind === "challenge" && i.type === "boss"), `${m.id} has a boss`);
+  }
 });

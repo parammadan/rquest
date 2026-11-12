@@ -1,0 +1,188 @@
+{
+  "videoId": "data-lab-debrief-v1",
+  "worldLabel": "WORLD 1 · DATA LAB",
+  "fps": 30,
+  "intro": 3.5,
+  "outro": 4,
+  "totalSec": 103.56666666666668,
+  "totalFrames": 3107,
+  "sentenceStarts": {
+    "x01": [
+      0.6,
+      8.26,
+      11.54,
+      15
+    ],
+    "x02": [
+      0.6,
+      7.06,
+      10.68,
+      13.54
+    ],
+    "x03": [
+      0.6,
+      4.14,
+      8.48,
+      13.38
+    ],
+    "x04": [
+      0.6,
+      3.06,
+      8.72,
+      12.44
+    ],
+    "x05": [
+      0.6,
+      3.06,
+      9.08,
+      10.92
+    ]
+  },
+  "segments": [
+    {
+      "id": "x01",
+      "chapter": "brief",
+      "lessonId": null,
+      "chapterTitle": "What the boss asked",
+      "text": "This is the debrief for The Messy Export, where one function, prepare enrollment, turns a raw CSV export into an analysis-ready data frame. First, read every column as text, so nothing is guessed for you. Second, repair dates, sites, and arms with explicit rules. Third, return one clean row per participant, in a stable order.",
+      "caption": "This is the debrief for The Messy Export, where one function, prepare_enrollment(), turns a raw CSV export into an analysis-ready data frame. First, read every column as text, so nothing is guessed for you. Second, repair dates, sites, and arms with explicit rules. Third, return one clean row per participant, in a stable order.",
+      "visual": {
+        "type": "brief",
+        "title": "Raw export to analysis-ready data",
+        "items": [
+          "Read every column as text",
+          "Repair dates, sites and arms with explicit rules",
+          "One clean row per participant, sorted"
+        ]
+      },
+      "startSec": 3.5,
+      "startFrame": 105,
+      "frames": 596,
+      "audioSec": 18.474667
+    },
+    {
+      "id": "x02",
+      "chapter": "read",
+      "lessonId": null,
+      "chapterTitle": "Read, then parse dates",
+      "text": "Line two reads every column as character, trims whitespace, and treats both empty strings and the text N, A, as missing values. Then unique drops the exact duplicate rows the export contains. Dates arrive in three formats, so parse them in passes. Try year, month, day first, then fill only the values still missing, first with the American format, and finally with day, month name, year.",
+      "caption": "Line 2 reads every column as character, trims whitespace, and treats empty strings and \"NA\" as missing. Then unique() drops the exact duplicate rows the export contains. Dates arrive in three formats, so parse them in passes. Try %Y-%m-%d first, then fill only the values still missing, first with %m/%d/%Y, and finally with %d %b %Y.",
+      "visual": {
+        "type": "code",
+        "title": "Read as text, parse in passes",
+        "file": "prepare_enrollment.R",
+        "from": 1,
+        "to": 7,
+        "highlights": [
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            5
+          ],
+          [
+            6,
+            7
+          ]
+        ]
+      },
+      "startSec": 23.366666666666667,
+      "startFrame": 701,
+      "frames": 646,
+      "audioSec": 20.117333
+    },
+    {
+      "id": "x03",
+      "chapter": "build",
+      "lessonId": null,
+      "chapterTitle": "Build typed output",
+      "text": "Now build the output with an explicit type for every column. Site codes are trimmed, upper-cased, and given their hyphen by one regular expression. The arm column is cleaned and turned into a factor with fixed levels, placebo, then treatment. Finally, sort by participant I D, so the same input always gives the same row order.",
+      "caption": "Now build the output with an explicit type for every column. Site codes are trimmed, upper-cased, and given their hyphen by one regular expression. The arm column is cleaned and turned into a factor with fixed levels: Placebo, then Treatment. Finally, sort by participant_id, so the same input always gives the same row order.",
+      "visual": {
+        "type": "code",
+        "title": "An explicit type for every column",
+        "file": "prepare_enrollment.R",
+        "from": 8,
+        "to": 16,
+        "highlights": [
+          [
+            9,
+            11,
+            12
+          ],
+          [
+            10
+          ],
+          [
+            13
+          ],
+          [
+            15
+          ]
+        ]
+      },
+      "startSec": 44.900000000000006,
+      "startFrame": 1347,
+      "frames": 582,
+      "audioSec": 17.984
+    },
+    {
+      "id": "x04",
+      "chapter": "mistakes",
+      "lessonId": null,
+      "chapterTitle": "Mistakes that fail checks",
+      "text": "Three mistakes account for most failed attempts. Parsing every date with one format turns the other two formats into missing values, and the dates check fails. Leaving empty strings as empty text, instead of missing, fails the values check. And anything hard-coded, like particular I Ds or a row count, passes on the sample but fails on a second export it has never seen.",
+      "caption": "Three mistakes account for most failed attempts. Parsing every date with one format turns the other two formats into NA, and the dates check fails. Leaving empty strings as \"\" instead of NA fails the values check. And anything hard-coded, like particular IDs or a row count, passes on the sample but fails on a second export it has never seen.",
+      "visual": {
+        "type": "mistakes",
+        "title": "Mistakes that fail the checks",
+        "items": [
+          {
+            "mistake": "Parsing every date with a single format",
+            "check": "dates"
+          },
+          {
+            "mistake": "Leaving \"\" as text instead of NA",
+            "check": "values"
+          },
+          {
+            "mistake": "Hard-coding IDs, sites or row counts",
+            "check": "unseen"
+          }
+        ]
+      },
+      "startSec": 64.30000000000001,
+      "startFrame": 1929,
+      "frames": 622,
+      "audioSec": 19.349333
+    },
+    {
+      "id": "x05",
+      "chapter": "checks",
+      "lessonId": null,
+      "chapterTitle": "Every check passes",
+      "text": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+      "caption": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+      "visual": {
+        "type": "checks",
+        "title": "All seven checks pass",
+        "items": [
+          "Defined as a function",
+          "One row per participant, sorted",
+          "Date, integer and factor types",
+          "Site codes as AAA-00",
+          "All three date formats parsed",
+          "Missing ages and arms correct",
+          "Works on an unseen export"
+        ]
+      },
+      "startSec": 85.03333333333335,
+      "startFrame": 2551,
+      "frames": 436,
+      "audioSec": 13.141333
+    }
+  ]
+}
