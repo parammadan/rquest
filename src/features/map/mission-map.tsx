@@ -299,7 +299,7 @@ export function MissionMap({ progress }: { progress: DerivedProgress }) {
       </div>
 
       {view === "map" ? (
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div className="panel relative self-start overflow-hidden bg-[radial-gradient(ellipse_at_30%_20%,rgb(139_92_246/0.10),transparent_55%),radial-gradient(ellipse_at_80%_80%,rgb(34_211_238/0.08),transparent_55%),#070a12] p-3 sm:p-6">
             <div className="hidden md:block">
               <MapCanvas

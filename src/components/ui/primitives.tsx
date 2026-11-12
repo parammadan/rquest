@@ -62,7 +62,7 @@ export function PhaseChip({ phase, className }: { phase: DeliveryPhase; classNam
       )}
     >
       <Hourglass className="h-3 w-3" aria-hidden="true" />
-      Coming in Phase {phase}
+      In production
     </span>
   );
 }

@@ -1,7 +1,9 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, LoaderCircle, Play, TriangleAlert, Lightbulb } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
+import { DependencyMapBlock, FileTreeBlock } from "./diagrams";
 import { Button } from "@/components/ui/button";
 import type { CodeWalkthrough, LessonBlock } from "@/domain/types";
 import { highlightLine } from "@/features/missions/r-code";
@@ -78,6 +80,8 @@ export function LessonBlocks({ blocks }: { blocks: LessonBlock[] }) {
     <div className="space-y-5">
       {blocks.map((b, i) => {
         if (b.kind === "text") return <p key={i} className="text-[0.95rem] leading-relaxed text-fg-muted">{b.body}</p>;
+        if (b.kind === "file-tree") return <FileTreeBlock key={i} title={b.title} entries={b.entries} caption={b.caption} />;
+        if (b.kind === "dependency-map") return <DependencyMapBlock key={i} block={b} />;
         if (b.kind === "code") return b.runnable ? (
           <RunnableCode key={i} code={b.code} output={b.output} caption={b.caption} />
         ) : (
@@ -107,11 +111,47 @@ export function LessonBlocks({ blocks }: { blocks: LessonBlock[] }) {
   );
 }
 
-/** Step-through code demonstration with highlighted lines and output per step. */
+/** Code whose lines animate in and out as a walkthrough step changes it. */
+function EvolvingCode({ code, highlight, label }: { code: string; highlight: number[]; label: string }) {
+  const reduce = useReducedMotion();
+  const seen = new Map<string, number>();
+  const lines = code.split("\n").map((text) => {
+    const n = (seen.get(text) ?? 0) + 1;
+    seen.set(text, n);
+    return { text, key: `${text}#${n}` };
+  });
+  return (
+    <pre tabIndex={0} aria-label={label} className="overflow-x-auto bg-[#060910] py-3 font-mono text-[0.8rem] leading-6">
+      <code>
+        <AnimatePresence initial={false}>
+          {lines.map((l, i) => (
+            <motion.span
+              key={l.key}
+              layout={!reduce}
+              initial={reduce ? false : { opacity: 0, backgroundColor: "rgba(52,211,153,0.25)" }}
+              animate={{ opacity: 1, backgroundColor: "rgba(0,0,0,0)" }}
+              exit={reduce ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.45 }}
+              className={cn("block px-4", highlight.includes(i + 1) && "bg-cyan/10 shadow-[inset_3px_0_0_var(--color-cyan)]")}
+            >
+              <span aria-hidden="true" className="mr-4 inline-block w-5 select-none text-right text-ink-600">
+                {i + 1}
+              </span>
+              {highlightLine(l.text)}
+            </motion.span>
+          ))}
+        </AnimatePresence>
+      </code>
+    </pre>
+  );
+}
+
+/** Step-through code demonstration: highlighted lines, evolving code, and output per step. */
 export function Walkthrough({ walkthrough }: { walkthrough: CodeWalkthrough }) {
   const [i, setI] = useState(0);
   const step = walkthrough.steps[i];
   const n = walkthrough.steps.length;
+  const code = walkthrough.steps.slice(0, i + 1).reduce((c, s) => s.code ?? c, walkthrough.code);
   return (
     <section aria-labelledby="walkthrough-h" className="panel overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-5 py-3">
@@ -120,7 +160,7 @@ export function Walkthrough({ walkthrough }: { walkthrough: CodeWalkthrough }) {
           Step {i + 1} of {n}
         </span>
       </div>
-      <CodeLines code={walkthrough.code} highlight={step.highlight} label={walkthrough.title} />
+      <EvolvingCode code={code} highlight={step.highlight} label={walkthrough.title} />
       <div className="border-t border-line p-5">
         <p className="font-medium">{step.title}</p>
         <p className="mt-1 text-sm leading-relaxed text-fg-muted">{step.note}</p>

@@ -12,6 +12,7 @@ import { AchievementBadge } from "@/features/achievements/achievement-badge";
 import { useProgress } from "@/features/progress/progress-provider";
 import { accentStyle, WorldEmblem, worldVisual } from "@/features/worlds/world-visuals";
 import { formatMinutes, formatNumber, formatPercent } from "@/lib/format";
+import { PackageAssembly } from "@/features/lessons/diagrams";
 import { ItemPreview } from "./item-preview";
 import { LessonTimeline } from "./lesson-timeline";
 import { LockedMissionExplanation } from "./locked-mission-dialog";
@@ -35,7 +36,7 @@ export function MissionDetailGate({ missionId }: { missionId: MissionId }) {
       <div aria-busy="true" aria-label="Loading mission">
         <BackLink />
         <Skeleton className="h-56 w-full rounded-[1.25rem]" />
-        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Skeleton className="h-72 w-full rounded-[1.25rem]" />
           <Skeleton className="h-72 w-full rounded-[1.25rem]" />
         </div>
@@ -176,7 +177,7 @@ function MissionDetail({ mission, progress }: { mission: Mission; progress: Deri
         </div>
       </header>
 
-      <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
+      <div className="mt-8 grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
         <div className="space-y-8">
           <section aria-labelledby="story">
             <h2 id="story" className="eyebrow mb-3">
@@ -189,11 +190,20 @@ function MissionDetail({ mission, progress }: { mission: Mission; progress: Deri
             </div>
           </section>
 
+          {mission.assembly && (
+            <PackageAssembly
+              title={mission.assembly.title}
+              caption={mission.assembly.caption}
+              parts={mission.assembly.parts}
+              completed={progress.completedItemIds}
+            />
+          )}
+
           <section aria-labelledby="objectives">
             <h2 id="objectives" className="eyebrow mb-3">
               Objectives
             </h2>
-            <ul className="grid gap-2 sm:grid-cols-2">
+            <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {mission.objectives.map((o) => (
                 <li key={o} className="flex gap-2.5 rounded-xl bg-white/[0.02] p-3 text-sm ring-1 ring-inset ring-line">
                   <Target className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)]" aria-hidden="true" />
@@ -242,7 +252,7 @@ function MissionDetail({ mission, progress }: { mission: Mission; progress: Deri
         </div>
       </div>
 
-      <nav aria-label="Adjacent worlds" className="mt-12 grid gap-3 border-t border-line pt-6 sm:grid-cols-2">
+      <nav aria-label="Adjacent worlds" className="mt-12 grid grid-cols-1 gap-3 border-t border-line pt-6 sm:grid-cols-2">
         {prev ? (
           <Link href={`/academy/missions/${prev.id}`} className="panel group flex items-center gap-3 p-4 transition hover:border-line-strong">
             <ArrowLeft className="h-4 w-4 text-fg-subtle transition group-hover:-translate-x-0.5" aria-hidden="true" />

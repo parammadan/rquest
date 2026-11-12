@@ -73,7 +73,7 @@ export function DashboardScreen() {
         </div>
       </section>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         {/* Active mission */}
         {active && activeProgress ? (
           <section aria-labelledby="active-mission" className="panel relative overflow-hidden p-6" style={accentStyle(active)}>
@@ -190,7 +190,7 @@ export function DashboardScreen() {
             </Link>
           }
         />
-        <ol className="panel relative grid gap-3 p-5 sm:grid-cols-5 sm:gap-2">
+        <ol className="panel relative grid grid-cols-1 gap-3 p-5 sm:grid-cols-5 sm:gap-2">
           <span aria-hidden="true" className="absolute left-[10%] right-[10%] top-[3.1rem] hidden h-px bg-[linear-gradient(90deg,#22d3ee55,#a78bfa55,#fb718555,#34d39955,#fbbf2455)] sm:block" />
           {catalog.missions.map((m) => {
             const mp = progress.missions[m.id];
@@ -237,7 +237,7 @@ export function DashboardScreen() {
           }
         />
         {recent.length > 0 ? (
-          <ul className="grid gap-4 sm:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             {recent.map((a) => (
               <li key={a.achievement.id} className="panel flex items-center gap-4 p-4">
                 <AchievementBadge achievement={a.achievement} unlocked size="sm" />

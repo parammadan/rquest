@@ -42,7 +42,7 @@ export function LessonTimeline({
               type="button"
               onClick={() => onSelect(item.id)}
               aria-pressed={selected}
-              aria-label={`${i + 1}. ${kindLabel(item)}: ${item.title}. ${item.xp} XP. ${done ? "Completed" : phase ? `Coming in phase ${phase}` : "Available now"}. Show preview.`}
+              aria-label={`${i + 1}. ${kindLabel(item)}: ${item.title}. ${item.xp} XP. ${done ? "Completed" : phase ? "In production" : "Available now"}. Show preview.`}
               className={cn(
                 "group flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition",
                 selected
@@ -82,7 +82,7 @@ export function LessonTimeline({
                       phase === 2 ? "border-cyan/30 text-cyan" : "border-violet/30 text-violet",
                     )}
                   >
-                    Phase {phase}
+                    Soon
                   </span>
                 ) : (
                   <span className="rounded-full border border-emerald/30 px-2 py-0.5 font-mono text-[0.62rem] uppercase tracking-wider text-emerald">

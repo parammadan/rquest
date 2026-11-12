@@ -1,7 +1,7 @@
 import { ArrowRight, BadgeCheck, BookOpen, Clock, Database, Gauge, SquareTerminal, Swords, Trophy } from "lucide-react";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui/button";
-import { DifficultyMeter, PhaseChip } from "@/components/ui/primitives";
+import { DifficultyMeter } from "@/components/ui/primitives";
 import { catalog } from "@/content/catalog";
 import { Logo } from "@/features/brand/logo";
 import { JourneyVisual } from "@/features/landing/journey-visual";
@@ -12,26 +12,22 @@ const STEPS = [
   {
     icon: BookOpen,
     title: "Learn",
-    body: "Short, focused lessons on the R you actually use in research: data handling, packages, environments, testing.",
-    phase: 3 as const,
+    body: "Narrated video lessons with written walkthroughs, live R examples, and knowledge checks.",
   },
   {
     icon: SquareTerminal,
     title: "Practice",
     body: "Write and run real R directly in your browser. No installs, no setup, no shared server.",
-    phase: null,
   },
   {
     icon: BadgeCheck,
     title: "Prove",
     body: "Every challenge is checked automatically against hidden tests, including inputs you haven’t seen.",
-    phase: null,
   },
   {
     icon: Trophy,
     title: "Progress",
     body: "XP, levels, and achievements earned only from validated work. Clear the boss mission to unlock the next world.",
-    phase: null,
   },
 ];
 
@@ -40,6 +36,15 @@ const PRINCIPLES = [
   { icon: Swords, title: "Real-world missions", body: "Messy exports, failing checks, broken environments, QC discrepancies — the situations research programmers actually face." },
   { icon: Database, title: "Synthetic data only", body: "Every dataset in RQuest is synthetic. No real clinical or patient data, ever." },
 ];
+
+const ITEMS = catalog.missions.flatMap((m) => m.items);
+const CHALLENGES = ITEMS.filter((i) => i.kind === "challenge" && i.availability.status === "available").length;
+const LIVE_LESSONS = ITEMS.filter((i) => i.kind === "lesson" && i.availability.status === "available").length;
+const PLANNED_LESSONS = ITEMS.filter((i) => i.kind === "lesson" && i.availability.status === "planned").length;
+const LESSON_WORLDS = catalog.missions
+  .filter((m) => m.items.some((i) => i.kind === "lesson" && i.availability.status === "available"))
+  .map((m) => m.worldLabel)
+  .join(" and ");
 
 export default function LandingPage() {
   return (
@@ -69,11 +74,11 @@ export default function LandingPage() {
 
       <main id="main">
         {/* Hero */}
-        <section className="mx-auto grid max-w-6xl items-center gap-12 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-16">
+        <section className="mx-auto grid grid-cols-1 max-w-6xl items-center gap-12 px-4 pb-20 pt-10 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pt-16">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-cyan/25 bg-cyan/[0.07] px-3 py-1 text-xs text-cyan">
               <span className="h-1.5 w-1.5 rounded-full bg-cyan" aria-hidden="true" />
-              All 15 challenges run real R in your browser
+              {CHALLENGES} challenges run real R in your browser. Nothing to install.
             </p>
             <h1 className="mt-6 font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
               Become the <span className="text-gradient">research programmer</span> every study depends on.
@@ -91,10 +96,11 @@ export default function LandingPage() {
                 Explore the worlds
               </ButtonLink>
             </div>
-            <dl className="mt-10 grid max-w-md grid-cols-3 gap-6 border-t border-line pt-6">
+            <dl className="mt-10 grid max-w-lg grid-cols-2 gap-6 border-t border-line pt-6 sm:grid-cols-4">
               {[
                 ["5", "worlds"],
-                [String(catalog.missions.reduce((n, m) => n + m.items.length, 0)), "lessons & challenges"],
+                [String(CHALLENGES), "R challenges, all playable"],
+                [String(LIVE_LESSONS), `video lessons (${PLANNED_LESSONS} more in production)`],
                 [String(catalog.achievements.length), "achievements"],
               ].map(([v, l]) => (
                 <div key={l}>
@@ -116,7 +122,7 @@ export default function LandingPage() {
           <h2 id="how-h" className="font-display text-3xl font-semibold tracking-tight">
             Learning that plays like a mission
           </h2>
-          <ol className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ol className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {STEPS.map((s, i) => (
               <li key={s.title} className="panel relative p-5">
                 <span className="absolute right-5 top-5 font-mono text-xs text-fg-subtle" aria-hidden="true">
@@ -125,7 +131,11 @@ export default function LandingPage() {
                 <s.icon className="h-6 w-6 text-cyan" aria-hidden="true" />
                 <h3 className="mt-4 font-display text-lg font-semibold">{s.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-fg-muted">{s.body}</p>
-                {s.phase && <PhaseChip phase={s.phase} className="mt-4" />}
+                {s.title === "Learn" && (
+                  <p className="mt-4 text-xs text-fg-subtle">
+                    Live for {LESSON_WORLDS}. Lessons for the other worlds are in production; their challenges are already playable.
+                  </p>
+                )}
               </li>
             ))}
           </ol>
@@ -140,7 +150,7 @@ export default function LandingPage() {
           <p className="mt-3 max-w-2xl text-fg-muted">
             Each world ends in a boss mission. Clear it to unlock the next.
           </p>
-          <ol className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+          <ol className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5">
             {catalog.missions.map((m) => {
               const s = summarizeMission(m);
               const v = worldVisual(m);
@@ -162,7 +172,14 @@ export default function LandingPage() {
                   <h3 className="relative mt-1 font-display text-lg font-semibold leading-tight">{m.title}</h3>
                   <p className="relative text-sm text-fg-muted">{m.subtitle}</p>
                   <p className="relative mt-3 flex-1 text-sm leading-relaxed text-fg-subtle">{m.tagline}</p>
-                  <div className="relative mt-5 space-y-2 border-t border-line pt-4 text-xs text-fg-muted">
+                  <p className="relative mt-4 text-xs">
+                    {m.items.some((i) => i.kind === "lesson" && i.availability.status === "available") ? (
+                      <span className="text-emerald">● Video lessons + 3 challenges</span>
+                    ) : (
+                      <span className="text-fg-subtle">● 3 challenges · lessons in production</span>
+                    )}
+                  </p>
+                  <div className="relative mt-3 space-y-2 border-t border-line pt-4 text-xs text-fg-muted">
                     <DifficultyMeter level={m.difficulty} />
                     <p className="flex items-center gap-3">
                       <span className="inline-flex items-center gap-1">
@@ -182,7 +199,7 @@ export default function LandingPage() {
           <h2 id="principles-h" className="sr-only">
             Principles
           </h2>
-          <ul className="grid gap-4 md:grid-cols-3">
+          <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {PRINCIPLES.map((p) => (
               <li key={p.title} className="flex gap-4 rounded-2xl p-2">
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-white/[0.04] ring-1 ring-inset ring-line">

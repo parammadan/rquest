@@ -20,7 +20,7 @@ export function DevScenariosScreen() {
         title="Seeded scenarios"
         description="Load seeded progress to visually verify locked, active, and completed states. Scenarios use a separate storage key, show a banner on every page while active, and never modify the real learner's progress."
       />
-      <ul className="grid gap-4 md:grid-cols-3">
+      <ul className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {DEV_SCENARIOS.map((s) => (
           <li key={s.id} className="panel flex flex-col gap-3 border-dashed border-gold/30 p-5">
             <FlaskConical className="h-5 w-5 text-gold" aria-hidden="true" />

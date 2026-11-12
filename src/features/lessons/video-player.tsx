@@ -91,7 +91,7 @@ export function VideoPlayer({
   const useYouTube = !video.sources.mp4 && !!video.sources.youtubeId;
 
   return (
-    <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
+    <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_20rem]">
       <div>
         {failed ? (
           <VideoUnavailable video={video} reason="error" />

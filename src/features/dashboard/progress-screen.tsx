@@ -38,7 +38,7 @@ export function ProgressScreen() {
         description="Every number on this page is derived from one event log of validated completions. Nothing is estimated or simulated."
       />
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
         <section aria-labelledby="level-h" className="panel-raised flex flex-col gap-6 p-6 sm:flex-row sm:items-center lg:flex-col lg:items-stretch">
           <div className="flex items-center gap-4">
             <LevelIndicator level={progress.level.level} size="lg" />
@@ -91,7 +91,7 @@ export function ProgressScreen() {
               <li key={m.id} style={accentStyle(m)}>
                 <Link
                   href={`/academy/missions/${m.id}`}
-                  className="panel grid gap-4 p-4 transition hover:border-line-strong sm:grid-cols-[auto_minmax(0,1.3fr)_minmax(0,2fr)_auto] sm:items-center"
+                  className="panel grid grid-cols-1 gap-4 p-4 transition hover:border-line-strong sm:grid-cols-[auto_minmax(0,1.3fr)_minmax(0,2fr)_auto] sm:items-center"
                 >
                   <WorldEmblem mission={m} className={cn("h-11 w-11", mp.status === "locked" && "opacity-35 grayscale")} />
                   <span>

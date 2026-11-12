@@ -12,8 +12,11 @@ import {
   RotateCcw,
   ShieldCheck,
   Sparkles,
+  Swords,
   TriangleAlert,
 } from "lucide-react";
+import { motion } from "motion/react";
+import { PackageAssembly } from "@/features/lessons/diagrams";
 import Link from "next/link";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { ComingSoonPanel } from "@/components/coming-soon-panel";
@@ -69,7 +72,7 @@ export function ChallengeGate({ missionId, challengeId }: { missionId: string; c
     return (
       <div aria-busy="true" aria-label="Loading challenge">
         <Skeleton className="h-10 w-64" />
-        <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
           <Skeleton className="h-96 w-full rounded-[1.25rem]" />
           <Skeleton className="h-96 w-full rounded-[1.25rem]" />
         </div>
@@ -220,7 +223,9 @@ function ChallengeWorkspace({ challenge, completed }: { challenge: Challenge; co
         </span>
       </header>
 
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.3fr)]">
+      {challenge.bossBriefing && <BossBriefing challenge={challenge} completed={completed} />}
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.3fr)]">
         {/* Brief + checks */}
         <div className="space-y-6">
           <section aria-labelledby="brief" className="panel p-5">
@@ -347,6 +352,72 @@ function ChallengeWorkspace({ challenge, completed }: { challenge: Challenge; co
 }
 
 /* ------------------------------------------------------------------ */
+
+/** Animated boss briefing: the stakes, the release gates, and the world's assembly so far. */
+function BossBriefing({ challenge, completed }: { challenge: Challenge; completed: boolean }) {
+  const mission = catalog.getMission(challenge.missionId)!;
+  const { progress } = useProgress();
+  const [open, setOpen] = useState(!completed);
+  const b = challenge.bossBriefing!;
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="mb-6 inline-flex items-center gap-2 text-sm text-fg-muted hover:text-fg">
+        <Swords className="h-4 w-4 text-[var(--accent)]" aria-hidden="true" /> Show boss briefing
+      </button>
+    );
+  }
+  return (
+    <motion.section
+      aria-labelledby="boss-h"
+      className="panel-raised relative mb-6 overflow-hidden p-6 sm:p-8"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+    >
+      <Swords aria-hidden="true" className="absolute -right-6 -top-6 h-40 w-40 text-white/[0.04]" />
+      <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+        <div>
+          <p className="eyebrow text-[var(--accent)]!">Boss briefing</p>
+          <h2 id="boss-h" className="mt-1 font-display text-2xl font-semibold">{b.headline}</h2>
+          <p className="mt-2 text-fg-muted">{b.story}</p>
+          <ol className="mt-5 space-y-2">
+            {b.gates.map((g, i) => (
+              <motion.li
+                key={g}
+                className="flex items-center gap-2.5 text-sm"
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15 + i * 0.08 }}
+              >
+                <span
+                  className={cn(
+                    "grid h-5 w-5 place-items-center rounded-full border font-mono text-[0.6rem]",
+                    completed ? "border-emerald bg-emerald text-ink-950" : "border-line-strong text-fg-subtle",
+                  )}
+                  aria-hidden="true"
+                >
+                  {completed ? "✓" : i + 1}
+                </span>
+                {g}
+              </motion.li>
+            ))}
+          </ol>
+          <Button size="sm" variant="secondary" className="mt-6" onClick={() => setOpen(false)}>
+            {completed ? "Hide briefing" : "Start the build"}
+          </Button>
+        </div>
+        {mission.assembly && (
+          <PackageAssembly
+            title={mission.assembly.title}
+            caption={mission.assembly.caption}
+            parts={mission.assembly.parts}
+            completed={progress.completedItemIds}
+            compact
+          />
+        )}
+      </div>
+    </motion.section>
+  );
+}
 
 function SessionPill() {
   const s = useRSession();

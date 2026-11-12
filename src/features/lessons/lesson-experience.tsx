@@ -146,7 +146,7 @@ function LessonExperience({ lesson, completed }: { lesson: Lesson; completed: bo
           {stage === "watch" && (
             <section aria-label="Video">
               {video ? <VideoPlayer video={video} focusChapterIds={lesson.chapterIds} /> : <VideoUnavailable video={video} reason="planned" />}
-              <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+              <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
                 <div className="panel p-5">
                   <h2 className="eyebrow mb-3">Key points</h2>
                   <ul className="space-y-2 text-sm text-fg-muted">
@@ -168,7 +168,7 @@ function LessonExperience({ lesson, completed }: { lesson: Lesson; completed: bo
             </section>
           )}
           {stage === "learn" && (
-            <section aria-label="Learn" className="grid gap-8 lg:grid-cols-2">
+            <section aria-label="Learn" className="grid grid-cols-1 gap-8 lg:grid-cols-2">
               <div>
                 <LessonBlocks blocks={lesson.explanation} />
               </div>
@@ -217,7 +217,7 @@ function Briefing({ lesson, onBegin }: { lesson: Lesson; onBegin: () => void }) 
             {lesson.briefing}
           </motion.p>
           <h2 className="eyebrow mt-8 mb-3">Objectives</h2>
-          <ul className="grid gap-2 sm:grid-cols-2">
+          <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             {lesson.objectives.map((o, i) => (
               <motion.li
                 key={o}
@@ -362,8 +362,12 @@ function KnowledgeCheck({
                     >
                       {res.correct ? <CircleCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" /> : <CircleX className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />}
                       <span>
-                        <span className="font-medium">{res.correct ? "Correct. " : "Not quite. Try another option. "}</span>
-                        {res.correct && <span className="text-fg-muted">{q.explanation}</span>}
+                        <span className="font-medium">{res.correct ? "Correct. " : "Not quite. "}</span>
+                        <span className="text-fg-muted">
+                          {res.correct
+                            ? q.explanation
+                            : `${q.options.find((o) => o.id === picked)?.feedback ?? ""} Try another option.`.trim()}
+                        </span>
                       </span>
                     </motion.p>
                   )}
@@ -421,6 +425,17 @@ function Completion({
       </motion.div>
       <h2 id="done-h" className="mt-6 font-display text-3xl font-semibold">Lesson complete</h2>
       <p className="mt-2 text-fg-muted">{lesson.title}</p>
+      {lesson.reward && (
+        <motion.div
+          className="mx-auto mt-5 max-w-md rounded-xl border border-[color-mix(in_oklab,var(--accent)_45%,transparent)] bg-[color-mix(in_oklab,var(--accent)_10%,transparent)] px-4 py-3"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <p className="font-display font-semibold text-[var(--accent)]">{lesson.reward.title}</p>
+          <p className="mt-0.5 text-sm text-fg-muted">{lesson.reward.detail}</p>
+        </motion.div>
+      )}
       <motion.p
         className="mt-5 font-display text-2xl font-semibold text-emerald"
         initial={{ opacity: 0, y: 8 }}
