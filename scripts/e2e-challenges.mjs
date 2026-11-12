@@ -3,7 +3,7 @@
 // (downloads webR and dplyr).   Usage: pnpm build && pnpm test:e2e:challenges
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
-import { pathRe, startSite } from "./lib/site.mjs";
+import { startSite } from "./lib/site.mjs";
 import { REFERENCE_SOLUTIONS } from "../src/content/validators/reference-solutions.ts";
 
 const PORT = 3111;
