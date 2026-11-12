@@ -116,10 +116,19 @@ test("a partially cleared world keeps the next one locked", () => {
 });
 
 test("planned items (lessons, unauthored challenges) can never be submitted", () => {
-  const planned = catalog.missions.flatMap((m) => m.items).filter((i) => i.availability.status === "planned");
-  assert.ok(planned.length > 0);
+  // Every shipped item is available now, so mark one lesson and one challenge per world as planned.
+  const plannedAv = { status: "planned", phase: 3, note: "test" } as const;
+  const withPlanned = createCatalog(
+    MISSIONS.map((m) => ({
+      ...m,
+      items: m.items.map((i, n) => (n < 2 ? { ...i, availability: plannedAv } : i)),
+    })),
+    ACHIEVEMENTS,
+  );
+  const planned = withPlanned.missions.flatMap((m) => m.items).filter((i) => i.availability.status === "planned");
+  assert.ok(planned.some((i) => i.kind === "lesson") && planned.some((i) => i.kind === "challenge"));
   for (const item of planned) {
-    const r = submitCompletion(emptySnapshot(), catalog, ACTIVE_VALIDATORS, {
+    const r = submitCompletion(emptySnapshot(), withPlanned, ACTIVE_VALIDATORS, {
       itemId: item.id,
       receipt: { validatorId: expectedValidatorId(item), verdict: "passed", checkedAt: "x" },
     });
@@ -270,7 +279,7 @@ test("every world has three lessons, each directly before the challenge it prepa
   }
 });
 
-const READY = ["data-lab", "package-factory", "debugging-crisis", "quality-control"];
+const READY = ["data-lab", "package-factory", "debugging-crisis", "quality-control", "research-mission"];
 test("one video per world; ready worlds have media, the rest have no sources", () => {
   assert.equal(VIDEOS.length, 5);
   for (const m of catalog.missions) assert.ok(VIDEOS.some((v) => v.missionId === m.id), m.id);
@@ -295,6 +304,7 @@ test("live lessons are complete: chapters exist, questions are well-formed, chec
     "package-factory.lesson-1", "package-factory.lesson-2", "package-factory.lesson-3",
     "debugging-crisis.lesson-1", "debugging-crisis.lesson-2", "debugging-crisis.lesson-3",
     "quality-control.lesson-1", "quality-control.lesson-2", "quality-control.lesson-3",
+    "research-mission.lesson-1", "research-mission.lesson-2", "research-mission.lesson-3",
   ]);
   for (const l of live) {
     const video = getVideo(l.videoId)!;

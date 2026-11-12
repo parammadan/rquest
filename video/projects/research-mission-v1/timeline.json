@@ -1,0 +1,190 @@
+{
+  "videoId": "research-mission-v1",
+  "worldLabel": "WORLD 5 · RESEARCH MISSION",
+  "fps": 30,
+  "intro": 3.5,
+  "outro": 4,
+  "totalSec": 182.73333333333332,
+  "totalFrames": 5482,
+  "sentenceStarts": {
+    "r01": [
+      0.6,
+      5.4,
+      7.98,
+      9.7
+    ],
+    "r02": [
+      0.6,
+      2.94,
+      6.76,
+      13.16
+    ],
+    "r03": [
+      0.6,
+      2.46,
+      7.46,
+      11.6
+    ],
+    "r04": [
+      0.6,
+      1.46,
+      8.08,
+      9.84
+    ],
+    "r05": [
+      0.6,
+      2.92,
+      7.68,
+      13
+    ],
+    "r06": [
+      0.6,
+      2.4,
+      7.96
+    ],
+    "r07": [
+      0.6,
+      1.96,
+      5.92,
+      9.52
+    ],
+    "r08": [
+      0.6,
+      10.34,
+      13.48
+    ],
+    "r09": [
+      0.6,
+      2.26,
+      8.78
+    ],
+    "r10": [
+      0.6,
+      2.68,
+      7.1,
+      9.98
+    ]
+  },
+  "segments": [
+    {
+      "id": "r01",
+      "chapter": "reviewer",
+      "lessonId": "research-mission.lesson-1",
+      "chapterTitle": "The reviewer re-runs everything",
+      "text": "A reviewer will take your analysis, start a clean session on a different machine, and run it again. If any number changes, the result is in doubt. Reproducibility is not a feeling. It is a property you can test: same inputs, same code, same outputs, byte for byte.",
+      "caption": "A reviewer will take your analysis, start a clean session on a different machine, and run it again. If any number changes, the result is in doubt. Reproducibility is not a feeling. It is a property you can test: same inputs, same code, same outputs, byte for byte.",
+      "startSec": 3.5,
+      "startFrame": 105,
+      "frames": 469,
+      "audioSec": 14.229333
+    },
+    {
+      "id": "r02",
+      "chapter": "seeds",
+      "lessonId": "research-mission.lesson-1",
+      "chapterTitle": "Seeds",
+      "text": "Random numbers come from a generator with internal state. Set seed fixes that state, so the same seed gives the same draws. Sampling three values from one to ten with seed one gives nine, four, and seven, every time. Without a seed, every run of a bootstrap gives a slightly different interval.",
+      "caption": "Random numbers come from a generator with internal state. set.seed() fixes that state, so the same seed gives the same draws. Sampling three values from 1 to 10 with seed 1 gives 9, 4, and 7, every time. Without a seed, every run of a bootstrap gives a slightly different interval.",
+      "startSec": 19.133333333333333,
+      "startFrame": 574,
+      "frames": 534,
+      "audioSec": 16.405333
+    },
+    {
+      "id": "r03",
+      "chapter": "rng-kinds",
+      "lessonId": "research-mission.lesson-1",
+      "chapterTitle": "Generator settings",
+      "text": "But a seed alone is not enough. In version three point six, R changed how sample turns random numbers into indices. With the old rounding method, the same seed gives three, four, and five instead. Any session, script, or package can change these settings, and your results change with them.",
+      "caption": "But a seed alone is not enough. In version 3.6, R changed how sample() turns random numbers into indices. With the old \"Rounding\" method, the same seed gives 3, 4, and 5 instead. Any session, script, or package can change these settings, and your results change with them.",
+      "startSec": 36.93333333333334,
+      "startFrame": 1108,
+      "frames": 518,
+      "audioSec": 15.872
+    },
+    {
+      "id": "r04",
+      "chapter": "rng-kinds",
+      "lessonId": "research-mission.lesson-1",
+      "chapterTitle": "Generator settings",
+      "text": "So pin everything. Pass the generator kind, the normal kind, and the sample kind to set seed, and the draws no longer depend on the caller. Then put the caller's state back. The with seed function, from the with R package, does both: it sets the seed and kinds, runs your code, and restores the previous random stream when it finishes.",
+      "caption": "So pin everything. Pass kind, normal.kind, and sample.kind to set.seed(), and the draws no longer depend on the caller. Then put the caller's state back. withr::with_seed() does both: it sets the seed and kinds, runs your code, and restores the previous random stream when it finishes.",
+      "startSec": 54.2,
+      "startFrame": 1626,
+      "frames": 567,
+      "audioSec": 17.514667
+    },
+    {
+      "id": "r05",
+      "chapter": "computed-reporting",
+      "lessonId": "research-mission.lesson-2",
+      "chapterTitle": "Computed reporting",
+      "text": "The second habit is computed reporting. A number typed into a report is a copy, and copies drift when the data changes. In a Quarto or R Markdown report, inline code computes each number as the document renders. The sentence in the report and the analysis can never disagree.",
+      "caption": "The second habit is computed reporting. A number typed into a report is a copy, and copies drift when the data changes. In a Quarto or R Markdown report, inline code computes each number as the document renders. The sentence in the report and the analysis can never disagree.",
+      "startSec": 73.1,
+      "startFrame": 2193,
+      "frames": 523,
+      "audioSec": 16.042667
+    },
+    {
+      "id": "r06",
+      "chapter": "computed-reporting",
+      "lessonId": "research-mission.lesson-2",
+      "chapterTitle": "Computed reporting",
+      "text": "Write a function that builds the sentence from data. For each arm, take the non missing values, compute the mean and a t interval, and format with sprint F to two decimals. For our synthetic week twelve data, Placebo shows a mean change of two point one nine, with twenty five participants, all computed.",
+      "caption": "Write a function that builds the sentence from data. For each arm, take the non-missing values, compute the mean and a t-interval, and format with sprintf() to two decimals. For our synthetic Week 12 data, Placebo shows a mean change of 2.19, with 25 participants, all computed.",
+      "startSec": 90.53333333333333,
+      "startFrame": 2716,
+      "frames": 544,
+      "audioSec": 16.746667
+    },
+    {
+      "id": "r07",
+      "chapter": "analysis",
+      "lessonId": "research-mission.lesson-3",
+      "chapterTitle": "The analysis",
+      "text": "Now the full analysis. The analysis set keeps participants with a week twelve value and computes change from baseline. The primary model is a linear model of change on arm and baseline. In our synthetic trial, seventy two participants qualify, and treatment lowers the change by about three point five points.",
+      "caption": "Now the full analysis. The analysis set keeps participants with a Week 12 value and computes change from baseline. The primary model is lm(change ~ arm + baseline). In our synthetic trial, 72 participants qualify, and treatment lowers the change by about 3.5 points.",
+      "startSec": 108.66666666666666,
+      "startFrame": 3260,
+      "frames": 554,
+      "audioSec": 17.066667
+    },
+    {
+      "id": "r08",
+      "chapter": "outputs",
+      "lessonId": "research-mission.lesson-3",
+      "chapterTitle": "Byte-identical outputs",
+      "text": "Every output goes to a file: the results table, the audit sample of participants for source data checks, and a provenance note with the R version, the seed, and a checksum of the input. Run it twice, and the files are byte for byte identical. A timestamp or an unpinned random draw would break that instantly.",
+      "caption": "Every output goes to a file: the results table, the audit sample of participants for source data checks, and a provenance note with the R version, the seed, and a checksum of the input. Run it twice, and the files are byte for byte identical. A timestamp or an unpinned random draw would break that instantly.",
+      "startSec": 127.13333333333333,
+      "startFrame": 3814,
+      "frames": 549,
+      "audioSec": 16.896
+    },
+    {
+      "id": "r09",
+      "chapter": "outputs",
+      "lessonId": "research-mission.lesson-3",
+      "chapterTitle": "Byte-identical outputs",
+      "text": "That is the reviewer's test. Re-run from another directory, with different options and generator settings, then compare checksums of every output file. When they match, the analysis is reproducible, and anyone can trace each number back to the code and data that produced it.",
+      "caption": "That is the reviewer's test. Re-run from another directory, with different options and generator settings, then compare checksums of every output file. When they match, the analysis is reproducible, and anyone can trace each number back to the code and data that produced it.",
+      "startSec": 145.43333333333334,
+      "startFrame": 4363,
+      "frames": 488,
+      "audioSec": 14.869333
+    },
+    {
+      "id": "r10",
+      "chapter": "your-mission",
+      "lessonId": "research-mission.lesson-3",
+      "chapterTitle": "Your Research Mission",
+      "text": "Your final missions follow this path. Make a bootstrap reproducible under any generator settings, without disturbing the caller. Generate report text where every number is computed. Then the final boss: an analysis whose output files a reviewer re-creates exactly, from a clean session.",
+      "caption": "Your final missions follow this path. Make a bootstrap reproducible under any generator settings, without disturbing the caller. Generate report text where every number is computed. Then the final boss: an analysis whose output files a reviewer re-creates exactly, from a clean session.",
+      "startSec": 161.7,
+      "startFrame": 4851,
+      "frames": 511,
+      "audioSec": 15.637333
+    }
+  ]
+}

@@ -28,7 +28,7 @@
     "chapter": "rng-kinds",
     "lessonId": "research-mission.lesson-1",
     "chapterTitle": "Generator settings",
-    "text": "So pin everything. Pass the generator kind, the normal kind, and the sample kind to set seed, and the draws no longer depend on the caller. Then put the caller's state back. With r's with seed does both: it sets the seed and kinds, runs your code, and restores the previous random stream when it finishes.",
+    "text": "So pin everything. Pass the generator kind, the normal kind, and the sample kind to set seed, and the draws no longer depend on the caller. Then put the caller's state back. The with seed function, from the with R package, does both: it sets the seed and kinds, runs your code, and restores the previous random stream when it finishes.",
     "caption": "So pin everything. Pass kind, normal.kind, and sample.kind to set.seed(), and the draws no longer depend on the caller. Then put the caller's state back. withr::with_seed() does both: it sets the seed and kinds, runs your code, and restores the previous random stream when it finishes."
   },
   {

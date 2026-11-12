@@ -1,13 +1,18 @@
 # RQuest instructional videos
 
 Code-driven video pipeline: **script → AI narration → word alignment → timeline → Remotion render → captions + app data**.
-There is one video per world, shared by that world's three lessons. Each video is a project in `projects/<video-id>/`
+There is one video per world, shared by that world's three lessons, plus one short boss debrief per world that
+unlocks in the app only after that boss is validated. Each video is a project in `projects/<video-id>/`
 (`project.json`, `script.json`, generated `audio/`, `words.json`, `timeline.json`); its scenes are in `src/videos/<world>/`.
 
 | Video | Project | Duration | Narration QA |
 |---|---|---|---|
 | 1 · Introduction to R for Research Programmers | `projects/data-lab-v1` | 3:13 | see Phase 3A notes below |
 | 2 · From R Scripts to Research-Ready Packages | `projects/package-factory-v1` | 4:34 | `projects/package-factory-v1/narration-qa.md` |
+| 3 · When R Works on One Machine Only | `projects/debugging-crisis-v1` | 3:23 | Whisper read-back; "sprintf" voiced as "sprint F" |
+| 4 · Testing and Independent QC | `projects/quality-control-v1` | 3:10 | Whisper read-back; q04 and q09 re-voiced |
+| 5 · Reproducible Statistical Programming | `projects/research-mission-v1` | 3:03 | Whisper read-back; r04 re-voiced ("with seed, from the with R package") |
+| 6–10 · Boss debriefs | `projects/<world>-debrief-v1` | ~1:45 each | see "Boss debriefs" below |
 
 Video 1 is **World 1: The Data Lab. Introduction to R for Research Programmers**.
 It runs 3:13 (193.5 s) at 1920×1080, 30 fps, with 10 narrated scenes, an intro and an outro.
@@ -74,7 +79,7 @@ testthat 3.3.2. `R CMD check` gave `Status: OK`; the deliberately broken variant
 | p13 | Versions and collaboration → L3 | semver timeline, NEWS.md, git tag, `packageVersion()` |
 | p14 | Your Package Factory missions → L3 | the three World 2 challenge cards with XP |
 
-## Reusing the pipeline for Videos 3–5
+## Adding a world video
 
 1. Create `projects/<world>-v1/` with `project.json` and `script.json`: 10–14 segments of 45–60 words, with chapter ids
    matching the world's lesson `chapterIds`, and spoken and caption text split into the same sentences.
@@ -82,3 +87,18 @@ testthat 3.3.2. `R CMD check` gave `Status: OK`; the deliberately broken variant
 3. Add `src/videos/<world>/` (copy `package-factory/Lesson.tsx`) and register the composition in `src/Root.tsx`.
 4. Add scenes using the shared kit in `src/kit.tsx`: `Frame`, `Code` (typing, highlighting, output), `Cells`, `Table`, `Chip`, `Panel`, and `useBeats()` for word-aligned timing.
 5. Render, upload the MP4 to a `media-*` release, then mark the world's entry in `src/content/videos.ts` as `ready`, with its sources and generated chapters and transcript.
+
+## Boss debriefs
+
+Each debrief is data only: `projects/<world>-debrief-v1/script.json` segments carry a `visual`
+(`brief`, `code` with per-sentence highlight groups, `mistakes`, `checks`), rendered by the generic
+`src/videos/debrief/Debrief.tsx` and registered from `src/videos/debrief/index.tsx`.
+
+The code shown is never retyped. `tools/solution.mts` copies the reference solution the validator self-test
+proves passes every check into `solution.json`:
+
+    node --experimental-strip-types tools/solution.mts projects/<world>-debrief-v1 <world>.boss
+
+The "mistakes" are taken from the boss validator's check hints, each naming the check it fails. In the app the
+debrief panel (`BossDebrief` in `challenge-workspace.tsx`) stays locked until the boss has a validated receipt,
+so it never spoils the solution.

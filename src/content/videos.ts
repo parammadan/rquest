@@ -4,6 +4,7 @@ import { generated as dataLabV1 } from "./videos/data-lab-v1.generated.ts";
 import { generated as packageFactoryV1 } from "./videos/package-factory-v1.generated.ts";
 import { generated as debuggingCrisisV1 } from "./videos/debugging-crisis-v1.generated.ts";
 import { generated as qualityControlV1 } from "./videos/quality-control-v1.generated.ts";
+import { generated as researchMissionV1 } from "./videos/research-mission-v1.generated.ts";
 
 /*
  * One instructional video per world, shared by that world's lessons.
@@ -93,7 +94,20 @@ export const VIDEOS: readonly VideoAsset[] = [
     transcript: qualityControlV1.transcript,
     narration: NARRATION,
   },
-  planned("research-mission", "Reproducible Statistical Programming", "Seeds, RNG kinds, computed reporting, and byte-identical re-runs."),
+  {
+    id: "research-mission.video",
+    missionId: "research-mission",
+    title: "Reproducible Statistical Programming",
+    summary: "Seeds and RNG kinds, restoring the caller's random stream, computed reporting, the primary analysis, and byte-identical re-runs. About three minutes.",
+    status: "ready",
+    durationSec: researchMissionV1.durationSec,
+    sources: { mp4: mediaUrl("research-mission-v1.mp4"), youtubeId: null },
+    captionsVtt: asset("/captions/research-mission-v1.vtt"),
+    poster: asset("/posters/research-mission-v1.jpg"),
+    chapters: researchMissionV1.chapters,
+    transcript: researchMissionV1.transcript,
+    narration: NARRATION,
+  },
 ];
 
 /*

@@ -125,7 +125,7 @@ export const R04: React.FC = () => {
           <File
             name="boot_ci.R"
             at={b[0] + 0.3}
-            fontSize={25}
+            fontSize={22}
             lines={[
               "boot_ci <- function(x, B = 2000, seed = 1) {",
               "  x <- x[!is.na(x)]",
@@ -248,7 +248,7 @@ export const R07: React.FC = () => {
           <File
             name="run_analysis.R (excerpt)"
             at={b[0] + 0.3}
-            fontSize={25}
+            fontSize={22}
             lines={[
               "raw <- utils::read.csv(raw_path)",
               "analysis <- raw[!is.na(raw$week12), ]",
@@ -302,7 +302,7 @@ export const R08: React.FC = () => {
         <div style={{ width: 760 }}>
           <Code
             title="console (real output)"
-            fontSize={23}
+            fontSize={20}
             lines={[
               { code: "write.csv(res, f1, row.names = FALSE)", at: b[1] },
               { code: "write.csv(res, f2, row.names = FALSE)", at: b[1] + 0.8 },
@@ -334,10 +334,12 @@ export const R09: React.FC = () => {
           title="reviewer.R"
           fontSize={26}
           lines={[
-            { code: 'run_analysis(raw_path, "run1")', at: b[0] + 2.6 },
-            { code: 'run_analysis(raw_path, "run2")   # hostile session', at: b[0] + 3.4 },
-            { code: 'f <- c("results.csv", "audit_sample.csv", "provenance.txt")', at: b[0] + 4.4 },
-            { code: 'identical(unname(tools::md5sum(file.path("run1", f))), unname(tools::md5sum(file.path("run2", f))))', at: b[1], out: "[1] TRUE", outColor: C.emerald },
+            { code: 'run_analysis(raw_path, "run1")', at: b[1] + 0.4 },
+            { code: 'run_analysis(raw_path, "run2")   # hostile session', at: b[1] + 1.2 },
+            { code: 'f <- c("results.csv", "audit_sample.csv", "provenance.txt")', at: b[1] + 2.2 },
+            { code: 'm1 <- unname(tools::md5sum(file.path("run1", f)))', at: b[1] + 3.1 },
+            { code: 'm2 <- unname(tools::md5sum(file.path("run2", f)))', at: b[1] + 3.8 },
+            { code: "identical(m1, m2)", at: b[1] + 4.7, out: "[1] TRUE", outColor: C.emerald },
           ]}
         />
       </div>

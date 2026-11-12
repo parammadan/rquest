@@ -1,4 +1,4 @@
-import type { Availability, Lesson } from "../../domain/types.ts";
+import type { Lesson } from "../../domain/types.ts";
 
 /*
  * World 5 lessons. Each prepares for one Research Mission challenge and covers chapters of
@@ -6,12 +6,7 @@ import type { Availability, Lesson } from "../../domain/types.ts";
  * Walkthroughs use different functions from the challenges.
  */
 
-// Flip to { status: "available" } when the World 5 video ships.
-const available: Availability = {
-  status: "planned",
-  phase: 3,
-  note: "Video lesson in production: the world video, written walkthrough, and knowledge check.",
-};
+const available = { status: "available" } as const;
 
 export const researchMissionLessons: Lesson[] = [
   {

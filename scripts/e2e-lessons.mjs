@@ -3,7 +3,6 @@
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
 import { catalog } from "../src/content/catalog.ts";
-import { expectedValidatorId } from "../src/domain/progression.ts";
 import { startSite } from "./lib/site.mjs";
 
 const PORT = 3115;
@@ -158,26 +157,6 @@ try {
     assert(await page.getByRole("list", { name: "How progress works" }).isVisible(), "legend");
     await page.goto(`${BASE}/academy/missions/package-factory/`);
     await page.getByRole("heading", { name: /is locked/ }).waitFor();
-  });
-
-  await check("World 5 lessons show an honest placeholder until its video ships (World 5 unlocked by legacy challenge progress)", async () => {
-    const legacy = catalog.missions
-      .filter((m) => m.id !== "research-mission")
-      .flatMap((m) => m.items.filter((i) => i.kind === "challenge").map((i) => ({
-        id: `legacy-${i.id}`, type: "item.completed", itemId: i.id, itemKind: "challenge", missionId: m.id,
-        occurredAt: "2026-11-01T00:00:00.000Z",
-        receipt: { validatorId: expectedValidatorId(i), verdict: "passed", checkedAt: "2026-11-01T00:00:00.000Z" },
-      })));
-    await page.evaluate(([k, ev]) => {
-      const s = JSON.parse(localStorage.getItem(k));
-      const have = new Set(s.events.map((e) => e.itemId));
-      s.events.push(...ev.filter((e) => !have.has(e.itemId)));
-      localStorage.setItem(k, JSON.stringify(s));
-    }, [KEY, legacy]);
-    await page.goto(`${BASE}/academy/missions/research-mission/lessons/research-mission.lesson-1/`);
-    await page.getByText("Video in production").waitFor();
-    assert(await page.getByRole("link", { name: /Go to the challenge/ }).isVisible(), "challenge link");
-    assert((await page.locator("video").count()) === 0, "no video element");
   });
 
   await check("video failure falls back gracefully (transcript still available)", async () => {

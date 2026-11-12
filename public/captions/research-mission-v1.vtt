@@ -1,0 +1,149 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:08.470
+A reviewer will take your analysis, start a clean session on a different machine, and run it again.
+
+2
+00:00:08.900 --> 00:00:11.330
+If any number changes, the result is in doubt.
+
+3
+00:00:11.480 --> 00:00:13.010
+Reproducibility is not a feeling.
+
+4
+00:00:13.200 --> 00:00:17.890
+It is a property you can test: same inputs, same code, same outputs, byte for byte.
+
+5
+00:00:19.730 --> 00:00:22.070
+Random numbers come from a generator with internal state.
+
+6
+00:00:22.070 --> 00:00:25.890
+set.seed() fixes that state, so the same seed gives the same draws.
+
+7
+00:00:25.890 --> 00:00:32.290
+Sampling three values from 1 to 10 with seed 1 gives 9, 4, and 7, every time.
+
+8
+00:00:32.290 --> 00:00:35.700
+Without a seed, every run of a bootstrap gives a slightly different interval.
+
+9
+00:00:37.530 --> 00:00:39.200
+But a seed alone is not enough.
+
+10
+00:00:39.390 --> 00:00:44.390
+In version 3.6, R changed how sample() turns random numbers into indices.
+
+11
+00:00:44.390 --> 00:00:48.530
+With the old "Rounding" method, the same seed gives 3, 4, and 5 instead.
+
+12
+00:00:48.530 --> 00:00:52.980
+Any session, script, or package can change these settings, and your results change with them.
+
+13
+00:00:54.800 --> 00:00:55.660
+So pin everything.
+
+14
+00:00:55.660 --> 00:01:01.850
+Pass kind, normal.kind, and sample.kind to set.seed(), and the draws no longer depend on the caller.
+
+15
+00:01:02.280 --> 00:01:03.990
+Then put the caller's state back.
+
+16
+00:01:04.040 --> 00:01:11.750
+withr::with_seed() does both: it sets the seed and kinds, runs your code, and restores the previous random stream when it finishes.
+
+17
+00:01:13.700 --> 00:01:15.770
+The second habit is computed reporting.
+
+18
+00:01:16.020 --> 00:01:20.290
+A number typed into a report is a copy, and copies drift when the data changes.
+
+19
+00:01:20.780 --> 00:01:25.930
+In a Quarto or R Markdown report, inline code computes each number as the document renders.
+
+20
+00:01:26.100 --> 00:01:29.290
+The sentence in the report and the analysis can never disagree.
+
+21
+00:01:31.130 --> 00:01:32.930
+Write a function that builds the sentence from data.
+
+22
+00:01:32.930 --> 00:01:38.490
+For each arm, take the non-missing values, compute the mean and a t-interval, and format with sprintf() to two decimals.
+
+23
+00:01:38.490 --> 00:01:47.400
+For our synthetic Week 12 data, Placebo shows a mean change of 2.19, with 25 participants, all computed.
+
+24
+00:01:49.270 --> 00:01:50.560
+Now the full analysis.
+
+25
+00:01:50.630 --> 00:01:54.590
+The analysis set keeps participants with a Week 12 value and computes change from baseline.
+
+26
+00:01:54.590 --> 00:01:58.190
+The primary model is lm(change ~ arm + baseline).
+
+27
+00:01:58.190 --> 00:02:05.820
+In our synthetic trial, 72 participants qualify, and treatment lowers the change by about 3.5 points.
+
+28
+00:02:07.730 --> 00:02:17.080
+Every output goes to a file: the results table, the audit sample of participants for source data checks, and a provenance note with the R version, the seed, and a checksum of the input.
+
+29
+00:02:17.470 --> 00:02:20.360
+Run it twice, and the files are byte for byte identical.
+
+30
+00:02:20.610 --> 00:02:24.080
+A timestamp or an unpinned random draw would break that instantly.
+
+31
+00:02:26.030 --> 00:02:27.560
+That is the reviewer's test.
+
+32
+00:02:27.690 --> 00:02:33.860
+Re-run from another directory, with different options and generator settings, then compare checksums of every output file.
+
+33
+00:02:34.210 --> 00:02:40.540
+When they match, the analysis is reproducible, and anyone can trace each number back to the code and data that produced it.
+
+34
+00:02:42.300 --> 00:02:44.380
+Your final missions follow this path.
+
+35
+00:02:44.380 --> 00:02:48.550
+Make a bootstrap reproducible under any generator settings, without disturbing the caller.
+
+36
+00:02:48.800 --> 00:02:51.510
+Generate report text where every number is computed.
+
+37
+00:02:51.680 --> 00:02:57.410
+Then the final boss: an analysis whose output files a reviewer re-creates exactly, from a clean session.
