@@ -1,0 +1,229 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:09.000
+Your lab has the same cleaning code copied into fifteen scripts, each one slightly different.
+
+2
+00:00:09.000 --> 00:00:12.060
+When results disagree, nobody can say which copy ran.
+
+3
+00:00:12.060 --> 00:00:13.600
+An R package fixes that.
+
+4
+00:00:13.600 --> 00:00:17.450
+It gives shared code one home, one version number, documentation, and tests.
+
+5
+00:00:17.580 --> 00:00:23.230
+Everyone installs the same tested functions, and every analysis can say exactly which version it used.
+
+6
+00:00:24.970 --> 00:00:27.180
+A package is a folder with a fixed shape.
+
+7
+00:00:27.470 --> 00:00:33.560
+The DESCRIPTION file holds the metadata: the name, the version, the authors, the license, and the other packages it depends on.
+
+8
+00:00:33.690 --> 00:00:35.440
+The R/ folder holds your functions.
+
+9
+00:00:35.610 --> 00:00:41.180
+Our example package is called labtools, and it starts with two functions, clean_site() and summarise_arm().
+
+10
+00:00:43.030 --> 00:00:49.880
+Organize the R/ folder by topic: one file for each family of functions, and a utils.R file for small internal helpers.
+
+11
+00:00:50.450 --> 00:00:52.600
+Package files should only define functions.
+
+12
+00:00:52.890 --> 00:00:59.740
+Never put top-level code there, like library() calls or analysis steps, because that code runs every time the package is built.
+
+13
+00:01:01.570 --> 00:01:04.280
+The NAMESPACE file decides what users can see.
+
+14
+00:01:04.490 --> 00:01:06.600
+Exported functions are the public interface.
+
+15
+00:01:06.670 --> 00:01:09.460
+Everything else stays internal, so you can change it freely.
+
+16
+00:01:09.870 --> 00:01:13.700
+Here, clean_site() is exported, but its helper, .normalise(), is not.
+
+17
+00:01:13.810 --> 00:01:17.460
+Users call clean_site(), and the package calls the helper behind the scenes.
+
+18
+00:01:19.370 --> 00:01:21.540
+You never edit the NAMESPACE by hand.
+
+19
+00:01:21.790 --> 00:01:27.760
+Instead, you add an @export tag to the function's documentation comment, and roxygen2 writes the file for you.
+
+20
+00:01:27.930 --> 00:01:30.820
+Keeping the public interface small is a design decision.
+
+21
+00:01:31.070 --> 00:01:34.020
+Every exported function is a promise you will have to keep.
+
+22
+00:01:35.800 --> 00:01:39.910
+Roxygen comments start with #', right above the function.
+
+23
+00:01:40.300 --> 00:01:42.030
+The first line becomes the title.
+
+24
+00:01:42.220 --> 00:01:47.510
+@param documents each argument, @return describes the output, and @examples shows working code.
+
+25
+00:01:47.720 --> 00:01:52.650
+Run devtools::document(), and roxygen2 writes a help file into the man/ folder, along with the NAMESPACE.
+
+26
+00:01:54.700 --> 00:01:56.790
+Documentation and code must agree.
+
+27
+00:01:57.040 --> 00:02:05.950
+If summarise_arm() has an argument for dropping missing values (na_rm), but its documentation never mentions it, R CMD check reports a warning: undocumented arguments.
+
+28
+00:02:06.060 --> 00:02:07.150
+Treat that as a bug.
+
+29
+00:02:07.440 --> 00:02:10.810
+Someone reading the help page has no way to know the argument exists.
+
+30
+00:02:12.770 --> 00:02:15.740
+Dependencies are declared in two places, for two reasons.
+
+31
+00:02:15.970 --> 00:02:20.180
+The Imports field in DESCRIPTION makes sure dplyr is installed along with your package.
+
+32
+00:02:20.530 --> 00:02:23.640
+The NAMESPACE decides which of its functions your code can call.
+
+33
+00:02:23.830 --> 00:02:29.320
+Use @importFrom tags for the few functions you need, or write the package name, two colons, and the function.
+
+34
+00:02:31.230 --> 00:02:33.100
+Forget one, and the check tells you.
+
+35
+00:02:33.170 --> 00:02:38.500
+"No visible global function definition for group_by" means your code calls a function the package never imported.
+
+36
+00:02:38.830 --> 00:02:43.940
+Even functions that ship with R need importing: sd() lives in stats, not base.
+
+37
+00:02:44.350 --> 00:02:50.300
+Bare column names inside dplyr verbs raise a note too, and the .data pronoun from rlang fixes it.
+
+38
+00:02:51.970 --> 00:02:55.420
+Tests turn your expectations into code that runs on every change.
+
+39
+00:02:55.710 --> 00:02:59.000
+testthat files live in tests/testthat/, one for each source file.
+
+40
+00:02:59.090 --> 00:03:05.120
+Each test states what should happen: clean_site() standardises codes, keeps missing values, and handles empty input.
+
+41
+00:03:05.430 --> 00:03:09.320
+When someone edits the helper later, a failing test says exactly what broke.
+
+42
+00:03:11.170 --> 00:03:12.840
+Before you share it, build and check.
+
+43
+00:03:12.970 --> 00:03:15.660
+R CMD build bundles the source into a tarball.
+
+44
+00:03:15.930 --> 00:03:22.780
+R CMD check then installs that tarball, runs every example and every test, and audits the documentation, the imports, and the code.
+
+45
+00:03:23.210 --> 00:03:25.410
+devtools::check() runs the same steps from inside R.
+
+46
+00:03:25.410 --> 00:03:29.260
+Aim for zero errors, zero warnings, and zero notes.
+
+47
+00:03:31.100 --> 00:03:32.370
+One honest caveat.
+
+48
+00:03:32.500 --> 00:03:36.660
+R CMD check needs a full R installation with a shell, and a browser does not have one.
+
+49
+00:03:36.660 --> 00:03:45.750
+In RQuest, your package is built in the browser with roxygen2, and its NAMESPACE, help files, examples, and imports are checked with R's own tools.
+
+50
+00:03:45.940 --> 00:03:48.650
+Run the real check on your own machine before every release.
+
+51
+00:03:50.530 --> 00:03:52.380
+Finally, version every release.
+
+52
+00:03:52.550 --> 00:04:00.220
+Semantic versioning tells colleagues what changed: a patch for bug fixes, a minor version for new features, and a major version when existing code may break.
+
+53
+00:04:01.010 --> 00:04:09.220
+Record changes in a NEWS file, tag the release in git, and cite the exact package version in every analysis, so any result can be traced to the code that produced it.
+
+54
+00:04:10.930 --> 00:04:13.050
+Your Package Factory missions follow the same path.
+
+55
+00:04:13.050 --> 00:04:14.810
+First, export the right functions.
+
+56
+00:04:14.810 --> 00:04:18.390
+Next, silence the check warnings with proper documentation and imports.
+
+57
+00:04:18.390 --> 00:04:28.560
+Then ship labtools version 0.1.0, with two exported functions, complete documentation, runnable examples, and no undefined globals.

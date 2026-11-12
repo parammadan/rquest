@@ -1,0 +1,23 @@
+{
+  "id": "package-factory-v1",
+  "world": "World 2 \u2014 Package Factory",
+  "title": "From R Scripts to Research-Ready Packages",
+  "description": "Why packages, DESCRIPTION and NAMESPACE, organising R/, roxygen2, dependencies, testthat, R CMD build and check (with an honest note on what runs in the browser), and semantic versioning, all through one real example package, labtools.",
+  "audience": "Junior research programmers who know basic R",
+  "durationSec": 273.73,
+  "resolution": "1920x1080",
+  "fps": 30,
+  "videoCodec": "h264",
+  "audioCodec": "aac",
+  "deliveryFile": "package-factory-v1.mp4",
+  "deliveryBytes": 10044814,
+  "deliverySha256": "6efe03a4cc5c61c492442543e5423417b35428f5a4caa9b43643c26d89f49d0c",
+  "masterBytes": 21062243,
+  "narration": "Kokoro TTS (am_onyx), local; every clip read back with faster-whisper; QA log in narration-qa.md",
+  "narrationWords": 747,
+  "captions": "public/captions/package-factory-v1.vtt (WebVTT, 57 cues, word-aligned)",
+  "chapters": 9,
+  "realOutputsFrom": "labtools built locally: R 4.6.1, roxygen2 8.1.1, testthat 3.3.2; R CMD check --no-manual Status: OK; broken variant 1 WARNING, 2 NOTEs",
+  "renderer": "Remotion 4.0.486, H.264 CRF 18 master (scenes p07/p11/p13 re-rendered and spliced; audio continuous from master) \u2192 CRF 26 faststart delivery",
+  "rendered": "2026-11-12"
+}

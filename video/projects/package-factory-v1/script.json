@@ -1,0 +1,114 @@
+[
+  {
+    "id": "p01",
+    "chapter": "why-packages",
+    "lessonId": "package-factory.lesson-1",
+    "chapterTitle": "Why packages",
+    "text": "Your lab has the same cleaning code copied into fifteen scripts, each one slightly different. When results disagree, nobody can say which copy ran. An R package fixes that. It gives shared code one home, one version number, documentation, and tests. Everyone installs the same tested functions, and every analysis can say exactly which version it used.",
+    "caption": "Your lab has the same cleaning code copied into fifteen scripts, each one slightly different. When results disagree, nobody can say which copy ran. An R package fixes that. It gives shared code one home, one version number, documentation, and tests. Everyone installs the same tested functions, and every analysis can say exactly which version it used."
+  },
+  {
+    "id": "p02",
+    "chapter": "anatomy",
+    "lessonId": "package-factory.lesson-1",
+    "chapterTitle": "Package anatomy",
+    "text": "A package is a folder with a fixed shape. The DESCRIPTION file holds the metadata: the name, the version, the authors, the license, and the other packages it depends on. The R folder holds your functions. Our example package is called lab tools, and it starts with two functions, clean site and summarise arm.",
+    "caption": "A package is a folder with a fixed shape. The DESCRIPTION file holds the metadata: the name, the version, the authors, the license, and the other packages it depends on. The R/ folder holds your functions. Our example package is called labtools, and it starts with two functions, clean_site() and summarise_arm()."
+  },
+  {
+    "id": "p03",
+    "chapter": "anatomy",
+    "lessonId": "package-factory.lesson-1",
+    "chapterTitle": "Package anatomy",
+    "text": "Organize the R folder by topic: one file for each family of functions, and a utilities file for small internal helpers. Package files should only define functions. Never put top level code there, like library calls or analysis steps, because that code runs every time the package is built.",
+    "caption": "Organize the R/ folder by topic: one file for each family of functions, and a utils.R file for small internal helpers. Package files should only define functions. Never put top-level code there, like library() calls or analysis steps, because that code runs every time the package is built."
+  },
+  {
+    "id": "p04",
+    "chapter": "exports",
+    "lessonId": "package-factory.lesson-1",
+    "chapterTitle": "Exports and the NAMESPACE",
+    "text": "The NAMESPACE file decides what users can see. Exported functions are the public interface. Everything else stays internal, so you can change it freely. Here, clean site is exported, but its helper, dot normalise, is not. Users call clean site, and the package calls the helper behind the scenes.",
+    "caption": "The NAMESPACE file decides what users can see. Exported functions are the public interface. Everything else stays internal, so you can change it freely. Here, clean_site() is exported, but its helper, .normalise(), is not. Users call clean_site(), and the package calls the helper behind the scenes."
+  },
+  {
+    "id": "p05",
+    "chapter": "exports",
+    "lessonId": "package-factory.lesson-1",
+    "chapterTitle": "Exports and the NAMESPACE",
+    "text": "You never edit the NAMESPACE by hand. Instead, you add an export tag to the function's documentation comment, and roxygen two writes the file for you. Keeping the public interface small is a design decision. Every exported function is a promise you will have to keep.",
+    "caption": "You never edit the NAMESPACE by hand. Instead, you add an @export tag to the function's documentation comment, and roxygen2 writes the file for you. Keeping the public interface small is a design decision. Every exported function is a promise you will have to keep."
+  },
+  {
+    "id": "p06",
+    "chapter": "roxygen",
+    "lessonId": "package-factory.lesson-2",
+    "chapterTitle": "Documenting with roxygen2",
+    "text": "Roxygen comments start with a hash and an apostrophe, right above the function. The first line becomes the title. A param tag documents each argument, return describes the output, and examples shows working code. Run document, and roxygen two writes a help file into the man folder, along with the NAMESPACE.",
+    "caption": "Roxygen comments start with #', right above the function. The first line becomes the title. @param documents each argument, @return describes the output, and @examples shows working code. Run devtools::document(), and roxygen2 writes a help file into the man/ folder, along with the NAMESPACE."
+  },
+  {
+    "id": "p07",
+    "chapter": "roxygen",
+    "lessonId": "package-factory.lesson-2",
+    "chapterTitle": "Documenting with roxygen2",
+    "text": "Documentation and code must agree. If summarise arm has an argument for dropping missing values, but its documentation never mentions it, R CMD check reports a warning: undocumented arguments. Treat that as a bug. Someone reading the help page has no way to know the argument exists.",
+    "caption": "Documentation and code must agree. If summarise_arm() has an argument for dropping missing values (na_rm), but its documentation never mentions it, R CMD check reports a warning: undocumented arguments. Treat that as a bug. Someone reading the help page has no way to know the argument exists."
+  },
+  {
+    "id": "p08",
+    "chapter": "dependencies",
+    "lessonId": "package-factory.lesson-2",
+    "chapterTitle": "Managing dependencies",
+    "text": "Dependencies are declared in two places, for two reasons. The Imports field in DESCRIPTION makes sure dee plier is installed along with your package. The NAMESPACE decides which of its functions your code can call. Use import from tags for the few functions you need, or write the package name, two colons, and the function.",
+    "caption": "Dependencies are declared in two places, for two reasons. The Imports field in DESCRIPTION makes sure dplyr is installed along with your package. The NAMESPACE decides which of its functions your code can call. Use @importFrom tags for the few functions you need, or write the package name, two colons, and the function."
+  },
+  {
+    "id": "p09",
+    "chapter": "dependencies",
+    "lessonId": "package-factory.lesson-2",
+    "chapterTitle": "Managing dependencies",
+    "text": "Forget one, and the check tells you. No visible global function definition for group by means your code calls a function the package never imported. Even functions that ship with R need importing: the s d function lives in stats, not base. Bare column names inside dee plier verbs raise a note too, and the dot data pronoun from r lang fixes it.",
+    "caption": "Forget one, and the check tells you. \"No visible global function definition for group_by\" means your code calls a function the package never imported. Even functions that ship with R need importing: sd() lives in stats, not base. Bare column names inside dplyr verbs raise a note too, and the .data pronoun from rlang fixes it."
+  },
+  {
+    "id": "p10",
+    "chapter": "testing",
+    "lessonId": "package-factory.lesson-3",
+    "chapterTitle": "Testing with testthat",
+    "text": "Tests turn your expectations into code that runs on every change. Test that files live in the tests folder, one for each source file. Each test states what should happen: clean site standardises codes, keeps missing values, and handles empty input. When someone edits the helper later, a failing test says exactly what broke.",
+    "caption": "Tests turn your expectations into code that runs on every change. testthat files live in tests/testthat/, one for each source file. Each test states what should happen: clean_site() standardises codes, keeps missing values, and handles empty input. When someone edits the helper later, a failing test says exactly what broke."
+  },
+  {
+    "id": "p11",
+    "chapter": "build-check",
+    "lessonId": "package-factory.lesson-3",
+    "chapterTitle": "Building and checking",
+    "text": "Before you share it, build and check. R CMD build bundles the source into a tarball. R CMD check then installs that tarball, runs every example and every test, and audits the documentation, the imports, and the code. Dev tools check runs the same steps from inside R. Aim for zero errors, zero warnings, and zero notes.",
+    "caption": "Before you share it, build and check. R CMD build bundles the source into a tarball. R CMD check then installs that tarball, runs every example and every test, and audits the documentation, the imports, and the code. devtools::check() runs the same steps from inside R. Aim for zero errors, zero warnings, and zero notes."
+  },
+  {
+    "id": "p12",
+    "chapter": "build-check",
+    "lessonId": "package-factory.lesson-3",
+    "chapterTitle": "Building and checking",
+    "text": "One honest caveat. R CMD check needs a full R installation with a shell, and a browser does not have one. In RQuest, your package is built in the browser with roxygen two, and its NAMESPACE, help files, examples, and imports are checked with R's own tools. Run the real check on your own machine before every release.",
+    "caption": "One honest caveat. R CMD check needs a full R installation with a shell, and a browser does not have one. In RQuest, your package is built in the browser with roxygen2, and its NAMESPACE, help files, examples, and imports are checked with R's own tools. Run the real check on your own machine before every release."
+  },
+  {
+    "id": "p13",
+    "chapter": "releases",
+    "lessonId": "package-factory.lesson-3",
+    "chapterTitle": "Versions and collaboration",
+    "text": "Finally, version every release. Semantic versioning tells colleagues what changed: a patch for bug fixes, a minor version for new features, and a major version when existing code may break. Record changes in a NEWS file, tag the release in git, and cite the exact package version in every analysis, so any result can be traced to the code that produced it.",
+    "caption": "Finally, version every release. Semantic versioning tells colleagues what changed: a patch for bug fixes, a minor version for new features, and a major version when existing code may break. Record changes in a NEWS file, tag the release in git, and cite the exact package version in every analysis, so any result can be traced to the code that produced it."
+  },
+  {
+    "id": "p14",
+    "chapter": "your-mission",
+    "lessonId": "package-factory.lesson-3",
+    "chapterTitle": "Your Package Factory missions",
+    "text": "Your Package Factory missions follow the same path. First, export the right functions. Next, silence the check warnings with proper documentation and imports. Then ship lab tools version zero point one point zero, with two exported functions, complete documentation, runnable examples, and no undefined globals.",
+    "caption": "Your Package Factory missions follow the same path. First, export the right functions. Next, silence the check warnings with proper documentation and imports. Then ship labtools version 0.1.0, with two exported functions, complete documentation, runnable examples, and no undefined globals."
+  }
+]
