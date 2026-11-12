@@ -1,6 +1,7 @@
 import type { MissionId, VideoAsset } from "../domain/types.ts";
 import { asset } from "../lib/asset.ts";
 import { generated as dataLabV1 } from "./videos/data-lab-v1.generated.ts";
+import { generated as packageFactoryV1 } from "./videos/package-factory-v1.generated.ts";
 
 /*
  * One instructional video per world, shared by that world's lessons.
@@ -43,9 +44,23 @@ export const VIDEOS: readonly VideoAsset[] = [
     poster: asset("/posters/data-lab-v1.jpg"),
     chapters: dataLabV1.chapters,
     transcript: dataLabV1.transcript,
-    narration: "AI narration (Kokoro text-to-speech, voice am_onyx), scripted and checked for technical accuracy.",
+    narration: "AI narration (Kokoro text-to-speech, voice am_onyx). Every clip was read back by speech recognition to catch mispronunciations.",
   },
-  planned("package-factory", "Building an R Package", "Package structure, roxygen2, NAMESPACE, and package checks."),
+  {
+    id: "package-factory.video",
+    missionId: "package-factory",
+    title: "From R Scripts to Research-Ready Packages",
+    summary:
+      "DESCRIPTION and NAMESPACE, roxygen2, dependencies, testthat, build and check, and versioning, all with one real example package. About four and a half minutes.",
+    status: "ready",
+    durationSec: packageFactoryV1.durationSec,
+    sources: { mp4: mediaUrl("package-factory-v1.mp4"), youtubeId: null },
+    captionsVtt: asset("/captions/package-factory-v1.vtt"),
+    poster: asset("/posters/package-factory-v1.jpg"),
+    chapters: packageFactoryV1.chapters,
+    transcript: packageFactoryV1.transcript,
+    narration: "AI narration (Kokoro text-to-speech, voice am_onyx). Every clip was read back by speech recognition to catch mispronunciations.",
+  },
   planned("debugging-crisis", "Debugging R Environments", "Masking, scoping, and making a report run in any session."),
   planned("quality-control", "Testing and Independent QC", "testthat, mutation thinking, defensive errors, and double programming."),
   planned("research-mission", "Reproducible Statistical Programming", "Seeds, RNG kinds, computed reporting, and byte-identical re-runs."),

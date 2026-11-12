@@ -9,6 +9,7 @@ import type {
   MissionId,
 } from "../domain/types.ts";
 import { dataLabLessons } from "./lessons/data-lab.ts";
+import { packageFactoryLessons } from "./lessons/package-factory.ts";
 
 /*
  * Mission catalog — the single source of truth for academy content.
@@ -75,6 +76,7 @@ interface ChallengeInput {
   packages?: string[];
   /** true once a validator exists in content/validators. */
   implemented?: boolean;
+  bossBriefing?: Challenge["bossBriefing"];
 }
 
 function challenge(missionId: MissionId, input: ChallengeInput): Challenge {
@@ -92,6 +94,7 @@ function challenge(missionId: MissionId, input: ChallengeInput): Challenge {
     instructions: input.instructions ?? [input.summary],
     starterCode: input.starterCode.trim(),
     packages: input.packages ?? [],
+    ...(input.bossBriefing ? { bossBriefing: input.bossBriefing } : {}),
     evaluation: {
       runtime: "webr",
       strategy: input.strategy,
@@ -229,32 +232,35 @@ const packageFactory: Mission = {
   tagline: "Ship the lab's helper scripts as a real, documented R package.",
   story: [
     "The lab has fifteen copies of the same helper script, each subtly different. Results disagree depending on whose laptop ran the analysis.",
-    "Your mission: consolidate them into one package with documentation, a clean NAMESPACE, and an R CMD check that passes.",
+    "Your mission: consolidate them into one package with documentation, a deliberate NAMESPACE, declared imports, and checks that pass.",
   ],
   objectives: [
-    "Scaffold a package with usethis",
-    "Document functions with roxygen2",
-    "Control what is exported through the NAMESPACE",
-    "Pass R CMD check with zero errors and warnings",
+    "Lay out a package: DESCRIPTION, NAMESPACE, R/, man/, tests/",
+    "Document every function and argument with roxygen2",
+    "Control exports and declare imports correctly",
+    "Ship a release that passes every package check in the browser, then run R CMD check locally",
   ],
   difficulty: 2,
   estimatedHours: 4,
   requires: ["data-lab"],
   rewardAchievementId: "package-builder",
   theme: { visual: "factory", accent: "violet" },
+  assembly: {
+    title: "labtools assembly line",
+    caption: "Each part is assembled by validated work in this world, never by visiting a page.",
+    parts: [
+      { id: "root", label: "labtools/", depth: 0, dir: true, note: "the package", assembledBy: [] },
+      { id: "description", label: "DESCRIPTION", depth: 1, note: "metadata and Imports", assembledBy: [] },
+      { id: "r", label: "R/", depth: 1, dir: true, note: "clean_site(), summarise_arm(), helpers", assembledBy: [] },
+      { id: "namespace", label: "NAMESPACE", depth: 1, note: "public interface · Export the right functions", assembledBy: ["package-factory.challenge-1"] },
+      { id: "man", label: "man/", depth: 1, dir: true, note: "complete help pages · Silence the check warnings", assembledBy: ["package-factory.challenge-2"] },
+      { id: "tests", label: "tests/testthat/", depth: 1, dir: true, note: "tests · Tests, checks, and releases", assembledBy: ["package-factory.lesson-3"] },
+      { id: "release", label: "labtools_0.1.0.tar.gz", depth: 0, note: "release · Boss: Ship labtools 0.1.0", assembledBy: ["package-factory.boss"] },
+    ],
+  },
   items: [
-    lesson("package-factory", 1, {
-      title: "Anatomy of an R package",
-      summary: "DESCRIPTION, NAMESPACE, R/, man/, tests/, and what R CMD build actually does.",
-      minutes: 14,
-      outline: ["Source vs bundled vs installed packages", "DESCRIPTION fields that matter", "usethis::create_package()"],
-    }),
-    lesson("package-factory", 2, {
-      title: "Documentation with roxygen2",
-      summary: "Write documentation next to the code and generate Rd files and the NAMESPACE.",
-      minutes: 14,
-      outline: ["@param, @return, @examples", "@export vs internal helpers", "@importFrom and dependencies"],
-    }),
+    packageFactoryLessons[0],
+    packageFactoryLessons[1],
     challenge("package-factory", {
       slug: "challenge-1",
       type: "package-check",
@@ -288,12 +294,7 @@ clean_site <- function(x) {
 }
 `,
     }),
-    lesson("package-factory", 3, {
-      title: "Dependencies and R CMD check",
-      summary: "Imports vs Suggests, reading check notes, and keeping a package installable.",
-      minutes: 16,
-      outline: ["Imports, Depends, Suggests", "Reading NOTEs, WARNINGs, ERRORs", "devtools::check() workflow"],
-    }),
+    packageFactoryLessons[2],
     challenge("package-factory", {
       slug: "challenge-2",
       type: "package-check",
@@ -337,6 +338,17 @@ summarise_arm <- function(df, na_rm = TRUE) {
       strategy: "package-checks",
       implemented: true,
       packages: ["roxygen2", "dplyr"],
+      bossBriefing: {
+        headline: "Release day: labtools 0.1.0",
+        story: "The analysis team installs labtools tomorrow. Ship it only when every release gate is green.",
+        gates: [
+          "roxygen2 builds NAMESPACE and man/",
+          "Exactly two exports",
+          "Complete docs with runnable examples",
+          "No undefined global functions",
+          "Correct on unseen inputs",
+        ],
+      },
       instructions: [
         "Write the whole of R/labtools.R for release 0.1.0.",
         "Export exactly two functions: clean_site(x), which standardises site codes and keeps NA, and summarise_arm(df, na_rm = TRUE), which returns one row per arm with columns arm, mean, and sd.",
@@ -373,13 +385,13 @@ const debuggingCrisis: Mission = {
   tagline: "The pipeline worked yesterday. Today it doesn't. Find out why.",
   story: [
     "A scheduled report fails overnight. The error message points at a function nobody changed. A colleague's machine produces different numbers from the same script.",
-    "You'll trace library paths, version conflicts, masked functions, and scoping bugs until the analysis is deterministic again.",
+    "You'll trace masked functions, scoping bugs, and session-dependent behaviour until the report gives the same answer anywhere.",
   ],
   objectives: [
-    "Read tracebacks and step through code with browser()",
     "Diagnose masked functions and namespace conflicts",
-    "Inspect library paths and package versions",
-    "Pin an environment with renv",
+    "Find functions that read global variables, and make them pure",
+    "Remove dependence on the working directory, options, and attached packages",
+    "Record provenance: R version, package versions, input checksums",
   ],
   difficulty: 3,
   estimatedHours: 4,
@@ -635,13 +647,13 @@ const researchMission: Mission = {
   tagline: "Deliver an analysis anyone can re-run and get the same answer.",
   story: [
     "The final mission. A synthetic trial dataset, a statistical analysis plan, and a reviewer who will re-run everything from scratch.",
-    "Build a pipeline with pinned dependencies, seeded randomness, literate reporting, and traceable outputs — then hand it over.",
+    "Build an analysis with seeded randomness, computed reporting, and byte-identical outputs, then hand it over.",
   ],
   objectives: [
-    "Structure an analysis as a dependency-tracked pipeline",
     "Control randomness with explicit seeds and RNG kinds",
-    "Produce a literate report with Quarto",
-    "Trace every number in the report back to code",
+    "Leave the caller's random-number stream untouched",
+    "Generate report text where every number is computed",
+    "Produce outputs a reviewer re-creates byte-for-byte",
   ],
   difficulty: 5,
   estimatedHours: 6,

@@ -270,14 +270,15 @@ test("every world has three lessons, each directly before the challenge it prepa
   }
 });
 
-test("one video per world; only World 1's is ready, the rest have no sources", () => {
+test("one video per world; Worlds 1–2 are ready, the rest have no sources", () => {
   assert.equal(VIDEOS.length, 5);
   for (const m of catalog.missions) assert.ok(VIDEOS.some((v) => v.missionId === m.id), m.id);
   for (const v of VIDEOS) {
-    if (v.missionId === "data-lab") {
+    if (v.missionId === "data-lab" || v.missionId === "package-factory") {
       assert.equal(v.status, "ready");
       assert.ok(v.sources.mp4 && v.captionsVtt && v.transcript.length > 10 && v.chapters.length >= 3);
-      assert.ok(v.durationSec! > 150 && v.durationSec! < 260, `duration ${v.durationSec}`);
+      const [lo, hi] = v.missionId === "data-lab" ? [150, 260] : [240, 300];
+      assert.ok(v.durationSec! > lo && v.durationSec! < hi, `${v.id} duration ${v.durationSec}`);
     } else {
       assert.equal(v.status, "planned");
       assert.deepEqual(v.sources, { mp4: null, youtubeId: null });
@@ -288,7 +289,10 @@ test("one video per world; only World 1's is ready, the rest have no sources", (
 
 test("live lessons are complete: chapters exist, questions are well-formed, check is registered", () => {
   const live = lessons.filter((l) => l.availability.status === "available");
-  assert.deepEqual(live.map((l) => l.id), ["data-lab.lesson-1", "data-lab.lesson-2", "data-lab.lesson-3"]);
+  assert.deepEqual(live.map((l) => l.id), [
+    "data-lab.lesson-1", "data-lab.lesson-2", "data-lab.lesson-3",
+    "package-factory.lesson-1", "package-factory.lesson-2", "package-factory.lesson-3",
+  ]);
   for (const l of live) {
     const video = getVideo(l.videoId)!;
     for (const c of l.chapterIds) assert.ok(video.chapters.some((ch) => ch.id === c && ch.lessonId === l.id), `${l.id} chapter ${c}`);
@@ -335,4 +339,48 @@ test("legacy Phase 2 progress (challenges only) keeps every world cleared and ev
   assert.equal(p.totalXp, 1800);
   assert.equal(p.unlockedAchievementCount, catalog.achievements.length);
   for (const m of catalog.missions) assert.equal(p.missions[m.id].status, "cleared");
+});
+
+/* ---------------------------- Phase 3B: World 2 ---------------------------- */
+
+test("every wrong option in a live lesson explains why it's wrong", () => {
+  for (const l of lessons.filter((x) => x.availability.status === "available")) {
+    for (const q of l.knowledgeCheck) {
+      for (const o of q.options) {
+        if (o.id !== q.correctOptionId) assert.ok(o.feedback && o.feedback.length > 20, `${l.id}/${q.id}/${o.id}`);
+      }
+    }
+  }
+});
+
+test("walkthrough highlights point at real lines of each step's code", () => {
+  for (const l of lessons.filter((x) => x.walkthrough)) {
+    let code = l.walkthrough!.code;
+    for (const [i, step] of l.walkthrough!.steps.entries()) {
+      code = step.code ?? code;
+      const n = code.split("\n").length;
+      for (const h of step.highlight) assert.ok(h >= 1 && h <= n, `${l.id} step ${i + 1} highlights line ${h} of ${n}`);
+    }
+  }
+});
+
+test("World 2: lessons prepare for their own challenges; assembly and boss briefing are wired", () => {
+  const pf = catalog.getMission("package-factory")!;
+  const ls = pf.items.filter((i): i is Lesson => i.kind === "lesson");
+  assert.deepEqual(ls.map((l) => l.challengeId), ["package-factory.challenge-1", "package-factory.challenge-2", "package-factory.boss"]);
+  for (const l of ls) assert.ok(l.reward && l.knowledgeCheck.length === 3, l.id);
+  for (const part of pf.assembly!.parts) {
+    for (const id of part.assembledBy) assert.equal(catalog.getItem(id)?.missionId, "package-factory", `${part.id} → ${id}`);
+  }
+  const briefed = allItems.filter((i) => i.kind === "challenge" && i.bossBriefing);
+  assert.deepEqual(briefed.map((i) => i.id), ["package-factory.boss"]);
+});
+
+test("existing World 1 completions still count after World 2 lessons ship", () => {
+  const w1 = world1.items.map((it, i) => completion(it, i));
+  const p = deriveProgress(snap(w1), catalog);
+  assert.deepEqual(p.rejected, []);
+  assert.equal(p.missions["data-lab"].status, "completed");
+  assert.equal(p.missions["package-factory"].status, "available");
+  assert.equal(p.totalXp, 320);
 });

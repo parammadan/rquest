@@ -69,8 +69,25 @@ export interface VideoAsset {
   narration: string | null;
 }
 
+export interface FileTreeEntry {
+  name: string;
+  depth: number;
+  dir?: boolean;
+  note?: string;
+  /** Visually emphasised (e.g. the file this lesson is about). */
+  highlight?: boolean;
+}
+
 export type LessonBlock =
   | { kind: "text"; body: string }
+  | { kind: "file-tree"; title: string; entries: FileTreeEntry[]; caption?: string }
+  | {
+      kind: "dependency-map";
+      title: string;
+      /** Columns left → right, e.g. DESCRIPTION → NAMESPACE → R code. */
+      columns: { title: string; lines: string[]; note: string }[];
+      caption?: string;
+    }
   | { kind: "code"; code: string; output?: string; caption?: string; runnable?: boolean }
   | { kind: "callout"; tone: "tip" | "warning"; title: string; body: string };
 
@@ -78,16 +95,18 @@ export type LessonBlock =
 export interface CodeWalkthrough {
   title: string;
   code: string;
-  steps: { title: string; note: string; highlight: number[]; output?: string }[];
+  /** A step may replace the code, so learners watch it evolve (lines animate in and out). */
+  steps: { title: string; note: string; highlight: number[]; output?: string; code?: string }[];
 }
 
 export interface KnowledgeQuestion {
   id: string;
   prompt: string;
   code?: string;
-  options: { id: string; label: string }[];
+  /** `feedback` explains why a wrong option is wrong (shown when it is picked). */
+  options: { id: string; label: string; feedback?: string }[];
   correctOptionId: string;
-  /** Shown after answering, right or wrong. */
+  /** Shown once the correct option is picked. */
   explanation: string;
 }
 
@@ -112,6 +131,8 @@ export interface Lesson {
   knowledgeCheck: KnowledgeQuestion[];
   /** The challenge this lesson prepares for. */
   challengeId: string;
+  /** Shown on the completion screen: what the learner has now built. */
+  reward?: { title: string; detail: string };
   /** Validator that confirms the knowledge check. */
   check: { validatorId: string };
   availability: Availability;
@@ -154,6 +175,8 @@ export interface Challenge {
   instructions: string[];
   /** The code the editor starts with. */
   starterCode: string;
+  /** Optional animated briefing shown before a boss workspace. */
+  bossBriefing?: { headline: string; story: string; gates: string[] };
   /** webR packages installed before the code runs. */
   packages: string[];
   evaluation: EvaluationSpec;
@@ -166,6 +189,17 @@ export interface MissionTheme {
   /** Key into the presentation layer's visual registry. */
   visual: "lab" | "factory" | "crisis" | "qc" | "research";
   accent: "cyan" | "violet" | "coral" | "emerald" | "gold";
+}
+
+/** A world's "workshop" visual: parts that assemble as items are validated. */
+export interface AssemblyPart {
+  id: string;
+  label: string;
+  depth: number;
+  dir?: boolean;
+  note: string;
+  /** Item ids; the part is assembled when any of them is complete. Empty = present from the start. */
+  assembledBy: string[];
 }
 
 export interface Mission {
@@ -186,6 +220,8 @@ export interface Mission {
   /** Achievement awarded for completing this mission. */
   rewardAchievementId: string;
   theme: MissionTheme;
+  /** Optional workshop visual (World 2: the labtools package assembling itself). */
+  assembly?: { title: string; caption: string; parts: AssemblyPart[] };
 }
 
 /* ------------------------------------------------------------------ */
