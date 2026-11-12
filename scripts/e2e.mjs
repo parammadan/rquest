@@ -140,9 +140,8 @@ try {
     const tl = page.getByRole("list", { name: "Lessons and challenges" }).getByRole("button");
     assert((await tl.count()) === 6, "6 items");
     await tl.nth(0).click();
-    await page.getByText("This lesson will cover").waitFor();
-    assert(/coming in phase 3/i.test(await page.locator("main").innerText()), "phase 3 label");
-    await tl.nth(2).click();
+    await page.getByRole("link", { name: /Start lesson/ }).waitFor();
+    await tl.nth(1).click();
     await page.getByRole("link", { name: /Open challenge/ }).waitFor();
     assert(/runs real r in your browser/i.test(await page.locator("main").innerText()), "live challenge copy");
     if (SHOTS) {

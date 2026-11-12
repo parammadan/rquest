@@ -68,9 +68,11 @@ async function runCode(timeout = 120_000) {
 try {
   await check("mission page shows World 1 challenges as live and opens the workspace", async () => {
     await page.goto(BASE + "/academy/missions/data-lab");
-    await page.getByRole("link", { name: /Open challenge/ }).waitFor();
-    const tl = await page.getByRole("list", { name: "Lessons and challenges" }).innerText();
-    assert((tl.match(/LIVE/gi) ?? []).length === 3, "3 live challenges");
+    const timeline = page.getByRole("list", { name: "Lessons and challenges" });
+    await timeline.waitFor();
+    const tl = await timeline.innerText();
+    assert((tl.match(/LIVE/gi) ?? []).length === 6, "3 live lessons + 3 live challenges");
+    await timeline.getByRole("button", { name: /Clean the site codes/ }).click();
     await page.getByRole("link", { name: /Open challenge/ }).click();
     await page.waitForURL(/challenges\/data-lab\.challenge-1\/?$/);
     await page.getByRole("heading", { name: "Clean the site codes" }).waitFor();

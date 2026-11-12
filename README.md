@@ -5,8 +5,12 @@ Five worlds take a learner from R fundamentals to reproducible statistical progr
 
 Independent portfolio project. Not affiliated with or endorsed by any institution. All data is synthetic.
 
-**Status: Phase 2 complete.** All 15 challenges across the five worlds run real R in the browser (webR)
-and are validated automatically. XP comes only from those validations. Lessons (video plus a comprehension
+**Live:** https://parammadan.github.io/rquest/ (GitHub Pages, static export, deployed by `.github/workflows/pages.yml`)
+
+**Status: Phase 3A.** All 15 challenges across the five worlds run real R in the browser (webR) and are
+validated automatically. World 1 has its instructional video and three full lessons (video, written
+walkthrough, live R examples, and a knowledge check). Worlds 2–5 lessons are honest placeholders until
+their videos are produced. XP comes only from those validations. Lessons (video plus a comprehension
 check) are Phase 3. A world unlocks once the
 previous world is *cleared*, meaning all its challenges and its boss are validated; lessons add bonus XP
 and count toward full mastery.
@@ -18,9 +22,12 @@ pnpm install
 pnpm dev                 # http://localhost:3000 (dev scenarios at /academy/dev)
 
 pnpm verify              # typecheck + lint + unit tests + production build
-pnpm build && pnpm test:e2e            # 22 browser checks (system Chrome via playwright-core)
-pnpm build && pnpm test:e2e:challenges # real-R challenge flows in Chrome via webR (needs network)
-pnpm build && pnpm test:validators      # every reference solution passes; every starter fails
+pnpm build:pages                       # static export to out/ (base path /rquest, as on GitHub Pages)
+pnpm test:e2e                          # site-wide browser checks against out/ (system Chrome via playwright-core)
+pnpm test:e2e:lessons                  # lesson experience: video, captions, transcript, live R, completion rules
+pnpm test:e2e:challenges               # all 15 challenges through the real UI with webR (needs network)
+pnpm test:validators                   # every reference solution passes; every starter fails
+SITE_URL=https://parammadan.github.io/rquest pnpm test:e2e   # any suite, against production
 SHOTS=1 pnpm test:e2e                  # also writes docs/screenshots/
 NEXT_PUBLIC_RQUEST_DEV_TOOLS=1 pnpm build && node scripts/scenario-shots.mjs   # seeded-state screenshots
 ```
@@ -102,3 +109,18 @@ A banner shows on every page while one is active. They are available in `next de
   A unit test fails if a challenge and its validator don't match up.
 - To move to a database, implement `ProgressRepository` against an API.
 - `VideoMetadata` (status, src, transcript, outline) is ready for generated lessons in Phase 3.
+
+## Lessons and videos (Phase 3A)
+
+- One video per world (`content/videos.ts`), shared by the world's three lessons through chapter ids.
+  Sources are configurable: MP4 and/or YouTube id. `NEXT_PUBLIC_RQUEST_MEDIA_BASE` points at a CDN or object store.
+- MP4s are published as GitHub Release assets (`media-*` tags) and copied into the Pages site at deploy time,
+  so they stay out of git history. Captions (WebVTT) and posters are small and committed.
+- Each lesson's content (`content/lessons/*.ts`) holds a briefing, objectives, key points, explanation blocks
+  (with runnable R), a step-through walkthrough, and a knowledge check. Each lesson sits right before the
+  challenge it prepares for.
+- **Completion rule:** a lesson completes only when every knowledge-check answer is correct. That issues a
+  `lesson-check:*` receipt, worth 20 XP once. Opening the page or watching the video never completes it.
+- **States:** challenge validated → lesson completed → world **cleared** (all challenges + boss; unlocks
+  the next world) → world **mastered** (cleared + every lesson). Existing challenge progress is untouched.
+- Video pipeline and storyboard: `video/README.md`.
