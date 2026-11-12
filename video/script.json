@@ -1,0 +1,82 @@
+[
+  {
+    "id": "s01",
+    "chapter": "why-r",
+    "chapterTitle": "Why R for research",
+    "lessonId": "data-lab.lesson-1",
+    "text": "Every number in a research report has a history: the file it came from, the code that touched it, and the person who ran that code. R is built for keeping that history honest. It is free, scriptable, and every step of an analysis can be written down and run again. Let's learn the core of R the way research programmers actually use it.",
+    "caption": "Every number in a research report has a history: the file it came from, the code that touched it, and the person who ran that code. R is built for keeping that history honest. It is free, scriptable, and every step of an analysis can be written down and run again. Let's learn the core of R the way research programmers actually use it."
+  },
+  {
+    "id": "s02",
+    "chapter": "vectors",
+    "chapterTitle": "Vectors",
+    "lessonId": "data-lab.lesson-1",
+    "text": "Everything in R starts with the vector: an ordered collection of values of one type. Create one with c. Here are six site codes from a study export. Ask R for the type with type of, and the size with length. Most R functions are vectorized, so to upper changes every element at once. No loop required.",
+    "caption": "Everything in R starts with the vector: an ordered collection of values of one type. Create one with c(). Here are six site codes from a study export. Ask R for the type with typeof(), and the size with length(). Most R functions are vectorized, so toupper() changes every element at once. No loop required."
+  },
+  {
+    "id": "s03",
+    "chapter": "vectors",
+    "chapterTitle": "Vectors",
+    "lessonId": "data-lab.lesson-1",
+    "text": "Because a vector holds one type, mixing types forces a conversion. Combine the number one with the text two, and both become text. This silent coercion is a classic source of bugs: one stray character in a numeric column turns the whole column into text. Check the types whenever data arrives.",
+    "caption": "Because a vector holds one type, mixing types forces a conversion. Combine the number one with the text two, and both become text. This silent coercion is a classic source of bugs: one stray character in a numeric column turns the whole column into text. Check the types whenever data arrives."
+  },
+  {
+    "id": "s04",
+    "chapter": "functions",
+    "chapterTitle": "Writing a function",
+    "lessonId": "data-lab.lesson-1",
+    "text": "When you repeat a step, turn it into a function. clean site takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub, a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every code, in every file.",
+    "caption": "When you repeat a step, turn it into a function. clean_site() takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub(), a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every code, in every file."
+  },
+  {
+    "id": "s05",
+    "chapter": "missing",
+    "chapterTitle": "Missing observations",
+    "lessonId": "data-lab.lesson-1",
+    "text": "Real data has gaps. R marks a missing value as N A, and N A is contagious: the mean of a vector containing N A is itself N A. That is deliberate. R refuses to guess. Find the gaps using the function is dot N A, count them with sum, and drop them only on purpose, by setting n a dot r m to true.",
+    "caption": "Real data has gaps. R marks a missing value as NA, and NA is contagious: the mean of a vector containing NA is itself NA. That is deliberate. R refuses to guess. Find the gaps using the function is.na(), count them with sum(), and drop them only on purpose, by setting na.rm = TRUE."
+  },
+  {
+    "id": "s06",
+    "chapter": "data-frames",
+    "chapterTitle": "Data frames",
+    "lessonId": "data-lab.lesson-2",
+    "text": "A data frame is a table built from vectors. Each column is a vector, and every column has the same length. Our synthetic trial has an I D, a treatment arm, a visit, and an outcome. Pull out a column with the dollar sign, keep rows with a logical condition, and you are already asking real questions of the data.",
+    "caption": "A data frame is a table built from vectors. Each column is a vector, and every column has the same length. Our synthetic trial has an id, a treatment arm, a visit, and an outcome. Pull out a column with $, keep rows with a logical condition, and you are already asking real questions of the data."
+  },
+  {
+    "id": "s07",
+    "chapter": "grouped-summaries",
+    "chapterTitle": "Grouped summaries",
+    "lessonId": "data-lab.lesson-2",
+    "text": "Most reports summarise by group. The dee plier package gives you a readable vocabulary: filter keeps the week twelve visit, group by splits by arm, and summarise computes each statistic. Watch the missing outcome. The n function counts rows, not observations, so count the non-missing values explicitly. Precise definitions make a table trustworthy.",
+    "caption": "Most reports summarise by group. The dplyr package gives you a readable vocabulary: filter() keeps the Week 12 visit, group_by() splits by arm, and summarise() computes each statistic. Watch the missing outcome. n() counts rows, not observations, so count the non-missing values explicitly. Precise definitions make a table trustworthy."
+  },
+  {
+    "id": "s08",
+    "chapter": "messy-export",
+    "chapterTitle": "A realistic example",
+    "lessonId": "data-lab.lesson-3",
+    "text": "Now a realistic case. A collaborator sends an enrollment export. Site codes are inconsistent, some ages are blank, one participant appears twice, and the enrollment date is written three different ways. Read every column as text first, so nothing is silently converted. Then fix each problem with a small, named step.",
+    "caption": "Now a realistic case. A collaborator sends an enrollment export. Site codes are inconsistent, some ages are blank, one participant appears twice, and the enrollment date is written three different ways. Read every column as text first, so nothing is silently converted. Then fix each problem with a small, named step."
+  },
+  {
+    "id": "s09",
+    "chapter": "messy-export",
+    "chapterTitle": "A realistic example",
+    "lessonId": "data-lab.lesson-3",
+    "text": "Dates need care. Parse the ISO format first, then fill the remaining gaps with the other formats, one at a time. Turn the arm column into a factor with its levels stated explicitly, remove exact duplicate rows with unique, and sort by participant. Finally, check the result: one row per participant, and no unexpected missing values.",
+    "caption": "Dates need care. Parse the ISO format first, then fill the remaining gaps with the other formats, one at a time. Turn the arm column into a factor with its levels stated explicitly, remove exact duplicate rows with unique(), and sort by participant. Finally, check the result: one row per participant, and no unexpected missing values."
+  },
+  {
+    "id": "s10",
+    "chapter": "your-mission",
+    "chapterTitle": "Your first mission",
+    "lessonId": "data-lab.lesson-3",
+    "text": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean site, the function from this lesson, and the validator will test it on codes you have never seen. Pass every check to earn your first X P.",
+    "caption": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean_site(), the function from this lesson, and the validator will test it on codes you have never seen. Pass every check to earn your first XP."
+  }
+]
