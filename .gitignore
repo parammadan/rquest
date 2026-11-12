@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lesson videos: published as GitHub Release assets, not committed
+/public/media/

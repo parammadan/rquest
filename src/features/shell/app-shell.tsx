@@ -19,8 +19,10 @@ export const NAV_ITEMS = [
 
 type NavItem = (typeof NAV_ITEMS)[number];
 
-function isActive(item: NavItem, pathname: string | null) {
-  if (!pathname) return false;
+function isActive(item: NavItem, rawPathname: string | null) {
+  if (!rawPathname) return false;
+  // Static hosting adds trailing slashes (/academy/); compare without them.
+  const pathname = rawPathname.length > 1 ? rawPathname.replace(/\/+$/, "") : rawPathname;
   if ("exact" in item && item.exact) return pathname === item.href;
   const prefixes = "match" in item ? item.match : [item.href];
   return prefixes.some((p) => pathname === p || pathname.startsWith(`${p}/`));

@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { catalog, isMissionId } from "@/content/catalog";
 import { MissionDetailGate } from "@/features/missions/mission-detail";
 
+/** Only catalog routes exist; anything else is a 404 (required for static export). */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return catalog.missions.map((m) => ({ missionId: m.id }));
 }

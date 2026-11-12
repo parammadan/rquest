@@ -2,17 +2,16 @@
 // Requires a build with dev tools enabled:
 //   NEXT_PUBLIC_RQUEST_DEV_TOOLS=1 pnpm build && node scripts/scenario-shots.mjs
 // Every screenshot shows the "Developer scenario" banner — seeded, not real progress.
-import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
+import { pathRe, startSite } from "./lib/site.mjs";
 
 const PORT = 3109;
-const BASE = `http://localhost:${PORT}`;
 const DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
 mkdirSync(DIR, { recursive: true });
 
-const server = spawn("pnpm", ["exec", "next", "start", "-p", String(PORT)], { stdio: ["ignore", "pipe", "inherit"] });
-await new Promise((r) => server.stdout.on("data", (d) => /Ready|Local:/i.test(String(d)) && r()));
+const site = await startSite(PORT);
+const BASE = site.base;
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 try {
   const page = await (await browser.newContext({ viewport: { width: 1440, height: 900 } })).newPage();
@@ -23,7 +22,7 @@ try {
   ]) {
     await page.goto(BASE + "/academy/dev");
     await page.locator("li", { hasText: id === "world-3-active" ? "World 3 active" : "Academy complete" }).getByRole("button").click();
-    await page.waitForURL(BASE + "/academy/map");
+    await page.waitForURL(pathRe(BASE, "/academy/map"));
     await page.goto(BASE + path);
     await page.waitForTimeout(2200);
     const banner = await page.getByRole("status").innerText();
@@ -33,5 +32,5 @@ try {
   }
 } finally {
   await browser.close();
-  server.kill("SIGTERM");
+  site.stop();
 }

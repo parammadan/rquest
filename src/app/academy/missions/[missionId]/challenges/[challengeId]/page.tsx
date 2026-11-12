@@ -3,6 +3,9 @@ import { notFound } from "next/navigation";
 import { catalog } from "@/content/catalog";
 import { ChallengeGate } from "@/features/challenges/challenge-workspace";
 
+/** Only catalog routes exist; anything else is a 404 (required for static export). */
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return catalog.missions.flatMap((m) =>
     m.items.filter((i) => i.kind === "challenge").map((i) => ({ missionId: m.id, challengeId: i.id })),

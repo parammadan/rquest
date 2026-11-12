@@ -1,11 +1,10 @@
 // End-to-end checks against a production build, driven by Playwright + system Chrome.
 // Usage: pnpm build && pnpm test:e2e   (set SHOTS=1 to save screenshots)
-import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
+import { pathRe, startSite } from "./lib/site.mjs";
 
 const PORT = Number(process.env.PORT ?? 3107);
-const BASE = `http://localhost:${PORT}`;
 const SHOTS = process.env.SHOTS === "1";
 const SHOT_DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
 const KEY = "rquest:progress:v1";
@@ -25,20 +24,8 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-const server = spawn("pnpm", ["exec", "next", "start", "-p", String(PORT)], {
-  stdio: ["ignore", "pipe", "pipe"],
-  env: { ...process.env },
-});
-await new Promise((resolve, reject) => {
-  const t = setTimeout(() => reject(new Error("server did not start")), 60000);
-  server.stdout.on("data", (d) => {
-    if (/Ready|started|Local:/i.test(String(d))) {
-      clearTimeout(t);
-      resolve();
-    }
-  });
-  server.on("exit", (c) => reject(new Error(`server exited ${c}`)));
-});
+const site = await startSite(PORT);
+const BASE = site.base;
 
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 if (SHOTS) mkdirSync(SHOT_DIR, { recursive: true });
@@ -66,7 +53,7 @@ try {
       await page.screenshot({ path: SHOT_DIR + "01-landing.png" });
     }
     await page.getByRole("link", { name: /Start Learning/ }).first().click();
-    await page.waitForURL(BASE + "/academy");
+    await page.waitForURL(pathRe(BASE, "/academy"));
     await settle(page);
     assert((await h1(page)).includes("Welcome to the academy"), "dashboard h1");
   });
@@ -89,7 +76,7 @@ try {
       ["Dashboard", "/academy", "Welcome"],
     ]) {
       await nav.getByRole("link", { name: label }).click();
-      await page.waitForURL(BASE + url);
+      await page.waitForURL(pathRe(BASE, url));
       await settle(page);
       assert((await h1(page)).includes(heading), `${label}: ${await h1(page)}`);
       const current = await nav.locator('[aria-current="page"]').innerText();
@@ -99,7 +86,7 @@ try {
 
   await check("Continue/Start learning CTA opens the active mission", async () => {
     await page.getByRole("link", { name: /Start learning|Continue learning/ }).click();
-    await page.waitForURL(BASE + "/academy/missions/data-lab");
+    await page.waitForURL(pathRe(BASE, "/academy/missions/data-lab"));
     await settle(page);
     assert((await h1(page)) === "The Data Lab", "mission h1");
   });
@@ -145,7 +132,7 @@ try {
     const items = page.locator("main ol > li");
     assert((await items.count()) === 5, "5 list rows");
     await page.getByRole("link", { name: /Enter.*The Data Lab/ }).click();
-    await page.waitForURL(BASE + "/academy/missions/data-lab");
+    await page.waitForURL(pathRe(BASE, "/academy/missions/data-lab"));
   });
 
   await check("mission detail: timeline selects previews; placeholders are labelled", async () => {
@@ -200,7 +187,15 @@ try {
   });
 
   await check("dev scenario page is not available in production", async () => {
-    const res = await page.goto(`${BASE}/academy/dev`);
+    // Static hosting: the route is exported as the not-found page.
+    await page.goto(`${BASE}/academy/dev/`);
+    await page.getByRole("heading", { name: /doesn.t exist/ }).waitFor();
+    assert(/off the map/i.test(await page.locator("main").innerText()), "renders not-found");
+    assert(!(await page.locator("main").innerText()).includes("Seeded scenarios"), "no dev tools");
+  });
+
+  await check("unknown mission URL returns HTTP 404", async () => {
+    const res = await page.goto(`${BASE}/academy/missions/not-a-world/`);
     assert(res.status() === 404, `status ${res.status()}`);
   });
 
@@ -322,7 +317,7 @@ try {
   await r.ctx.close();
 } finally {
   await browser.close();
-  server.kill("SIGTERM");
+  site.stop();
 }
 
 console.log(results.join("\n"));

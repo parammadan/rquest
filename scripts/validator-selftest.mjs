@@ -1,21 +1,20 @@
 // Validator self-test inside real webR (Chrome): for every validator,
 // the reference solution must pass every check and the starter code must not.
 // Usage: pnpm build && pnpm test:validators
-import { spawn } from "node:child_process";
 import { chromium } from "playwright-core";
+import { startSite } from "./lib/site.mjs";
 import { catalog } from "../src/content/catalog.ts";
 import { VALIDATORS } from "../src/content/validators/index.ts";
 import { REFERENCE_SOLUTIONS } from "../src/content/validators/reference-solutions.ts";
 import { R_HARNESS } from "../src/features/runtime/harness.ts";
 
 const PORT = 3113;
-const server = spawn("pnpm", ["exec", "next", "start", "-p", String(PORT)], { stdio: ["ignore", "pipe", "inherit"] });
-await new Promise((r) => server.stdout.on("data", (d) => /Ready|Local:/i.test(String(d)) && r()));
+const site = await startSite(PORT);
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 let failures = 0;
 try {
   const page = await browser.newPage();
-  await page.goto(`http://localhost:${PORT}/`);
+  await page.goto(site.base + "/");
   await page.evaluate(async (harness) => {
     const { WebR } = await import("https://webr.r-wasm.org/v0.6.0/webr.mjs");
     const w = new WebR({ baseUrl: "https://webr.r-wasm.org/v0.6.0/", interactive: false });
@@ -59,7 +58,7 @@ try {
   }
 } finally {
   await browser.close();
-  server.kill("SIGTERM");
+  site.stop();
 }
 console.log(failures ? `\n${failures} failure(s)` : "\nAll validators behave as expected");
 process.exit(failures ? 1 : 0);

@@ -1,13 +1,12 @@
 // Phase 2 end-to-end: real R (webR from its CDN) executing and validating
 // World 1 challenges in Chrome. Needs network access. Slow on first run
 // (downloads webR and dplyr).   Usage: pnpm build && pnpm test:e2e:challenges
-import { spawn } from "node:child_process";
 import { mkdirSync } from "node:fs";
 import { chromium } from "playwright-core";
+import { pathRe, startSite } from "./lib/site.mjs";
 import { REFERENCE_SOLUTIONS } from "../src/content/validators/reference-solutions.ts";
 
 const PORT = 3111;
-const BASE = `http://localhost:${PORT}`;
 const KEY = "rquest:progress:v1";
 const SHOTS = process.env.SHOTS === "1";
 const SHOT_DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
@@ -29,8 +28,8 @@ const assert = (c, m) => {
   if (!c) throw new Error(m);
 };
 
-const server = spawn("pnpm", ["exec", "next", "start", "-p", String(PORT)], { stdio: ["ignore", "pipe", "inherit"] });
-await new Promise((r) => server.stdout.on("data", (d) => /Ready|Local:/i.test(String(d)) && r()));
+const site = await startSite(PORT);
+const BASE = site.base;
 const browser = await chromium.launch({ channel: "chrome", headless: true });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
 const page = await ctx.newPage();
@@ -73,7 +72,7 @@ try {
     const tl = await page.getByRole("list", { name: "Lessons and challenges" }).innerText();
     assert((tl.match(/LIVE/gi) ?? []).length === 3, "3 live challenges");
     await page.getByRole("link", { name: /Open challenge/ }).click();
-    await page.waitForURL(/challenges\/data-lab\.challenge-1$/);
+    await page.waitForURL(/challenges\/data-lab\.challenge-1\/?$/);
     await page.getByRole("heading", { name: "Clean the site codes" }).waitFor();
   });
 
@@ -258,7 +257,7 @@ try {
   });
 } finally {
   await browser.close();
-  server.kill("SIGTERM");
+  site.stop();
 }
 console.log(results.join("\n"));
 console.log(failures ? `\n${failures} check(s) failed` : `\nAll ${results.length} checks passed`);
