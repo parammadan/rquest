@@ -36,7 +36,8 @@ suppressPackageStartupMessages(library(dplyr))
   unlink("labtools", recursive = TRUE)
   dir.create("labtools/R", recursive = TRUE)
   writeLines(.description, "labtools/DESCRIPTION")
-  writeLines(get(".rq_code", envir = globalenv()), "labtools/R/labtools.R")
+  # .rq_code is provided by the grader's trusted scope (a copy learner code can't rebind).
+  writeLines(.rq_code, "labtools/R/labtools.R")
   res <- tryCatch({
     suppressMessages(suppressWarnings(
       roxygen2::roxygenise("labtools", load_code = roxygen2::load_source)

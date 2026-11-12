@@ -61,7 +61,8 @@ test_that <- function(desc, code) {
 # Run the learner's test code with a given implementation of summarise_arm().
 .run_tests <- function(impl) {
   f <- tempfile(fileext = ".R")
-  writeLines(get(".rq_code", envir = globalenv()), f)
+  # .rq_code is provided by the grader's trusted scope (a copy learner code can't rebind).
+  writeLines(.rq_code, f)
   e <- new.env(parent = globalenv())
   e$summarise_arm <- impl
   tryCatch(

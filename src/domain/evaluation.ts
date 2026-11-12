@@ -36,17 +36,27 @@ export interface CheckOutcome {
 export type EvaluationResult =
   | { status: "passed"; checks: CheckOutcome[] }
   | { status: "failed"; checks: CheckOutcome[] }
-  | { status: "error"; message: string; checks: CheckOutcome[] }
+  /** The learner's code could not be parsed ("syntax") or stopped with an error ("runtime"). */
+  | { status: "error"; kind: "syntax" | "runtime"; message: string; checks: CheckOutcome[] }
   | { status: "timeout"; message: string }
+  /** The learner's code changed base R itself; grading was refused and R restarts. */
+  | { status: "integrity"; message: string }
+  /** R itself was unavailable or misbehaved (not evidence about the learner's code). */
   | { status: "runtime-error"; message: string };
 
-/** Map the harness' raw per-check verdicts onto check definitions. */
+/** Map the grader's raw verdicts onto check definitions. */
 export function interpretVerdicts(def: ValidatorDefinition, raw: string[]): EvaluationResult {
+  const failedAll = () => def.checks.map((c) => ({ ...c, passed: false }));
+  if (raw[0] === "SYNTAX") {
+    return { status: "error", kind: "syntax", message: `Your code has a syntax error: ${raw[1] ?? ""}`.trim(), checks: failedAll() };
+  }
   if (raw[0] === "ERROR") {
+    return { status: "error", kind: "runtime", message: `Your code stopped with an error: ${raw[1] ?? ""}`.trim(), checks: failedAll() };
+  }
+  if (raw[0] === "TAMPER") {
     return {
-      status: "error",
-      message: raw[1] ?? "Your code raised an error.",
-      checks: def.checks.map((c) => ({ ...c, passed: false })),
+      status: "integrity",
+      message: `Your code changed base R itself (${raw[1] ?? "unknown"}), so it can't be graded. R has been restarted; remove that code and submit again.`,
     };
   }
   if (raw.length !== def.checks.length || raw.some((v) => v !== "PASS" && v !== "FAIL")) {

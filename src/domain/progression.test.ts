@@ -174,6 +174,12 @@ test("harness verdicts map onto checks; anything malformed is not a pass", () =>
   assert.equal(interpretVerdicts(v, Array(n).fill("PASS")).status, "passed");
   assert.equal(interpretVerdicts(v, ["FAIL", ...Array(n - 1).fill("PASS")]).status, "failed");
   assert.equal(interpretVerdicts(v, ["ERROR", "boom"]).status, "error");
+  const syntax = interpretVerdicts(v, ["SYNTAX", "unexpected '{'"]);
+  assert.ok(syntax.status === "error" && syntax.kind === "syntax" && syntax.checks.every((c) => !c.passed));
+  const runtime = interpretVerdicts(v, ["ERROR", "boom"]);
+  assert.ok(runtime.status === "error" && runtime.kind === "runtime" && /boom/.test(runtime.message));
+  const tamper = interpretVerdicts(v, ["TAMPER", "isTRUE"]);
+  assert.ok(tamper.status === "integrity" && /isTRUE/.test(tamper.message));
   assert.equal(interpretVerdicts(v, Array(n - 1).fill("PASS")).status, "runtime-error");
   assert.equal(interpretVerdicts(v, [...Array(n - 1).fill("PASS"), "TRUE"]).status, "runtime-error");
 });

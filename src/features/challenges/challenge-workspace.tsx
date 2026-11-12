@@ -538,7 +538,12 @@ const ResultBanner = forwardRef<
     title = `${passed} of ${evaluation.checks.length} checks passed`;
     body = "No XP awarded. Review the hints next to the failing checks, then submit again.";
   } else if (evaluation.status === "error") {
-    title = "Your code raised an error";
+    title = evaluation.kind === "syntax" ? "Your code has a syntax error" : "Your code raised an error";
+    body = evaluation.message;
+  } else if (evaluation.status === "integrity") {
+    tone = "border-gold/35 bg-gold/[0.07]";
+    icon = <TriangleAlert className="h-5 w-5 text-gold" aria-hidden="true" />;
+    title = "Grading refused";
     body = evaluation.message;
   } else {
     tone = "border-gold/35 bg-gold/[0.07]";

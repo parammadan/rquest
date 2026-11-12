@@ -6,10 +6,13 @@
  * - Loaded lazily from the official webR CDN, pinned to one version.
  * - Jobs are serialised; each has a wall-clock timeout. A runaway job (e.g. an
  *   infinite loop) is handled by discarding the worker and starting fresh.
+ * - The R grader (harness.ts) is held as a JavaScript handle, never bound to a global
+ *   name. If learner code changes base R itself, the worker is discarded.
  */
 import type { EvaluationResult, ValidatorDefinition } from "@/domain/evaluation";
 import { interpretVerdicts } from "@/domain/evaluation";
-import { R_HARNESS } from "./harness";
+import { gradeSubmission } from "./grade";
+import { R_GRADER } from "./harness";
 
 export const WEBR_VERSION = "0.6.0";
 const WEBR_BASE = `https://webr.r-wasm.org/v${WEBR_VERSION}/`;
@@ -26,6 +29,7 @@ interface CaptureOutput {
 }
 interface ShelterLike {
   evalR(code: string, opts?: Record<string, unknown>): Promise<RObj>;
+  REnvironment: new (values: Record<string, unknown>) => Promise<RObj>;
   captureR(code: string, opts?: Record<string, unknown>): Promise<{ output: CaptureOutput[] }>;
   purge(): Promise<void>;
 }
@@ -34,6 +38,8 @@ interface WebRLike {
   close(): void;
   versionR: string;
   evalRVoid(code: string): Promise<void>;
+  /** Outside a shelter: the result persists until the worker closes. */
+  evalR(code: string): Promise<RObj>;
   evalRBoolean(code: string): Promise<boolean>;
   installPackages(pkgs: string[], opts?: { quiet?: boolean; mount?: boolean }): Promise<void>;
   objs: { globalEnv: { bind(name: string, value: unknown): Promise<void> } };
@@ -77,6 +83,8 @@ async function messageOf(data: unknown): Promise<string> {
 
 export class RSession {
   private webR: WebRLike | null = null;
+  /** Handle to the grader list returned by R_GRADER (valid for the current worker). */
+  private grader: RObj | null = null;
   private starting: Promise<WebRLike> | null = null;
   private queue: Promise<unknown> = Promise.resolve();
   private state: SessionState = { status: "idle", detail: null, rVersion: null };
@@ -110,7 +118,7 @@ export class RSession {
         const webR = new mod.WebR({ baseUrl: WEBR_BASE, interactive: false });
         await webR.init();
         this.set("starting", "Preparing the RQuest workspace…");
-        await webR.evalRVoid(R_HARNESS);
+        this.grader = await webR.evalR(R_GRADER);
         this.webR = webR;
         this.installed.clear();
         this.set("ready");
@@ -133,6 +141,7 @@ export class RSession {
       /* already gone */
     }
     this.webR = null;
+    this.grader = null;
     this.installed.clear();
     this.set("idle", reason);
   }
@@ -178,8 +187,8 @@ export class RSession {
       try {
         const lines = await this.timed(
           (async () => {
-            await webR.objs.globalEnv.bind(".rq_setup", opts.setup);
-            const env = await shelter.evalR(".rquest$prepare(.rq_setup)");
+            const prepEnv = await new shelter.REnvironment({ ".g": this.grader, ".setup": opts.setup });
+            const env = await shelter.evalR(".g$prepare(.setup)", { env: prepEnv });
             const cap = await shelter.captureR(code, {
               env,
               withAutoprint: true,
@@ -194,12 +203,22 @@ export class RSession {
               else if (o.type === "message" || o.type === "warning" || o.type === "error")
                 out.push({ kind: o.type, text: await messageOf(o.data) });
             }
-            return out;
+            const checkEnv = await new shelter.REnvironment({ ".g": this.grader });
+            const bad = (await (await shelter.evalR(".g$tampered()", { env: checkEnv })).toJs()) as { values?: unknown[] };
+            return { out, tampered: (bad.values ?? []).map(String) };
           })(),
           opts.timeoutMs,
         );
+        if (lines.tampered.length) {
+          this.discard("R was restarted because the last run changed base R.");
+          lines.out.push({
+            kind: "error",
+            text: `Your code changed base R itself (${lines.tampered.join(", ")}). R has been restarted so later runs and grading aren't affected.`,
+          });
+          return { lines: lines.out, timedOut: false, durationMs: performance.now() - t0 };
+        }
         this.set("ready");
-        return { lines, timedOut: false, durationMs: performance.now() - t0 };
+        return { lines: lines.out, timedOut: false, durationMs: performance.now() - t0 };
       } catch (e) {
         if (e instanceof TimeoutError) {
           this.discard("The last run was stopped after the time limit. R will restart on the next run.");
@@ -229,21 +248,15 @@ export class RSession {
         return { status: "runtime-error", message: e instanceof Error ? e.message : String(e) };
       }
       this.set("running", "Validating…");
-      const shelter = await new webR.Shelter();
       try {
         const raw = await this.timed(
-          (async () => {
-            await webR.objs.globalEnv.bind(".rq_code", code);
-            await webR.objs.globalEnv.bind(".rq_setup", def.setup);
-            await webR.objs.globalEnv.bind(".rq_checks", def.checks.map((c) => c.expr));
-            const res = await shelter.evalR(".rquest$validate(.rq_code, .rq_setup, .rq_checks)");
-            const js = (await res.toJs()) as { values?: unknown[] };
-            return (js.values ?? []).map(String);
-          })(),
+          gradeSubmission(webR, this.grader, code, def.setup, def.checks.map((c) => c.expr)),
           def.timeoutMs,
         );
-        this.set("ready");
-        return interpretVerdicts(def, raw);
+        const result = interpretVerdicts(def, raw);
+        if (result.status === "integrity") this.discard("R was restarted because the last submission changed base R.");
+        else this.set("ready");
+        return result;
       } catch (e) {
         if (e instanceof TimeoutError) {
           this.discard("Validation was stopped after the time limit. R will restart on the next run.");
@@ -254,8 +267,6 @@ export class RSession {
         }
         this.set("ready");
         return { status: "runtime-error", message: e instanceof Error ? e.message : String(e) };
-      } finally {
-        if (this.webR) await shelter.purge().catch(() => undefined);
       }
     });
   }
