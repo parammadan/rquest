@@ -1,0 +1,82 @@
+[
+  {
+    "id": "q01",
+    "chapter": "why-qc",
+    "lessonId": "quality-control.lesson-1",
+    "chapterTitle": "Trust needs evidence",
+    "text": "A summary table is about to go into a report. Someone will make decisions from those numbers. So the rule in research programming is simple: nothing ships without verification. In this world you will build three kinds of evidence. Tests that catch real bugs, inputs that fail loudly, and an independent second implementation that checks the first.",
+    "caption": "A summary table is about to go into a report. Someone will make decisions from those numbers. So the rule in research programming is simple: nothing ships without verification. In this world you will build three kinds of evidence. Tests that catch real bugs, inputs that fail loudly, and an independent second implementation that checks the first."
+  },
+  {
+    "id": "q02",
+    "chapter": "testthat",
+    "lessonId": "quality-control.lesson-1",
+    "chapterTitle": "Tests with testthat",
+    "text": "A test that block names one behaviour and states what must be true, using expectations. Expect equal compares values, with a small numeric tolerance. Expect identical demands an exact match. Expect error checks that bad input is refused. The tests live in the tests folder and run on every change.",
+    "caption": "A test_that() block names one behaviour and states what must be true, using expectations. expect_equal() compares values, with a small numeric tolerance. expect_identical() demands an exact match. expect_error() checks that bad input is refused. The tests live in tests/testthat/ and run on every change."
+  },
+  {
+    "id": "q03",
+    "chapter": "mutants",
+    "lessonId": "quality-control.lesson-1",
+    "chapterTitle": "Would your test catch the bug?",
+    "text": "But a passing test proves little on its own. Ask a sharper question: if the code were wrong, would this test fail? Here is a broken copy of summarise arm, a mutant, that counts missing outcomes in n. A test that only checks the result is a data frame still passes. That test protects nothing.",
+    "caption": "But a passing test proves little on its own. Ask a sharper question: if the code were wrong, would this test fail? Here is a broken copy of summarise_arm(), a mutant, that counts missing outcomes in n. A test that only checks the result is a data frame still passes. That test protects nothing."
+  },
+  {
+    "id": "q04",
+    "chapter": "mutants",
+    "lessonId": "quality-control.lesson-1",
+    "chapterTitle": "Would your test catch the bug?",
+    "text": "Now test the behaviour that matters. For an arm with one missing outcome, its count should be one. Against the mutant, that test fails, and the message shows exactly why: it expected one, and got two. Good tests target the edges where bugs live: missing values, empty input, and groups with a single observation.",
+    "caption": "Now test the behaviour that matters. For an arm with one missing outcome, its n should be 1. Against the mutant, that test fails, and the message shows exactly why: it expected 1, and got 2. Good tests target the edges where bugs live: missing values, empty input, and groups with a single observation."
+  },
+  {
+    "id": "q05",
+    "chapter": "defensive",
+    "lessonId": "quality-control.lesson-2",
+    "chapterTitle": "Fail loudly, fail clearly",
+    "text": "The second kind of evidence is defensive code. Validate inputs at the boundary, before any analysis runs. Stop if not works, but its messages are generic, like: is numeric of d f dollar outcome is not true. A colleague needs to know which column, what was wrong, and how to fix it.",
+    "caption": "The second kind of evidence is defensive code. Validate inputs at the boundary, before any analysis runs. stopifnot() works, but its messages are generic, like \"is.numeric(df$outcome) is not TRUE\". A colleague needs to know which column, what was wrong, and how to fix it."
+  },
+  {
+    "id": "q06",
+    "chapter": "classed-errors",
+    "lessonId": "quality-control.lesson-2",
+    "chapterTitle": "Classed errors",
+    "text": "R lang's abort function raises an error with a clear message and a class of your choosing. The class lets callers handle that error specifically, and lets tests check it precisely. Expect error with a class and a pattern confirms that a duplicated I D is rejected, and that the message names the offender.",
+    "caption": "rlang::abort() raises an error with a clear message and a class of your choosing. The class lets callers handle that error specifically, and lets tests check it precisely. expect_error() with a class and a pattern confirms that a duplicated id is rejected, and that the message names the offender."
+  },
+  {
+    "id": "q07",
+    "chapter": "double-programming",
+    "lessonId": "quality-control.lesson-3",
+    "chapterTitle": "Independent double programming",
+    "text": "The third kind of evidence is independent QC. A second programmer writes the same table from the specification, without reading the production code. If both programs agree, the result is far more trustworthy than either one alone. If they disagree, someone has found a bug before a reader did.",
+    "caption": "The third kind of evidence is independent QC. A second programmer writes the same table from the specification, without reading the production code. If both programs agree, the result is far more trustworthy than either one alone. If they disagree, someone has found a bug before a reader did."
+  },
+  {
+    "id": "q08",
+    "chapter": "comparing",
+    "lessonId": "quality-control.lesson-3",
+    "chapterTitle": "Comparing with tolerance",
+    "text": "Comparing two tables needs care, because floating point arithmetic is not exact. In R, zero point one plus zero point two does not equal zero point three. All equal, or an absolute difference against a small tolerance, treats tiny rounding noise as agreement, and real differences as discrepancies.",
+    "caption": "Comparing two tables needs care, because floating-point arithmetic is not exact. In R, 0.1 + 0.2 does not equal 0.3. all.equal(), or an absolute difference against a small tolerance, treats tiny rounding noise as agreement, and real differences as discrepancies."
+  },
+  {
+    "id": "q09",
+    "chapter": "discrepancies",
+    "lessonId": "quality-control.lesson-3",
+    "chapterTitle": "The discrepancy report",
+    "text": "Report every disagreement as a row: the arm, the column, the production value, and the QC value. Here, the comparison finds exactly one. For the treatment arm, production reports twenty five percent female, but QC finds forty eight point four percent. The production code divided by all sixty subjects instead of the thirty one in that arm.",
+    "caption": "Report every disagreement as a row: the arm, the column, the production value, and the QC value. Here, the comparison finds exactly one. For the Treatment arm, production reports 25% female, but QC finds 48.4%. The production code divided by all 60 subjects instead of the 31 in that arm."
+  },
+  {
+    "id": "q10",
+    "chapter": "your-mission",
+    "lessonId": "quality-control.lesson-3",
+    "chapterTitle": "Your Quality Control missions",
+    "text": "Your Quality Control missions follow this path. Write tests strong enough to catch four mutants. Make a validator that fails loudly and clearly. Then face the boss: program the demographics table independently, and report every discrepancy with production, and nothing else.",
+    "caption": "Your Quality Control missions follow this path. Write tests strong enough to catch four mutants. Make a validator that fails loudly and clearly. Then face the boss: program the demographics table independently, and report every discrepancy with production, and nothing else."
+  }
+]

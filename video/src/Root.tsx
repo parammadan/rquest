@@ -3,6 +3,10 @@ import dataLab from "../projects/data-lab-v1/timeline.json";
 import { DataLabLesson } from "./videos/data-lab/Lesson";
 import packageFactory from "../projects/package-factory-v1/timeline.json";
 import { PackageFactoryLesson } from "./videos/package-factory/Lesson";
+import debuggingCrisis from "../projects/debugging-crisis-v1/timeline.json";
+import { DebuggingCrisisLesson } from "./videos/debugging-crisis/Lesson";
+import qualityControl from "../projects/quality-control-v1/timeline.json";
+import { QualityControlLesson } from "./videos/quality-control/Lesson";
 
 /** One composition per video project (projects/<id>/). */
 export const RemotionRoot = () => (
@@ -16,5 +20,7 @@ export const RemotionRoot = () => (
       width={1920}
       height={1080}
     />
+    <Composition id="DebuggingCrisisLesson" component={DebuggingCrisisLesson} durationInFrames={debuggingCrisis.totalFrames} fps={debuggingCrisis.fps} width={1920} height={1080} />
+    <Composition id="QualityControlLesson" component={QualityControlLesson} durationInFrames={qualityControl.totalFrames} fps={qualityControl.fps} width={1920} height={1080} />
   </>
 );

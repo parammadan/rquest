@@ -1,0 +1,165 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:06.490
+A summary table is about to go into a report.
+
+2
+00:00:06.660 --> 00:00:08.530
+Someone will make decisions from those numbers.
+
+3
+00:00:08.640 --> 00:00:12.490
+So the rule in research programming is simple: nothing ships without verification.
+
+4
+00:00:13.160 --> 00:00:15.450
+In this world you will build three kinds of evidence.
+
+5
+00:00:15.700 --> 00:00:21.830
+Tests that catch real bugs, inputs that fail loudly, and an independent second implementation that checks the first.
+
+6
+00:00:23.730 --> 00:00:28.300
+A test_that() block names one behaviour and states what must be true, using expectations.
+
+7
+00:00:29.050 --> 00:00:32.200
+expect_equal() compares values, with a small numeric tolerance.
+
+8
+00:00:32.310 --> 00:00:34.640
+expect_identical() demands an exact match.
+
+9
+00:00:34.690 --> 00:00:37.420
+expect_error() checks that bad input is refused.
+
+10
+00:00:37.630 --> 00:00:40.580
+The tests live in tests/testthat/ and run on every change.
+
+11
+00:00:42.430 --> 00:00:44.680
+But a passing test proves little on its own.
+
+12
+00:00:44.790 --> 00:00:47.900
+Ask a sharper question: if the code were wrong, would this test fail?
+
+13
+00:00:48.030 --> 00:00:52.640
+Here is a broken copy of summarise_arm(), a mutant, that counts missing outcomes in n.
+
+14
+00:00:52.950 --> 00:00:56.450
+A test that only checks the result is a data frame still passes.
+
+15
+00:00:56.450 --> 00:00:57.840
+That test protects nothing.
+
+16
+00:00:59.800 --> 00:01:01.640
+Now test the behaviour that matters.
+
+17
+00:01:01.640 --> 00:01:04.530
+For an arm with one missing outcome, its n should be 1.
+
+18
+00:01:04.740 --> 00:01:10.340
+Against the mutant, that test fails, and the message shows exactly why: it expected 1, and got 2.
+
+19
+00:01:10.340 --> 00:01:15.930
+Good tests target the edges where bugs live: missing values, empty input, and groups with a single observation.
+
+20
+00:01:17.930 --> 00:01:20.380
+The second kind of evidence is defensive code.
+
+21
+00:01:20.570 --> 00:01:23.480
+Validate inputs at the boundary, before any analysis runs.
+
+22
+00:01:23.870 --> 00:01:29.480
+stopifnot() works, but its messages are generic, like "is.numeric(df$outcome) is not TRUE".
+
+23
+00:01:29.750 --> 00:01:33.460
+A colleague needs to know which column, what was wrong, and how to fix it.
+
+24
+00:01:35.230 --> 00:01:39.720
+rlang::abort() raises an error with a clear message and a class of your choosing.
+
+25
+00:01:40.030 --> 00:01:44.600
+The class lets callers handle that error specifically, and lets tests check it precisely.
+
+26
+00:01:45.110 --> 00:01:51.700
+expect_error() with a class and a pattern confirms that a duplicated id is rejected, and that the message names the offender.
+
+27
+00:01:53.600 --> 00:01:56.090
+The third kind of evidence is independent QC.
+
+28
+00:01:56.460 --> 00:02:01.430
+A second programmer writes the same table from the specification, without reading the production code.
+
+29
+00:02:01.580 --> 00:02:06.010
+If both programs agree, the result is far more trustworthy than either one alone.
+
+30
+00:02:06.140 --> 00:02:09.370
+If they disagree, someone has found a bug before a reader did.
+
+31
+00:02:11.170 --> 00:02:14.630
+Comparing two tables needs care, because floating-point arithmetic is not exact.
+
+32
+00:02:14.630 --> 00:02:21.510
+In R, 0.1 + 0.2 does not equal 0.3.
+
+33
+00:02:21.510 --> 00:02:27.980
+all.equal(), or an absolute difference against a small tolerance, treats tiny rounding noise as agreement, and real differences as discrepancies.
+
+34
+00:02:30.070 --> 00:02:34.070
+Report every disagreement as a row: the arm, the column, the production value, and the QC value.
+
+35
+00:02:34.070 --> 00:02:36.130
+Here, the comparison finds exactly one.
+
+36
+00:02:36.130 --> 00:02:43.810
+For the Treatment arm, production reports 25% female, but QC finds 48.4%.
+
+37
+00:02:43.810 --> 00:02:48.160
+The production code divided by all 60 subjects instead of the 31 in that arm.
+
+38
+00:02:49.930 --> 00:02:52.380
+Your Quality Control missions follow this path.
+
+39
+00:02:52.430 --> 00:02:54.740
+Write tests strong enough to catch four mutants.
+
+40
+00:02:54.810 --> 00:02:57.300
+Make a validator that fails loudly and clearly.
+
+41
+00:02:57.910 --> 00:03:04.760
+Then face the boss: program the demographics table independently, and report every discrepancy with production, and nothing else.
