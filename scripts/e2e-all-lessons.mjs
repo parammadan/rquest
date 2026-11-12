@@ -98,7 +98,16 @@ for (const m of catalog.missions) {
     if (m.id === "data-lab") assert(locked === 1, "World 1 boss shows the locked debrief");
     if (locked) assert((await fresh.getAttribute("[data-testid=boss-debrief]", "data-state")) === "locked", "fresh learner sees it locked");
     assert((await fresh.locator("[data-testid=boss-debrief] video").count()) === 0, "no video for a fresh learner");
-    results.push(`  ✔ ${m.id} debrief: ${want} when cleared, locked otherwise`);
+    // The mission page's boss preview mentions the debrief: "unlocked" when cleared, a promise otherwise.
+    await page.goto(`${BASE}/academy/missions/${m.id}/`);
+    await page.getByRole("button", { name: new RegExp(`Boss mission: ${boss.title.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}`) }).click();
+    await page.getByTestId("debrief-note").filter({ hasText: "Debrief video unlocked" }).waitFor({ timeout: 15_000 });
+    if (m.id === "data-lab") {
+      await fresh.goto(`${BASE}/academy/missions/data-lab/`);
+      await fresh.getByRole("button", { name: /Boss mission:/ }).click();
+      await fresh.getByTestId("debrief-note").filter({ hasText: "Clearing this boss unlocks" }).waitFor({ timeout: 15_000 });
+    }
+    results.push(`  ✔ ${m.id} debrief: ${want} when cleared, locked otherwise; mission page mentions it`);
   } catch (e) {
     failures++;
     results.push(`  ✘ ${m.id} debrief\n      ${String(e?.message ?? e).split("\n")[0]}`);

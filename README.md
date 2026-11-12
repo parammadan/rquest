@@ -26,7 +26,7 @@ pnpm test:e2e                          # site-wide browser checks against out/ (
 pnpm test:e2e:lessons                  # lesson experience: video, captions, transcript, live R, completion rules
 pnpm test:e2e:all-lessons              # every live lesson end to end, plus boss debriefs (locked until cleared)
 pnpm test:e2e:world2                   # Package Factory: diagrams, evolving walkthroughs, feedback, assembly, boss briefing
-pnpm test:browsers                     # Chrome, Firefox, WebKit: webR, validation, persistence, video, captions, layout
+pnpm test:browsers                     # Chrome, Firefox, WebKit: webR, validation, all 10 videos + captions, layout
 pnpm test:e2e:challenges               # all 15 challenges through the real UI with webR (needs network)
 pnpm test:validators                   # every reference solution passes; every starter fails
 SITE_URL=https://parammadan.github.io/rquest pnpm test:e2e   # any suite, against production

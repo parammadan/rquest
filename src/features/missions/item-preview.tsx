@@ -5,7 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { ComingSoonPanel } from "@/components/coming-soon-panel";
 import { DifficultyMeter } from "@/components/ui/primitives";
 import type { Challenge, Lesson, MissionItem } from "@/domain/types";
-import { getVideo } from "@/content/videos";
+import { getDebrief, getVideo } from "@/content/videos";
 import { formatMinutes } from "@/lib/format";
 import { RCode } from "./r-code";
 
@@ -75,6 +75,21 @@ function LessonPreview({ lesson, completed }: { lesson: Lesson; completed: boole
   );
 }
 
+/** Tells learners a debrief video exists before they clear the boss, without showing it. */
+function DebriefNote({ challenge, completed }: { challenge: Challenge; completed: boolean }) {
+  const d = getDebrief(challenge.missionId);
+  if (!d || d.status !== "ready" || !d.durationSec) return null;
+  const len = `${Math.floor(d.durationSec / 60)}:${String(Math.round(d.durationSec % 60)).padStart(2, "0")}`;
+  return (
+    <p data-testid="debrief-note" className="mt-2 flex items-start gap-2 text-xs text-fg-subtle">
+      <Clapperboard className="mt-0.5 h-4 w-4 shrink-0 text-[var(--accent)]" aria-hidden="true" />
+      {completed
+        ? `Debrief video unlocked (${len}): a solution that passes every check, and the mistakes that fail them. Watch it in the challenge.`
+        : `Clearing this boss unlocks a debrief video (${len}): a solution that passes every check, and the mistakes that fail them.`}
+    </p>
+  );
+}
+
 function LiveChallenge({ challenge, completed }: { challenge: Challenge; completed: boolean }) {
   const boss = challenge.type === "boss";
   const Icon = boss ? Swords : SquareTerminal;
@@ -102,6 +117,7 @@ function LiveChallenge({ challenge, completed }: { challenge: Challenge; complet
           Runs real R in your browser (webR). Checked by {STRATEGY_LABEL[challenge.evaluation.strategy]}, including inputs
           you haven’t seen. XP is awarded once, only when every check passes.
         </p>
+        {boss && <DebriefNote challenge={challenge} completed={completed} />}
         <ButtonLink href={`/academy/missions/${challenge.missionId}/challenges/${challenge.id}`} className="mt-5">
           {completed ? "Open again" : "Open challenge"}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />

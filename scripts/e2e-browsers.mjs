@@ -3,8 +3,19 @@
 // transcript seeking, and a phone-sized layout.
 // Usage: pnpm build:pages && pnpm test:browsers   (SITE_URL=… for production)
 import { chromium, firefox, webkit } from "playwright-core";
+import { catalog } from "../src/content/catalog.ts";
+import { getDebrief, getVideo } from "../src/content/videos.ts";
 import { REFERENCE_SOLUTIONS } from "../src/content/validators/reference-solutions.ts";
+import { expectedValidatorId } from "../src/domain/progression.ts";
 import { startSite } from "./lib/site.mjs";
+
+const LEGACY = catalog.missions.flatMap((m) =>
+  m.items.filter((i) => i.kind === "challenge").map((i) => ({
+    id: `legacy-${i.id}`, type: "item.completed", itemId: i.id, itemKind: "challenge", missionId: m.id,
+    occurredAt: "2026-11-01T00:00:00.000Z",
+    receipt: { validatorId: expectedValidatorId(i), verdict: "passed", checkedAt: "2026-11-01T00:00:00.000Z" },
+  })),
+);
 
 const KEY = "rquest:progress:v1";
 const site = await startSite(3117);
@@ -80,33 +91,51 @@ for (const [name, launch] of engines) {
     assert(n === 1, `events ${n}`);
   });
 
-  for (const [world, lesson, chapter, file] of [
-    ["data-lab", "data-lab.lesson-1", /Missing observations/, "data-lab-v1.mp4"],
-    ["package-factory", "package-factory.lesson-1", /Exports and the NAMESPACE/, "package-factory-v1.mp4"],
-  ]) {
+  // Full-page navigations below would cancel Next's in-flight link prefetches, which WebKit reports
+  // as uncaught "access control checks" errors. Let prefetching settle before each navigation.
+  const settle = () => page.waitForLoadState("networkidle", { timeout: 5_000 }).catch(() => {});
+
+  // Clear every boss (legacy challenge receipts), so every world and every debrief is unlocked.
+  await settle();
+  await page.evaluate(([k, ev]) => {
+    const s = JSON.parse(localStorage.getItem(k));
+    const have = new Set(s.events.map((e) => e.itemId));
+    s.events.push(...ev.filter((e) => !have.has(e.itemId)));
+    localStorage.setItem(k, JSON.stringify(s));
+  }, [KEY, LEGACY]);
+
+  for (const m of catalog.missions) {
+    const lesson = m.items.find((i) => i.kind === "lesson");
+    const video = getVideo(lesson.videoId);
+    const file = video.sources.mp4.split("/").pop();
+    const chapter = video.chapters.find((c) => c.startSec > 60);
     await step(`video (${file}): loads, captions track, chapter seek, transcript seek`, async () => {
-      if (world === "package-factory") {
-        await page.evaluate((k) => {
-          const s = JSON.parse(localStorage.getItem(k));
-          for (const slug of ["challenge-2", "boss"]) {
-            s.events.push({ id: `x-${slug}`, type: "item.completed", itemId: `data-lab.${slug}`, itemKind: "challenge", missionId: "data-lab", occurredAt: "2026-11-01T00:00:00.000Z", receipt: { validatorId: `webr:output-match:data-lab.${slug}`, verdict: "passed", checkedAt: "2026-11-01T00:00:00.000Z" } });
-          }
-          localStorage.setItem(k, JSON.stringify(s));
-        }, KEY);
-      }
-      await page.goto(`${BASE}/academy/missions/${world}/lessons/${lesson}/`);
+      await settle();
+      await page.goto(`${BASE}/academy/missions/${m.id}/lessons/${lesson.id}/`);
       await page.getByRole("button", { name: "Watch", exact: true }).click();
       await page.waitForFunction(() => document.querySelector("[data-testid=lesson-video]")?.readyState >= 1, null, { timeout: 60_000 });
       const v = page.getByTestId("lesson-video");
       const info = await v.evaluate((el) => ({ d: el.duration, tracks: el.textTracks.length, err: el.error?.code ?? null }));
-      assert(info.d > 150 && info.tracks === 1 && info.err === null, JSON.stringify(info));
-      await page.getByRole("button", { name: chapter }).click();
+      assert(Math.abs(info.d - video.durationSec) < 1.5 && info.tracks === 1 && info.err === null, JSON.stringify(info));
+      await page.getByRole("button", { name: chapter.title }).first().click();
       await page.waitForFunction(() => document.querySelector("[data-testid=lesson-video]").currentTime > 60, null, { timeout: 15_000 });
       await page.getByRole("tab", { name: "Transcript" }).click();
       await page.getByRole("list", { name: "Transcript" }).getByRole("button").nth(3).click();
       await page.waitForFunction(() => document.querySelector("[data-testid=lesson-video]").currentTime < 30, null, { timeout: 15_000 });
       const cueLoaded = await v.evaluate((el) => (el.textTracks[0].cues?.length ?? 0) > 0);
       assert(cueLoaded, "captions file parsed (cues loaded)");
+    });
+  }
+
+  for (const m of catalog.missions) {
+    const d = getDebrief(m.id);
+    const boss = m.items.find((i) => i.kind === "challenge" && i.type === "boss");
+    await step(`debrief (${d.sources.mp4.split("/").pop()}): unlocked after the boss, loads with captions`, async () => {
+      await settle();
+      await page.goto(`${BASE}/academy/missions/${m.id}/challenges/${boss.id}/`);
+      await page.waitForFunction(() => document.querySelector("[data-testid=boss-debrief] video")?.readyState >= 1, null, { timeout: 60_000 });
+      const info = await page.locator("[data-testid=boss-debrief] video").evaluate((el) => ({ d: el.duration, tracks: el.textTracks.length, err: el.error?.code ?? null }));
+      assert(Math.abs(info.d - d.durationSec) < 1.5 && info.tracks === 1 && info.err === null, JSON.stringify(info));
     });
   }
 
