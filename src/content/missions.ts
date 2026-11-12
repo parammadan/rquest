@@ -4,12 +4,14 @@ import type {
   ChallengeType,
   DifficultyLevel,
   EvaluationSpec,
-  Lesson,
   Mission,
   MissionId,
 } from "../domain/types.ts";
 import { dataLabLessons } from "./lessons/data-lab.ts";
 import { packageFactoryLessons } from "./lessons/package-factory.ts";
+import { debuggingCrisisLessons } from "./lessons/debugging-crisis.ts";
+import { qualityControlLessons } from "./lessons/quality-control.ts";
+import { researchMissionLessons } from "./lessons/research-mission.ts";
 
 /*
  * Mission catalog — the single source of truth for academy content.
@@ -17,50 +19,11 @@ import { packageFactoryLessons } from "./lessons/package-factory.ts";
  * All datasets referenced in stories are synthetic.
  */
 
-const VIDEO_PHASE: Availability = {
-  status: "planned",
-  phase: 3,
-  note: "Video lesson in production: the world video, written walkthrough, and knowledge check.",
-};
-
 const CHALLENGE_PHASE: Availability = {
   status: "planned",
   phase: 2,
   note: "Will run real R in the browser via WebR once its validator is authored.",
 };
-
-interface LessonInput {
-  title: string;
-  summary: string;
-  minutes: number;
-  outline: string[];
-}
-
-/** Placeholder lesson for worlds whose video hasn't been produced yet. */
-function lesson(missionId: MissionId, n: number, input: LessonInput): Lesson {
-  const id = `${missionId}.lesson-${n}`;
-  const challengeSlug = n === 3 ? "boss" : `challenge-${n}`;
-  return {
-    id,
-    kind: "lesson",
-    missionId,
-    title: input.title,
-    summary: input.summary,
-    estimatedMinutes: input.minutes,
-    xp: 20,
-    briefing: input.summary,
-    objectives: input.outline,
-    keyPoints: [],
-    videoId: `${missionId}.video`,
-    chapterIds: [],
-    explanation: [],
-    walkthrough: null,
-    knowledgeCheck: [],
-    challengeId: `${missionId}.${challengeSlug}`,
-    check: { validatorId: `lesson-check:${id}` },
-    availability: VIDEO_PHASE,
-  };
-}
 
 interface ChallengeInput {
   slug: string;
@@ -399,12 +362,7 @@ const debuggingCrisis: Mission = {
   rewardAchievementId: "bug-hunter",
   theme: { visual: "crisis", accent: "coral" },
   items: [
-    lesson("debugging-crisis", 1, {
-      title: "Tracebacks and interactive debugging",
-      summary: "traceback(), browser(), debug(), and options(error = recover).",
-      minutes: 15,
-      outline: ["Reading a traceback bottom-up", "browser() and stepping", "Condition handling with tryCatch"],
-    }),
+    debuggingCrisisLessons[0],
     challenge("debugging-crisis", {
       slug: "challenge-1",
       type: "debugging",
@@ -435,18 +393,8 @@ outcome_table <- function(df) {
 outcome_table(trial)
 `,
     }),
-    lesson("debugging-crisis", 2, {
-      title: "Libraries, paths, and versions",
-      summary: ".libPaths(), sessionInfo(), and why two machines disagree.",
-      minutes: 14,
-      outline: [".libPaths() and site libraries", "packageVersion() and sessionInfo()", "Namespaces and search()"],
-    }),
-    lesson("debugging-crisis", 3, {
-      title: "Reproducible environments with renv",
-      summary: "Lockfiles, restore, and snapshot as the cure for 'works on my machine'.",
-      minutes: 16,
-      outline: ["renv::init() and the lockfile", "snapshot vs restore", "Upgrading one dependency safely"],
-    }),
+    debuggingCrisisLessons[1],
+    debuggingCrisisLessons[2],
     challenge("debugging-crisis", {
       slug: "challenge-2",
       type: "debugging",
@@ -532,12 +480,7 @@ const qualityControl: Mission = {
   rewardAchievementId: "test-guardian",
   theme: { visual: "qc", accent: "emerald" },
   items: [
-    lesson("quality-control", 1, {
-      title: "testthat foundations",
-      summary: "test_that(), expectations, and organising tests alongside package code.",
-      minutes: 15,
-      outline: ["expect_equal vs expect_identical", "Testing errors and warnings", "Fixtures and helpers"],
-    }),
+    qualityControlLessons[0],
     challenge("quality-control", {
       slug: "challenge-1",
       type: "test-writing",
@@ -566,18 +509,8 @@ test_that("summarise_arm rejects empty input", {
 })
 `,
     }),
-    lesson("quality-control", 2, {
-      title: "Defensive programming",
-      summary: "stopifnot, rlang::abort, and error messages a colleague can act on.",
-      minutes: 13,
-      outline: ["Validate at the boundary", "Classed conditions", "Snapshot-testing error messages"],
-    }),
-    lesson("quality-control", 3, {
-      title: "Independent QC and double programming",
-      summary: "Why a second, independent implementation catches what code review misses.",
-      minutes: 17,
-      outline: ["Production vs QC programmer roles", "Comparing outputs with tolerance", "Documenting discrepancies"],
-    }),
+    qualityControlLessons[1],
+    qualityControlLessons[2],
     challenge("quality-control", {
       slug: "challenge-2",
       type: "code-exercise",
@@ -661,18 +594,8 @@ const researchMission: Mission = {
   rewardAchievementId: "research-champion",
   theme: { visual: "research", accent: "gold" },
   items: [
-    lesson("research-mission", 1, {
-      title: "Pipelines with targets",
-      summary: "Declare analysis steps as targets so only what changed is recomputed.",
-      minutes: 18,
-      outline: ["tar_target() and the DAG", "tar_make() and invalidation", "Inspecting with tar_visnetwork()"],
-    }),
-    lesson("research-mission", 2, {
-      title: "Randomness you can reproduce",
-      summary: "set.seed, RNGkind, and parallel-safe streams for bootstrap and simulation.",
-      minutes: 12,
-      outline: ["set.seed() and RNGkind()", "L'Ecuyer streams for parallel work", "Recording the seed in output"],
-    }),
+    researchMissionLessons[0],
+    researchMissionLessons[1],
     challenge("research-mission", {
       slug: "challenge-1",
       type: "code-exercise",
@@ -703,12 +626,7 @@ boot_ci <- function(x, B = 2000, seed = 1) {
 boot_ci(x_obs)
 `,
     }),
-    lesson("research-mission", 3, {
-      title: "Literate reports with Quarto",
-      summary: "Parameterised reports where every number is computed, never pasted.",
-      minutes: 16,
-      outline: ["Inline R expressions", "Parameters and rendering", "Embedding session information"],
-    }),
+    researchMissionLessons[2],
     challenge("research-mission", {
       slug: "challenge-2",
       type: "code-exercise",

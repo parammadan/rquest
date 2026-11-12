@@ -270,14 +270,15 @@ test("every world has three lessons, each directly before the challenge it prepa
   }
 });
 
-test("one video per world; Worlds 1–2 are ready, the rest have no sources", () => {
+const READY = ["data-lab", "package-factory", "debugging-crisis", "quality-control"];
+test("one video per world; ready worlds have media, the rest have no sources", () => {
   assert.equal(VIDEOS.length, 5);
   for (const m of catalog.missions) assert.ok(VIDEOS.some((v) => v.missionId === m.id), m.id);
   for (const v of VIDEOS) {
-    if (v.missionId === "data-lab" || v.missionId === "package-factory") {
+    if (READY.includes(v.missionId)) {
       assert.equal(v.status, "ready");
       assert.ok(v.sources.mp4 && v.captionsVtt && v.transcript.length > 10 && v.chapters.length >= 3);
-      const [lo, hi] = v.missionId === "data-lab" ? [150, 260] : [240, 300];
+      const [lo, hi] = v.missionId === "package-factory" ? [240, 300] : [150, 260];
       assert.ok(v.durationSec! > lo && v.durationSec! < hi, `${v.id} duration ${v.durationSec}`);
     } else {
       assert.equal(v.status, "planned");
@@ -292,6 +293,8 @@ test("live lessons are complete: chapters exist, questions are well-formed, chec
   assert.deepEqual(live.map((l) => l.id), [
     "data-lab.lesson-1", "data-lab.lesson-2", "data-lab.lesson-3",
     "package-factory.lesson-1", "package-factory.lesson-2", "package-factory.lesson-3",
+    "debugging-crisis.lesson-1", "debugging-crisis.lesson-2", "debugging-crisis.lesson-3",
+    "quality-control.lesson-1", "quality-control.lesson-2", "quality-control.lesson-3",
   ]);
   for (const l of live) {
     const video = getVideo(l.videoId)!;

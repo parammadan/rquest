@@ -27,7 +27,9 @@ export function VideoUnavailable({ video, reason }: { video: VideoAsset | undefi
       </p>
       <p className="max-w-md text-sm text-fg-muted">
         {reason === "planned"
-          ? `“${video?.title ?? "This world’s video"}” hasn’t been produced yet. The written lesson covers the same material.`
+          ? video?.kind === "debrief"
+            ? `“${video.title}” hasn’t been produced yet. The checks above show exactly what your solution passed.`
+            : `“${video?.title ?? "This world’s video"}” hasn’t been produced yet. The written lesson covers the same material.`
           : "Check your connection and try again. The transcript below covers everything the video says."}
       </p>
     </div>

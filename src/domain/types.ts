@@ -56,6 +56,8 @@ export interface CaptionCue {
 export interface VideoAsset {
   id: string;
   missionId: MissionId;
+  /** "world": the instructional video a world's lessons share. "debrief": unlocks after the boss is cleared. */
+  kind?: "world" | "debrief";
   title: string;
   summary: string;
   status: VideoStatus;

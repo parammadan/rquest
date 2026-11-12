@@ -41,10 +41,11 @@ const ITEMS = catalog.missions.flatMap((m) => m.items);
 const CHALLENGES = ITEMS.filter((i) => i.kind === "challenge" && i.availability.status === "available").length;
 const LIVE_LESSONS = ITEMS.filter((i) => i.kind === "lesson" && i.availability.status === "available").length;
 const PLANNED_LESSONS = ITEMS.filter((i) => i.kind === "lesson" && i.availability.status === "planned").length;
-const LESSON_WORLDS = catalog.missions
-  .filter((m) => m.items.some((i) => i.kind === "lesson" && i.availability.status === "available"))
-  .map((m) => m.worldLabel)
-  .join(" and ");
+const LESSON_WORLDS = new Intl.ListFormat("en", { type: "conjunction" }).format(
+  catalog.missions
+    .filter((m) => m.items.some((i) => i.kind === "lesson" && i.availability.status === "available"))
+    .map((m) => m.worldLabel),
+);
 
 export default function LandingPage() {
   return (

@@ -8,6 +8,7 @@ import {
   Clock,
   Cpu,
   LoaderCircle,
+  Lock,
   Play,
   RotateCcw,
   ShieldCheck,
@@ -17,12 +18,14 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 import { PackageAssembly } from "@/features/lessons/diagrams";
+import { VideoPlayer, VideoUnavailable } from "@/features/lessons/video-player";
 import Link from "next/link";
 import { forwardRef, useEffect, useMemo, useRef, useState } from "react";
 import { ComingSoonPanel } from "@/components/coming-soon-panel";
 import { Button } from "@/components/ui/button";
 import { DifficultyMeter, Skeleton } from "@/components/ui/primitives";
 import { catalog } from "@/content/catalog";
+import { getDebrief } from "@/content/videos";
 import { validatorForChallenge } from "@/content/validators";
 import type { CheckOutcome, EvaluationResult } from "@/domain/evaluation";
 import type { Challenge } from "@/domain/types";
@@ -347,11 +350,48 @@ function ChallengeWorkspace({ challenge, completed }: { challenge: Challenge; co
           </details>
         </div>
       </div>
+
+      {challenge.type === "boss" && <BossDebrief challenge={challenge} completed={completed} />}
     </article>
   );
 }
 
 /* ------------------------------------------------------------------ */
+
+/** The boss debrief video: locked until this boss is validated, so it never spoils the solution. */
+function BossDebrief({ challenge, completed }: { challenge: Challenge; completed: boolean }) {
+  const video = getDebrief(challenge.missionId);
+  if (!video) return null;
+  return (
+    <section aria-labelledby="debrief-h" data-testid="boss-debrief" data-state={!completed ? "locked" : video.status} className="mt-8">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <h2 id="debrief-h" className="font-display text-xl font-semibold">
+          Boss debrief
+        </h2>
+        {video.durationSec && <span className="text-sm text-fg-subtle">{formatMinutes(Math.max(1, Math.round(video.durationSec / 60)))} video</span>}
+      </div>
+      {!completed ? (
+        <div className="panel flex items-center gap-4 p-5">
+          <Lock className="h-6 w-6 shrink-0 text-fg-subtle" aria-hidden="true" />
+          <div>
+            <p className="font-medium">Unlocks when you clear this boss</p>
+            <p className="mt-1 text-sm text-fg-muted">
+              A walkthrough of a solution that passes every check, and the mistakes that fail them. It stays hidden until your own
+              solution is validated.
+            </p>
+          </div>
+        </div>
+      ) : video.status === "ready" ? (
+        <>
+          <p className="mb-4 text-sm text-fg-muted">{video.summary}</p>
+          <VideoPlayer video={video} />
+        </>
+      ) : (
+        <VideoUnavailable video={video} reason="planned" />
+      )}
+    </section>
+  );
+}
 
 /** Animated boss briefing: the stakes, the release gates, and the world's assembly so far. */
 function BossBriefing({ challenge, completed }: { challenge: Challenge; completed: boolean }) {

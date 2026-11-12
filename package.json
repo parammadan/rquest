@@ -16,7 +16,8 @@
     "build:pages": "NEXT_PUBLIC_BASE_PATH=/rquest next build",
     "test:e2e:lessons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-lessons.mjs",
     "test:e2e:world2": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-world2.mjs",
-    "test:browsers": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-browsers.mjs"
+    "test:browsers": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-browsers.mjs",
+    "test:e2e:all-lessons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-all-lessons.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",
