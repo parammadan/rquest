@@ -159,19 +159,22 @@ try {
     await page.getByRole("heading", { name: /is locked/ }).waitFor();
   });
 
-  await check("Worlds 2–5 lessons show honest placeholders (World 2 unlocked by legacy challenge progress)", async () => {
+  await check("Worlds 3–5 lessons show honest placeholders (World 3 unlocked by legacy challenge progress)", async () => {
     await page.evaluate((k) => {
       const s = JSON.parse(localStorage.getItem(k));
-      for (const slug of ["challenge-1", "challenge-2", "boss"]) {
-        s.events.push({
-          id: `legacy-${slug}`, type: "item.completed", itemId: `data-lab.${slug}`, itemKind: "challenge", missionId: "data-lab",
-          occurredAt: "2026-11-01T00:00:00.000Z",
-          receipt: { validatorId: `webr:output-match:data-lab.${slug}`, verdict: "passed", checkedAt: "2026-11-01T00:00:00.000Z" },
-        });
+      const strat = { "data-lab": "output-match", "package-factory": "package-checks" };
+      for (const world of ["data-lab", "package-factory"]) {
+        for (const slug of ["challenge-1", "challenge-2", "boss"]) {
+          s.events.push({
+            id: `legacy-${world}-${slug}`, type: "item.completed", itemId: `${world}.${slug}`, itemKind: "challenge", missionId: world,
+            occurredAt: "2026-11-01T00:00:00.000Z",
+            receipt: { validatorId: `webr:${strat[world]}:${world}.${slug}`, verdict: "passed", checkedAt: "2026-11-01T00:00:00.000Z" },
+          });
+        }
       }
       localStorage.setItem(k, JSON.stringify(s));
     }, KEY);
-    await page.goto(`${BASE}/academy/missions/package-factory/lessons/package-factory.lesson-1/`);
+    await page.goto(`${BASE}/academy/missions/debugging-crisis/lessons/debugging-crisis.lesson-1/`);
     await page.getByText("Video in production").waitFor();
     assert(await page.getByRole("link", { name: /Go to the challenge/ }).isVisible(), "challenge link");
     assert((await page.locator("video").count()) === 0, "no video element");

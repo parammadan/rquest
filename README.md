@@ -7,10 +7,10 @@ Independent portfolio project. Not affiliated with or endorsed by any institutio
 
 **Live:** https://parammadan.github.io/rquest/ (GitHub Pages, static export, deployed by `.github/workflows/pages.yml`)
 
-**Status: Phase 3A.** All 15 challenges across the five worlds run real R in the browser (webR) and are
-validated automatically. World 1 has its instructional video and three full lessons (video, written
-walkthrough, live R examples, and a knowledge check). Worlds 2–5 lessons are honest placeholders until
-their videos are produced. XP comes only from those validations. Lessons (video plus a comprehension
+**Status: Phase 3B.** All 15 challenges across the five worlds run real R in the browser (webR) and are
+validated automatically. Worlds 1 and 2 have their instructional videos and three full lessons each: video,
+written walkthrough, live R examples, diagrams, and a knowledge check with feedback on wrong answers.
+Worlds 3–5 lessons are honest placeholders until their videos are produced. XP comes only from those validations. Lessons (video plus a comprehension
 check) are Phase 3. A world unlocks once the
 previous world is *cleared*, meaning all its challenges and its boss are validated; lessons add bonus XP
 and count toward full mastery.
@@ -25,6 +25,8 @@ pnpm verify              # typecheck + lint + unit tests + production build
 pnpm build:pages                       # static export to out/ (base path /rquest, as on GitHub Pages)
 pnpm test:e2e                          # site-wide browser checks against out/ (system Chrome via playwright-core)
 pnpm test:e2e:lessons                  # lesson experience: video, captions, transcript, live R, completion rules
+pnpm test:e2e:world2                   # Package Factory: diagrams, evolving walkthroughs, feedback, assembly, boss briefing
+pnpm test:browsers                     # Chrome, Firefox, WebKit: webR, validation, persistence, video, captions, layout
 pnpm test:e2e:challenges               # all 15 challenges through the real UI with webR (needs network)
 pnpm test:validators                   # every reference solution passes; every starter fails
 SITE_URL=https://parammadan.github.io/rquest pnpm test:e2e   # any suite, against production
