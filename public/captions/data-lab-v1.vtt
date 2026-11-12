@@ -1,181 +1,181 @@
 WEBVTT
 
 1
-00:00:04.100 --> 00:00:11.020
+00:00:04.100 --> 00:00:10.250
 Every number in a research report has a history: the file it came from, the code that touched it, and the person who ran that code.
 
 2
-00:00:11.020 --> 00:00:13.290
+00:00:10.720 --> 00:00:12.750
 R is built for keeping that history honest.
 
 3
-00:00:13.290 --> 00:00:17.930
+00:00:12.880 --> 00:00:17.450
 It is free, scriptable, and every step of an analysis can be written down and run again.
 
 4
-00:00:17.930 --> 00:00:21.680
+00:00:17.680 --> 00:00:21.350
 Let's learn the core of R the way research programmers actually use it.
 
 5
-00:00:23.070 --> 00:00:27.530
+00:00:23.070 --> 00:00:27.110
 Everything in R starts with the vector: an ordered collection of values of one type.
 
 6
-00:00:27.530 --> 00:00:28.590
+00:00:27.110 --> 00:00:28.200
 Create one with c().
 
 7
-00:00:28.590 --> 00:00:30.930
+00:00:28.250 --> 00:00:30.540
 Here are six site codes from a study export.
 
 8
-00:00:30.930 --> 00:00:34.170
+00:00:30.730 --> 00:00:33.480
 Ask R for the type with typeof(), and the size with length().
 
 9
-00:00:34.170 --> 00:00:38.210
+00:00:33.510 --> 00:00:37.440
 Most R functions are vectorized, so toupper() changes every element at once.
 
 10
-00:00:38.210 --> 00:00:39.110
+00:00:37.530 --> 00:00:38.640
 No loop required.
 
 11
-00:00:40.500 --> 00:00:44.170
+00:00:40.500 --> 00:00:43.890
 Because a vector holds one type, mixing types forces a conversion.
 
 12
-00:00:44.170 --> 00:00:47.670
+00:00:44.360 --> 00:00:47.310
 Combine the number one with the text two, and both become text.
 
 13
-00:00:47.670 --> 00:00:54.510
+00:00:47.540 --> 00:00:54.250
 This silent coercion is a classic source of bugs: one stray character in a numeric column turns the whole column into text.
 
 14
-00:00:54.510 --> 00:00:56.630
+00:00:54.280 --> 00:00:56.150
 Check the types whenever data arrives.
 
 15
-00:00:58.030 --> 00:01:00.680
+00:00:58.030 --> 00:01:00.200
 When you repeat a step, turn it into a function.
 
 16
-00:01:00.680 --> 00:01:09.000
+00:01:00.590 --> 00:01:08.140
 clean_site() takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub(), a pattern replacement.
 
 17
-00:01:09.000 --> 00:01:11.920
+00:01:08.390 --> 00:01:11.080
 The last value computed is what the function returns.
 
 18
-00:01:11.920 --> 00:01:15.060
+00:01:11.430 --> 00:01:14.620
 Now one tested function cleans every code, in every file.
 
 19
-00:01:16.470 --> 00:01:17.640
+00:01:16.470 --> 00:01:17.840
 Real data has gaps.
 
 20
-00:01:17.640 --> 00:01:23.850
+00:01:17.870 --> 00:01:23.030
 R marks a missing value as NA, and NA is contagious: the mean of a vector containing NA is itself NA.
 
 21
-00:01:23.850 --> 00:01:25.020
+00:01:23.030 --> 00:01:24.560
 That is deliberate.
 
 22
-00:01:25.020 --> 00:01:26.190
+00:01:24.650 --> 00:01:25.450
 R refuses to guess.
 
 23
-00:01:26.190 --> 00:01:33.580
+00:01:25.450 --> 00:01:33.160
 Find the gaps using the function is.na(), count them with sum(), and drop them only on purpose, by setting na.rm = TRUE.
 
 24
-00:01:34.970 --> 00:01:37.480
+00:01:34.970 --> 00:01:37.280
 A data frame is a table built from vectors.
 
 25
-00:01:37.480 --> 00:01:41.100
+00:01:37.390 --> 00:01:40.700
 Each column is a vector, and every column has the same length.
 
 26
-00:01:41.100 --> 00:01:45.300
+00:01:41.030 --> 00:01:44.820
 Our synthetic trial has an id, a treatment arm, a visit, and an outcome.
 
 27
-00:01:45.300 --> 00:01:52.080
+00:01:45.030 --> 00:01:51.620
 Pull out a column with $, keep rows with a logical condition, and you are already asking real questions of the data.
 
 28
-00:01:53.470 --> 00:01:55.350
+00:01:53.470 --> 00:01:55.360
 Most reports summarise by group.
 
 29
-00:01:55.350 --> 00:02:04.250
+00:01:55.450 --> 00:02:03.590
 The dplyr package gives you a readable vocabulary: filter() keeps the Week 12 visit, group_by() splits by arm, and summarise() computes each statistic.
 
 30
-00:02:04.250 --> 00:02:05.780
+00:02:03.590 --> 00:02:05.190
 Watch the missing outcome.
 
 31
-00:02:05.780 --> 00:02:10.380
+00:02:05.190 --> 00:02:09.880
 n() counts rows, not observations, so count the non-missing values explicitly.
 
 32
-00:02:10.380 --> 00:02:13.030
+00:02:10.170 --> 00:02:12.520
 Precise definitions make a table trustworthy.
 
 33
-00:02:14.430 --> 00:02:15.580
+00:02:14.430 --> 00:02:15.820
 Now a realistic case.
 
 34
-00:02:15.580 --> 00:02:17.890
+00:02:15.870 --> 00:02:18.000
 A collaborator sends an enrollment export.
 
 35
-00:02:17.890 --> 00:02:25.390
+00:02:18.350 --> 00:02:24.820
 Site codes are inconsistent, some ages are blank, one participant appears twice, and the enrollment date is written three different ways.
 
 36
-00:02:25.390 --> 00:02:29.010
+00:02:25.050 --> 00:02:28.560
 Read every column as text first, so nothing is silently converted.
 
 37
-00:02:29.010 --> 00:02:31.590
+00:02:28.670 --> 00:02:31.200
 Then fix each problem with a small, named step.
 
 38
-00:02:33.000 --> 00:02:33.890
+00:02:33.000 --> 00:02:33.990
 Dates need care.
 
 39
-00:02:33.890 --> 00:02:39.160
+00:02:34.020 --> 00:02:38.570
 Parse the ISO format first, then fill the remaining gaps with the other formats, one at a time.
 
 40
-00:02:39.160 --> 00:02:46.710
+00:02:38.940 --> 00:02:45.750
 Turn the arm column into a factor with its levels stated explicitly, remove exact duplicate rows with unique(), and sort by participant.
 
 41
-00:02:46.710 --> 00:02:51.430
+00:02:46.220 --> 00:02:50.930
 Finally, check the result: one row per participant, and no unexpected missing values.
 
 42
-00:02:52.830 --> 00:02:59.000
+00:02:52.830 --> 00:02:58.980
 That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data.
 
 43
-00:02:59.000 --> 00:03:00.620
+00:02:59.090 --> 00:03:00.480
 Your first mission is waiting.
 
 44
-00:03:00.620 --> 00:03:06.620
+00:03:00.670 --> 00:03:05.720
 Write clean_site(), the function from this lesson, and the validator will test it on codes you have never seen.
 
 45
-00:03:06.620 --> 00:03:08.730
+00:03:06.010 --> 00:03:08.180
 Pass every check to earn your first XP.

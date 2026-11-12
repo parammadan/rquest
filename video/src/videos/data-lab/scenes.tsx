@@ -1,6 +1,6 @@
 import React from "react";
 import { AbsoluteFill } from "remotion";
-import { Appear, beats, C, Cells, Chip, Code, ease, FONT, Frame, Heading, LogoMark, Panel, Table, useSec, useSpring } from "./kit";
+import { Appear, C, Cells, Chip, Code, ease, FONT, Frame, Heading, LogoMark, Panel, Table, useBeats, useSec, useSpring } from "../../kit";
 
 /* All R outputs shown here were produced by running the code in R 4.6.1. */
 
@@ -43,7 +43,7 @@ export const Intro: React.FC = () => {
 };
 
 export const S01: React.FC = () => {
-  const b = beats("s01");
+  const b = useBeats("s01");
   const t = useSec();
   const chain = [
     { k: "THE FILE", v: "enrollment_export.csv", c: C.cyan },
@@ -100,7 +100,7 @@ const SITE_VALUES = ['"BOS-01"', '"bos01"', '"NYC-02"', '" nyc-02"', null, '"CHI
 const SITE_UPPER = ['"BOS-01"', '"BOS01"', '"NYC-02"', '" NYC-02"', null, '"CHI-03"'];
 
 export const S02: React.FC = () => {
-  const b = beats("s02");
+  const b = useBeats("s02");
   const t = useSec();
   const upper = t >= b[4] + 1.6;
   return (
@@ -136,7 +136,7 @@ export const S02: React.FC = () => {
 };
 
 export const S03: React.FC = () => {
-  const b = beats("s03");
+  const b = useBeats("s03");
   const t = useSec();
   const merged = t >= b[1] + 2.2;
   const columnText = t >= b[2] + 3;
@@ -197,7 +197,7 @@ export const S03: React.FC = () => {
 };
 
 export const S04: React.FC = () => {
-  const b = beats("s04");
+  const b = useBeats("s04");
   const t = useSec();
   const steps = [
     { fn: "input", v: '" bos01"', at: b[1] },
@@ -266,7 +266,7 @@ export const S04: React.FC = () => {
 };
 
 export const S05: React.FC = () => {
-  const b = beats("s05");
+  const b = useBeats("s05");
   const t = useSec();
   const mask = t >= b[4] + 2.2;
   return (
@@ -339,7 +339,7 @@ const TRIAL_ROWS: (string | number | null)[][] = [
 ];
 
 export const S06: React.FC = () => {
-  const b = beats("s06");
+  const b = useBeats("s06");
   const t = useSec();
   const pickCol = t >= b[3] + 0.6 && t < b[3] + 4.4;
   const filtered = t >= b[3] + 5.2;
@@ -382,7 +382,7 @@ export const S06: React.FC = () => {
 };
 
 export const S07: React.FC = () => {
-  const b = beats("s07");
+  const b = useBeats("s07");
   const t = useSec();
   const result = t >= b[1] + 5.5;
   return (
@@ -463,7 +463,7 @@ const CSV = [
 ];
 
 export const S08: React.FC = () => {
-  const b = beats("s08");
+  const b = useBeats("s08");
   const issues = [
     { label: "inconsistent site codes", color: C.cyan, rows: [1, 2, 3] },
     { label: "blank / NA ages", color: C.gold, rows: [3, 5] },
@@ -524,7 +524,7 @@ export const S08: React.FC = () => {
 };
 
 export const S09: React.FC = () => {
-  const b = beats("s09");
+  const b = useBeats("s09");
   const t = useSec();
   const pass = t >= b[1] + 4.6 ? 3 : t >= b[1] + 3 ? 2 : t >= b[1] + 1.2 ? 1 : 0;
   const parsed = [
@@ -591,7 +591,7 @@ export const S09: React.FC = () => {
 };
 
 export const S10: React.FC = () => {
-  const b = beats("s10");
+  const b = useBeats("s10");
   const checks = [
     "clean_site() is defined as a function",
     "Cleans the preloaded sites vector",

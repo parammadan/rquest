@@ -1,45 +1,76 @@
-// script.json + audio/*.mp3 -> timeline.json (scene timing), captions (WebVTT),
-// and the app's video data (chapters + transcript).
-//   node tools/timeline.mjs
+// projects/<id>/{project,script}.json + audio/*.mp3 (+ words.json) ->
+//   projects/<id>/timeline.json   scene timing for Remotion
+//   ../public/captions/<id>.vtt   WebVTT captions
+//   ../src/content/videos/<id>.generated.ts   chapters + transcript for the app
+//
+// Captions are timed from Whisper word timestamps when words.json exists (tools/align.py),
+// otherwise in proportion to sentence length.
+//   node tools/timeline.mjs projects/<id>
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 
-const FPS = 30;
-const INTRO = 3.5; // title sting, no narration
-const OUTRO = 4.0; // end card
-const LEAD = 0.6;
-const TAIL = 0.8;
-const VIDEO_ID = "data-lab-v1";
-const root = new URL("..", import.meta.url).pathname;
+const dir = resolve(process.argv[2] ?? "");
+if (!existsSync(`${dir}/project.json`)) throw new Error("usage: node tools/timeline.mjs projects/<video-id>");
 const app = new URL("../../", import.meta.url).pathname;
+const project = JSON.parse(readFileSync(`${dir}/project.json`, "utf8"));
+const script = JSON.parse(readFileSync(`${dir}/script.json`, "utf8"));
+const words = existsSync(`${dir}/words.json`) ? JSON.parse(readFileSync(`${dir}/words.json`, "utf8")) : {};
+const FPS = 30, LEAD = 0.6, TAIL = 0.8;
+const VIDEO_ID = project.videoId;
 
-const script = JSON.parse(readFileSync(root + "script.json", "utf8"));
 const probe = (f) =>
   Number(execFileSync("ffprobe", ["-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", f]).toString());
+const sentencesOf = (text) => text.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
+const letters = (s) => s.replace(/[^A-Za-z0-9]/g, "").length;
 
-let t = INTRO;
+let t = project.intro;
 const segments = script.map((s) => {
-  const audioSec = probe(`${root}audio/${s.id}.mp3`);
+  const audioSec = probe(`${dir}/audio/${s.id}.mp3`);
   const frames = Math.round((audioSec + LEAD + TAIL) * FPS);
   const seg = { ...s, startSec: t, startFrame: Math.round(t * FPS), frames, audioSec };
   t += frames / FPS;
   return seg;
 });
-const totalSec = t + OUTRO;
+const totalSec = t + project.outro;
 const totalFrames = Math.round(totalSec * FPS);
 
-// Captions: split each segment's caption into sentences, timed in proportion to length.
-const cues = [];
-for (const s of segments) {
-  const sentences = s.caption.split(/(?<=[.!?])\s+/).map((x) => x.trim()).filter(Boolean);
-  const total = sentences.reduce((n, x) => n + x.length, 0);
-  let c = s.startSec + LEAD;
-  for (const sentence of sentences) {
-    const d = (sentence.length / total) * s.audioSec;
-    cues.push({ startSec: +c.toFixed(2), endSec: +(c + d).toFixed(2), text: sentence });
-    c += d;
-  }
+/** Sentence [start, end] times relative to the audio, from word timestamps (or proportionally). */
+function sentenceTimes(seg) {
+  const spoken = sentencesOf(seg.text);
+  const caption = sentencesOf(seg.caption);
+  if (spoken.length !== caption.length) throw new Error(`${seg.id}: spoken and caption sentence counts differ`);
+  const w = words[seg.id];
+  const totalChars = spoken.reduce((n, x) => n + letters(x), 0);
+  let acc = 0;
+  const bounds = spoken.map((x) => [acc / totalChars, (acc += letters(x)) / totalChars]);
+  if (!w || w.length === 0) return bounds.map(([a, b]) => [a * seg.audioSec, b * seg.audioSec]);
+  const wChars = w.reduce((n, x) => n + letters(x.w), 0);
+  let c = 0;
+  const pos = w.map((x) => {
+    const start = c / wChars;
+    c += letters(x.w);
+    return { ...x, mid: (start + c / wChars) / 2 };
+  });
+  return bounds.map(([a, b], k) => {
+    const inside = pos.filter((p) => p.mid >= a && p.mid < b + (k === bounds.length - 1 ? 1 : 0));
+    if (!inside.length) return [a * seg.audioSec, b * seg.audioSec];
+    return [inside[0].s, inside[inside.length - 1].e];
+  });
 }
+
+const cues = [];
+const sentenceStarts = {};
+for (const s of segments) {
+  const captions = sentencesOf(s.caption);
+  const times = sentenceTimes(s);
+  sentenceStarts[s.id] = times.map(([a]) => +(a + LEAD).toFixed(3));
+  times.forEach(([a, b], i) => {
+    cues.push({ startSec: +(s.startSec + LEAD + a).toFixed(2), endSec: +(s.startSec + LEAD + b + 0.25).toFixed(2), text: captions[i] });
+  });
+}
+for (let i = 0; i < cues.length - 1; i++) cues[i].endSec = Math.min(cues[i].endSec, cues[i + 1].startSec);
+
 const chapters = [];
 for (const s of segments) {
   if (!chapters.some((c) => c.id === s.chapter)) {
@@ -53,12 +84,13 @@ const ts = (sec) => {
 };
 const vtt = ["WEBVTT", "", ...cues.flatMap((c, i) => [String(i + 1), `${ts(c.startSec)} --> ${ts(c.endSec)}`, c.text, ""])].join("\n");
 
-writeFileSync(root + "timeline.json", JSON.stringify({ fps: FPS, intro: INTRO, outro: OUTRO, totalSec, totalFrames, segments }, null, 2));
-mkdirSync(app + "public/captions", { recursive: true });
+const timeline = { videoId: VIDEO_ID, worldLabel: project.worldLabel, fps: FPS, intro: project.intro, outro: project.outro, totalSec, totalFrames, sentenceStarts, segments };
+writeFileSync(`${dir}/timeline.json`, JSON.stringify(timeline, null, 2));
+mkdirSync(`${app}public/captions`, { recursive: true });
 writeFileSync(`${app}public/captions/${VIDEO_ID}.vtt`, vtt);
 writeFileSync(
   `${app}src/content/videos/${VIDEO_ID}.generated.ts`,
-  "// Generated by video/tools/timeline.mjs from video/script.json and the narration audio. Do not edit.\n" +
+  "// Generated by video/tools/timeline.mjs from the video project. Do not edit.\n" +
     `export const generated = ${JSON.stringify({ id: VIDEO_ID, durationSec: +totalSec.toFixed(2), chapters, transcript: cues }, null, 2)};\n`,
 );
-console.log(`total ${totalSec.toFixed(1)}s, ${totalFrames} frames, ${cues.length} cues, ${chapters.length} chapters`);
+console.log(`${VIDEO_ID}: ${totalSec.toFixed(1)}s, ${totalFrames} frames, ${cues.length} cues (${Object.keys(words).length ? "word-aligned" : "proportional"}), ${chapters.length} chapters`);

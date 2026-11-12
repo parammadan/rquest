@@ -45,6 +45,6 @@ next-env.d.ts
 
 # video pipeline: generated/local artefacts
 /video/node_modules
-/video/audio/
-/video/public/audio
+/video/projects/*/audio/
+/video/projects/*/words.json.tmp
 /video/out/

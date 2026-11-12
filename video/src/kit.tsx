@@ -9,7 +9,6 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from "remotion";
-import timeline from "../timeline.json";
 
 /* ------------------------------ theme ------------------------------ */
 
@@ -75,18 +74,27 @@ export function useSpring(at: number) {
   return spring({ frame: frame - at * fps, fps, config: { damping: 16, stiffness: 140 } });
 }
 
-/** Sentence start times (seconds, relative to the scene) for a narration segment. */
-export function beats(segmentId: string): number[] {
-  const seg = timeline.segments.find((s) => s.id === segmentId)!;
-  const sentences = seg.caption.split(/(?<=[.!?])\s+/).filter(Boolean);
-  const total = sentences.reduce((n, x) => n + x.length, 0);
-  const out: number[] = [];
-  let c = 0.6;
-  for (const s of sentences) {
-    out.push(c);
-    c += (s.length / total) * seg.audioSec;
-  }
-  return out;
+export interface VideoTimeline {
+  videoId: string;
+  worldLabel: string;
+  fps: number;
+  intro: number;
+  totalFrames: number;
+  sentenceStarts: Record<string, number[]>;
+  segments: { id: string; chapter: string; startFrame: number; frames: number; audioSec: number; caption: string }[];
+}
+
+/** The current video's timeline, provided by each video's root component. */
+export const VideoContext = React.createContext<VideoTimeline | null>(null);
+export function useTimeline(): VideoTimeline {
+  const t = React.useContext(VideoContext);
+  if (!t) throw new Error("VideoContext missing");
+  return t;
+}
+
+/** Sentence start times (seconds, relative to the scene), aligned to the narration's word timestamps. */
+export function useBeats(segmentId: string): number[] {
+  return useTimeline().sentenceStarts[segmentId];
 }
 
 export const Appear: React.FC<{
@@ -365,12 +373,12 @@ export const Chip: React.FC<{ children: React.ReactNode; color?: string; style?:
   </span>
 );
 
-export const Heading: React.FC<{ kicker: string; title: string; at?: number }> = ({ kicker, title, at = 0 }) => {
+export const Heading: React.FC<{ kicker: string; title: string; at?: number; color?: string }> = ({ kicker, title, at = 0, color = C.cyan }) => {
   const t = useSec();
   const p = ease(t, at, 0.7);
   return (
     <div style={{ opacity: p, transform: `translateY(${(1 - p) * 14}px)` }}>
-      <div style={{ fontFamily: FONT.mono, fontSize: 22, letterSpacing: "0.18em", textTransform: "uppercase", color: C.cyan }}>
+      <div style={{ fontFamily: FONT.mono, fontSize: 22, letterSpacing: "0.18em", textTransform: "uppercase", color }}>
         {kicker}
       </div>
       <div style={{ fontFamily: FONT.display, fontWeight: 700, fontSize: 64, color: C.text, letterSpacing: "-0.02em", marginTop: 8 }}>
@@ -400,6 +408,7 @@ export const LogoMark: React.FC<{ size?: number }> = ({ size = 44 }) => (
 
 /** Background, header, chapter label, and progress bar shared by every scene. */
 export const Frame: React.FC<{ chapter: string; children: React.ReactNode }> = ({ chapter, children }) => {
+  const { worldLabel } = useTimeline();
   return (
     <AbsoluteFill style={{ background: C.bg, color: C.text, fontFamily: FONT.sans, ...NO_LIGATURES }}>
       <AbsoluteFill
@@ -433,7 +442,7 @@ export const Frame: React.FC<{ chapter: string; children: React.ReactNode }> = (
           </div>
           <div style={{ width: 1, height: 28, background: C.lineStrong, margin: "0 8px" }} />
           <div style={{ fontFamily: FONT.mono, fontSize: 20, letterSpacing: "0.16em", color: C.subtle }}>
-            WORLD 1 · THE DATA LAB
+            {worldLabel}
           </div>
         </div>
         <div style={{ fontFamily: FONT.mono, fontSize: 20, letterSpacing: "0.12em", color: C.muted, textTransform: "uppercase" }}>
@@ -450,6 +459,7 @@ export const Frame: React.FC<{ chapter: string; children: React.ReactNode }> = (
 export const AbsoluteFrame = React.createContext(0);
 const ProgressBar: React.FC = () => {
   const f = React.useContext(AbsoluteFrame);
+  const timeline = useTimeline();
   const pct = Math.min(1, f / timeline.totalFrames);
   const starts = timeline.segments
     .filter((s, i, a) => a.findIndex((x) => x.chapter === s.chapter) === i)
