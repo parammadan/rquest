@@ -473,6 +473,47 @@ test("no lesson reproduces a challenge's reference solution", () => {
   }
 });
 
+test("no world video shows a challenge's reference solution on screen", async () => {
+  // Boss debriefs (video/src/videos/debrief) are exempt: they unlock only after the boss is validated.
+  const { readFileSync, readdirSync } = await import("node:fs");
+  const root = new URL("../../video/src/videos/", import.meta.url);
+  const sig = (code: string) =>
+    code.split("\n").map((l) => l.replace(/\s+/g, "")).filter((l) => l.length >= 12 && !l.startsWith("#"));
+  // Every string literal in the scene file, unescaped: that is what can appear on screen.
+  const onScreen = (src: string) =>
+    [...src.matchAll(/"((?:[^"\\\n]|\\.)*)"|'((?:[^'\\\n]|\\.)*)'|`((?:[^`\\]|\\.)*)`/g)]
+      .map((m) => (m[1] ?? m[2] ?? m[3]).replace(/\\n/g, "\n").replace(/\\(.)/g, "$1"))
+      .join("\n");
+  // A world's video plays only once that world is unlocked, i.e. after every earlier world is
+  // cleared. So it is checked against its own world's challenges and later ones, and lines the
+  // learner was given (starter code) or has already written (earlier worlds' solutions) don't count.
+  const order: string[] = catalog.missions.map((m) => m.id);
+  const worldOf = (challengeId: string) => order.indexOf(catalog.getItem(challengeId)!.missionId);
+  const starter = (id: string) => {
+    const item = catalog.getItem(id);
+    return item?.kind === "challenge" ? item.starterCode : "";
+  };
+  const worlds = readdirSync(root).filter((d) => d !== "debrief");
+  assert.deepEqual([...worlds].sort(), [...order].sort());
+  const leaks: string[] = [];
+  for (const w of worlds) {
+    const code = onScreen(readFileSync(new URL(`${w}/scenes.tsx`, root), "utf8"));
+    const lines = new Set(sig(code));
+    const earlier = Object.entries(REFERENCE_SOLUTIONS)
+      .filter(([id]) => worldOf(id) < order.indexOf(w))
+      .flatMap(([, ref]) => sig(ref));
+    for (const [challengeId, ref] of Object.entries(REFERENCE_SOLUTIONS)) {
+      if (worldOf(challengeId) < order.indexOf(w)) continue;
+      const given = new Set([...sig(starter(challengeId)), ...earlier]);
+      const refLines = sig(ref).filter((x) => !given.has(x));
+      const hits = refLines.filter((x) => lines.has(x)).length;
+      if (hits >= 3 || (refLines.length > 0 && hits / refLines.length >= 0.5))
+        leaks.push(`video ${w} shows ${hits}/${refLines.length} solution lines of ${challengeId}`);
+    }
+  }
+  assert.deepEqual(leaks, []);
+});
+
 /* --------------- Milestone 4A: schema v2, migration, attempt evidence --------------- */
 
 import { LEGACY_PROGRESS_STORAGE_KEY } from "../persistence/progress-repository.ts";
