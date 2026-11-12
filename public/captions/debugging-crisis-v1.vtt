@@ -1,0 +1,169 @@
+WEBVTT
+
+1
+00:00:04.100 --> 00:00:06.030
+The report ran perfectly yesterday.
+
+2
+00:00:06.500 --> 00:00:10.610
+Tonight the scheduled job fails, and a colleague gets different numbers from the same script.
+
+3
+00:00:10.640 --> 00:00:11.990
+Nothing in the code changed.
+
+4
+00:00:12.160 --> 00:00:13.690
+Something in the environment did.
+
+5
+00:00:13.940 --> 00:00:21.610
+This world is about the invisible state your code depends on: which packages are attached, which variables a function can see, and how the session is configured.
+
+6
+00:00:23.530 --> 00:00:30.700
+When you call a function, R looks for its name along the search path: your global environment first, then every attached package, newest first.
+
+7
+00:00:31.250 --> 00:00:34.000
+Attach MASS after dplyr, and MASS sits in front.
+
+8
+00:00:34.110 --> 00:00:39.180
+Its select() now wins, and the error message, "unused arguments", says nothing about why.
+
+9
+00:00:41.000 --> 00:00:42.650
+So diagnose before you guess.
+
+10
+00:00:42.760 --> 00:00:44.410
+search() shows the order.
+
+11
+00:00:44.620 --> 00:00:48.850
+environment(select) tells you which package owns the version you are calling.
+
+12
+00:00:49.020 --> 00:00:52.230
+conflicts() lists every name defined more than once.
+
+13
+00:00:52.300 --> 00:00:56.770
+Here, the culprit is clear: select lives in two places, and MASS is in front.
+
+14
+00:00:58.570 --> 00:01:01.240
+The robust fix is to stop depending on the order.
+
+15
+00:01:01.510 --> 00:01:05.700
+Inside functions, write dplyr::select(), and the same for filter().
+
+16
+00:01:06.150 --> 00:01:10.640
+Qualified calls work whatever is attached, even when dplyr is not attached at all.
+
+17
+00:01:10.790 --> 00:01:14.540
+Without it, a bare filter() quietly means the time series filter from stats.
+
+18
+00:01:16.470 --> 00:01:18.880
+A second kind of bug hides inside functions.
+
+19
+00:01:19.110 --> 00:01:25.020
+When a function uses a name it was not given, R looks it up where the function was defined, usually the global environment.
+
+20
+00:01:25.870 --> 00:01:33.960
+flag_signals() compares p-values with a global threshold, so changing that variable silently changes every result, and its alpha argument is ignored.
+
+21
+00:01:35.830 --> 00:01:38.200
+You can find these free variables automatically.
+
+22
+00:01:38.570 --> 00:01:41.780
+codetools::findGlobals() reports that the function reads threshold.
+
+23
+00:01:41.990 --> 00:01:47.120
+The fix is a pure function: everything it needs arrives through its arguments, with sensible defaults.
+
+24
+00:01:47.650 --> 00:01:51.400
+Now alpha decides, and nothing outside the function can change the answer.
+
+25
+00:01:53.300 --> 00:01:54.770
+Next, the session itself.
+
+26
+00:01:55.020 --> 00:02:03.770
+A relative path, like "visits.csv", is resolved against the working directory, and that differs between your laptop, a scheduled job, and a colleague's machine.
+
+27
+00:02:04.280 --> 00:02:09.010
+Build the path from an argument with file.path(), so the caller decides where the data lives.
+
+28
+00:02:10.930 --> 00:02:13.100
+Global options change output too.
+
+29
+00:02:13.270 --> 00:02:19.380
+format() follows options(OutDec), so a session set up for a decimal comma prints "10,39".
+
+30
+00:02:19.890 --> 00:02:22.780
+sprintf() always uses a decimal point.
+
+31
+00:02:22.850 --> 00:02:27.060
+For numbers that end up in reports, prefer formatting that does not depend on the session.
+
+32
+00:02:28.930 --> 00:02:32.300
+If a function must change global state, it should put things back.
+
+33
+00:02:32.490 --> 00:02:37.660
+Save the old value and restore it with on.exit(), which runs however the function ends, even after an error.
+
+34
+00:02:37.850 --> 00:02:40.120
+The withr package wraps the same pattern.
+
+35
+00:02:40.250 --> 00:02:43.880
+A well-behaved function leaves the session exactly as it found it.
+
+36
+00:02:45.630 --> 00:02:47.920
+Finally, record what the result ran on.
+
+37
+00:02:48.050 --> 00:02:55.000
+The R version, the version of each package you used, and a checksum of the input file let anyone confirm they are reproducing the same thing.
+
+38
+00:02:55.510 --> 00:03:00.780
+On your own machine, the renv package goes further and pins exact package versions in a lockfile.
+
+39
+00:03:02.600 --> 00:03:05.130
+Your Debugging Crisis missions follow this path.
+
+40
+00:03:05.260 --> 00:03:06.830
+Unmask a broken pipeline.
+
+41
+00:03:06.860 --> 00:03:08.530
+Make a scoping bug impossible.
+
+42
+00:03:09.080 --> 00:03:17.610
+Then face the boss: a report that must give identical results from any directory, under any options, with or without dplyr attached, while recording its own provenance.

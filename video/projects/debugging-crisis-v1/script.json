@@ -1,0 +1,90 @@
+[
+  {
+    "id": "d01",
+    "chapter": "works-yesterday",
+    "lessonId": "debugging-crisis.lesson-1",
+    "chapterTitle": "It worked yesterday",
+    "text": "The report ran perfectly yesterday. Tonight the scheduled job fails, and a colleague gets different numbers from the same script. Nothing in the code changed. Something in the environment did. This world is about the invisible state your code depends on: which packages are attached, which variables a function can see, and how the session is configured.",
+    "caption": "The report ran perfectly yesterday. Tonight the scheduled job fails, and a colleague gets different numbers from the same script. Nothing in the code changed. Something in the environment did. This world is about the invisible state your code depends on: which packages are attached, which variables a function can see, and how the session is configured."
+  },
+  {
+    "id": "d02",
+    "chapter": "search-path",
+    "lessonId": "debugging-crisis.lesson-1",
+    "chapterTitle": "The search path",
+    "text": "When you call a function, R looks for its name along the search path: your global environment first, then every attached package, newest first. Attach mass after dee plier, and mass sits in front. Its select function now wins, and the error message, unused arguments, says nothing about why.",
+    "caption": "When you call a function, R looks for its name along the search path: your global environment first, then every attached package, newest first. Attach MASS after dplyr, and MASS sits in front. Its select() now wins, and the error message, \"unused arguments\", says nothing about why."
+  },
+  {
+    "id": "d03",
+    "chapter": "search-path",
+    "lessonId": "debugging-crisis.lesson-1",
+    "chapterTitle": "The search path",
+    "text": "So diagnose before you guess. The search function shows the order. Asking for the environment of select tells you which package owns the version you are calling. The conflicts function lists every name defined more than once. Here, the culprit is clear: select lives in two places, and mass is in front.",
+    "caption": "So diagnose before you guess. search() shows the order. environment(select) tells you which package owns the version you are calling. conflicts() lists every name defined more than once. Here, the culprit is clear: select lives in two places, and MASS is in front."
+  },
+  {
+    "id": "d04",
+    "chapter": "qualified-calls",
+    "lessonId": "debugging-crisis.lesson-1",
+    "chapterTitle": "Qualified calls",
+    "text": "The robust fix is to stop depending on the order. Inside functions, write dee plier, two colons, select, and the same for filter. Qualified calls work whatever is attached, even when dee plier is not attached at all. Without it, a bare filter quietly means the time series filter from stats.",
+    "caption": "The robust fix is to stop depending on the order. Inside functions, write dplyr::select(), and the same for filter(). Qualified calls work whatever is attached, even when dplyr is not attached at all. Without it, a bare filter() quietly means the time series filter from stats."
+  },
+  {
+    "id": "d05",
+    "chapter": "scoping",
+    "lessonId": "debugging-crisis.lesson-2",
+    "chapterTitle": "Lexical scoping",
+    "text": "A second kind of bug hides inside functions. When a function uses a name it was not given, R looks it up where the function was defined, usually the global environment. Flag signals compares p values with a global threshold, so changing that variable silently changes every result, and its alpha argument is ignored.",
+    "caption": "A second kind of bug hides inside functions. When a function uses a name it was not given, R looks it up where the function was defined, usually the global environment. flag_signals() compares p-values with a global threshold, so changing that variable silently changes every result, and its alpha argument is ignored."
+  },
+  {
+    "id": "d06",
+    "chapter": "pure-functions",
+    "lessonId": "debugging-crisis.lesson-2",
+    "chapterTitle": "Pure functions",
+    "text": "You can find these free variables automatically. Code tools find globals reports that the function reads threshold. The fix is a pure function: everything it needs arrives through its arguments, with sensible defaults. Now alpha decides, and nothing outside the function can change the answer.",
+    "caption": "You can find these free variables automatically. codetools::findGlobals() reports that the function reads threshold. The fix is a pure function: everything it needs arrives through its arguments, with sensible defaults. Now alpha decides, and nothing outside the function can change the answer."
+  },
+  {
+    "id": "d07",
+    "chapter": "working-directory",
+    "lessonId": "debugging-crisis.lesson-3",
+    "chapterTitle": "The working directory",
+    "text": "Next, the session itself. A relative path, like visits dot c s v, is resolved against the working directory, and that differs between your laptop, a scheduled job, and a colleague's machine. Build the path from an argument with file dot path, so the caller decides where the data lives.",
+    "caption": "Next, the session itself. A relative path, like \"visits.csv\", is resolved against the working directory, and that differs between your laptop, a scheduled job, and a colleague's machine. Build the path from an argument with file.path(), so the caller decides where the data lives."
+  },
+  {
+    "id": "d08",
+    "chapter": "options",
+    "lessonId": "debugging-crisis.lesson-3",
+    "chapterTitle": "Global options",
+    "text": "Global options change output too. The format function follows the out dec option, so a session set up for a decimal comma prints ten comma three nine. The sprint F function always uses a decimal point. For numbers that end up in reports, prefer formatting that does not depend on the session.",
+    "caption": "Global options change output too. format() follows options(OutDec), so a session set up for a decimal comma prints \"10,39\". sprintf() always uses a decimal point. For numbers that end up in reports, prefer formatting that does not depend on the session."
+  },
+  {
+    "id": "d09",
+    "chapter": "side-effects",
+    "lessonId": "debugging-crisis.lesson-3",
+    "chapterTitle": "Restoring state",
+    "text": "If a function must change global state, it should put things back. Save the old value and restore it with on exit, which runs however the function ends, even after an error. The with r package wraps the same pattern. A well behaved function leaves the session exactly as it found it.",
+    "caption": "If a function must change global state, it should put things back. Save the old value and restore it with on.exit(), which runs however the function ends, even after an error. The withr package wraps the same pattern. A well-behaved function leaves the session exactly as it found it."
+  },
+  {
+    "id": "d10",
+    "chapter": "provenance",
+    "lessonId": "debugging-crisis.lesson-3",
+    "chapterTitle": "Provenance",
+    "text": "Finally, record what the result ran on. The R version, the version of each package you used, and a checksum of the input file let anyone confirm they are reproducing the same thing. On your own machine, the R env package goes further and pins exact package versions in a lockfile.",
+    "caption": "Finally, record what the result ran on. The R version, the version of each package you used, and a checksum of the input file let anyone confirm they are reproducing the same thing. On your own machine, the renv package goes further and pins exact package versions in a lockfile."
+  },
+  {
+    "id": "d11",
+    "chapter": "your-mission",
+    "lessonId": "debugging-crisis.lesson-3",
+    "chapterTitle": "Your Debugging Crisis missions",
+    "text": "Your Debugging Crisis missions follow this path. Unmask a broken pipeline. Make a scoping bug impossible. Then face the boss: a report that must give identical results from any directory, under any options, with or without dee plier attached, while recording its own provenance.",
+    "caption": "Your Debugging Crisis missions follow this path. Unmask a broken pipeline. Make a scoping bug impossible. Then face the boss: a report that must give identical results from any directory, under any options, with or without dplyr attached, while recording its own provenance."
+  }
+]

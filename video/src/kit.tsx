@@ -194,7 +194,7 @@ export interface CodeLine {
 /** An R editor/console: lines type in, output appears, lines can be highlighted. */
 export const Code: React.FC<{
   lines: CodeLine[];
-  highlight?: { lines: number[]; from: number; to?: number }[];
+  highlight?: { lines: number[]; from: number; to?: number; color?: string }[];
   fontSize?: number;
   title?: string;
   style?: React.CSSProperties;
@@ -209,15 +209,17 @@ export const Code: React.FC<{
           const shown = Math.min(l.code.length, Math.floor((t - l.at) * CPS));
           const done = shown >= l.code.length;
           const doneAt = l.at + l.code.length / CPS;
-          const hl = highlight.some((h) => h.lines.includes(i) && t >= h.from && (h.to === undefined || t < h.to));
+          const hlEntry = highlight.find((h) => h.lines.includes(i) && t >= h.from && (h.to === undefined || t < h.to));
+          const hl = !!hlEntry;
+          const hlColor = hlEntry?.color ?? C.cyan;
           return (
             <div key={i}>
               <div
                 style={{
                   whiteSpace: "pre",
                   color: C.text,
-                  background: hl ? "rgba(34,211,238,0.10)" : "transparent",
-                  boxShadow: hl ? `inset 4px 0 0 ${C.cyan}` : "none",
+                  background: hl ? `color-mix(in srgb, ${hlColor} 12%, transparent)` : "transparent",
+                  boxShadow: hl ? `inset 4px 0 0 ${hlColor}` : "none",
                   margin: "0 -28px",
                   padding: "0 28px",
                   transition: "none",
