@@ -4,6 +4,8 @@ import type { Lesson } from "../../domain/types.ts";
  * World 1 lessons. Each lesson covers chapters of the shared World 1 video,
  * explains the concepts in writing, steps through code, and ends with a
  * knowledge check. Code outputs were produced with R 4.6.1.
+ * Walkthroughs use different functions from the challenges, so the lessons teach the
+ * technique without handing over the answer (a unit test guards this).
  */
 
 const available = { status: "available" } as const;
@@ -63,27 +65,30 @@ export const dataLabLessons: Lesson[] = [
       },
     ],
     walkthrough: {
-      title: "Building clean_site(), step by step",
-      code: 'clean_site <- function(x) {\n  x <- toupper(trimws(x))\n  sub("^([A-Z]+)-?([0-9]+)$", "\\\\1-\\\\2", x)\n}\n\nclean_site(sites)',
+      // A different cleaning task from challenge 1 (visit labels, not site codes): the same
+      // techniques, but the learner still has to work out the site-code rule themselves.
+      title: "Building clean_visit(), step by step",
+      code: 'visits <- c("Week 12", "wk12", " WEEK-12", "week 4", NA, "Wk 4 ")\n\nclean_visit <- function(x) {\n  x <- tolower(trimws(x))\n  sub("^w(ee)?k[ -]?([0-9]+)$", "Week \\\\2", x)\n}\n\nclean_visit(visits)',
       steps: [
-        { title: "Declare the function", note: "clean_site takes one argument, x: a whole vector of raw codes.", highlight: [1, 4] },
+        { title: "Six spellings of two visits", note: "The same visit is typed several ways, plus one missing value. Comparing or counting them as they are would give the wrong answer.", highlight: [1] },
+        { title: "Declare the function", note: "clean_visit takes one argument, x: a whole vector of raw labels.", highlight: [3, 6] },
         {
-          title: "Trim, then upper-case",
-          note: 'trimws() removes stray spaces and toupper() normalises case. " bos01" becomes "BOS01".',
-          highlight: [2],
-          output: '[1] "BOS01"',
+          title: "Trim, then lower-case",
+          note: 'trimws() removes stray spaces and tolower() normalises case, so " WEEK-12" becomes "week-12".',
+          highlight: [4],
+          output: '[1] "week-12"',
         },
         {
-          title: "Insert the hyphen",
-          note: "sub() matches letters, an optional hyphen, then digits, and rebuilds them as letters-hyphen-digits. As the last expression, its value is returned.",
-          highlight: [3],
-          output: '[1] "BOS-01"',
+          title: "Rebuild one standard form",
+          note: "sub() matches \"w\", an optional \"ee\", \"k\", an optional space or hyphen, then digits. The second group (the digits) is reused as \\\\2 in the replacement. As the last expression, its value is returned.",
+          highlight: [5],
+          output: '[1] "Week 12"',
         },
         {
-          title: "Clean every code at once",
+          title: "Clean every label at once",
           note: "Because every step is vectorized, one call cleans the whole vector. NA stays NA.",
-          highlight: [6],
-          output: '[1] "BOS-01" "BOS-01" "NYC-02" "NYC-02" NA       "CHI-03"',
+          highlight: [8],
+          output: '[1] "Week 12" "Week 12" "Week 12" "Week 4"  NA        "Week 4" ',
         },
       ],
     },

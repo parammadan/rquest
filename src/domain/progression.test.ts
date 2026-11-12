@@ -441,3 +441,34 @@ test("one boss debrief per world, ready with media, captions, and a transcript",
     assert.ok(m.items.some((i) => i.kind === "challenge" && i.type === "boss"), `${m.id} has a boss`);
   }
 });
+
+/* ------------------- Milestone 4A: lessons don't hand over answers ------------------- */
+
+test("no lesson reproduces a challenge's reference solution", () => {
+  // Significant lines: whitespace-insensitive, at least 12 characters, not comments.
+  const sig = (code: string) =>
+    code.split("\n").map((l) => l.replace(/\s+/g, "")).filter((l) => l.length >= 12 && !l.startsWith("#"));
+  const publicDefs = (code: string) =>
+    [...code.matchAll(/^\s*([A-Za-z][\w.]*)\s*<-\s*function/gm)].map((m) => m[1]);
+  const lessonCode = (l: Lesson) =>
+    [
+      ...l.explanation.flatMap((b) => (b.kind === "code" ? [b.code] : [])),
+      l.walkthrough?.code ?? "",
+      ...(l.walkthrough?.steps ?? []).map((s) => s.code ?? ""),
+      ...l.knowledgeCheck.map((q) => q.code ?? ""),
+    ].join("\n");
+  const lessons = catalog.missions.flatMap((m) => m.items).filter((i): i is Lesson => i.kind === "lesson");
+  assert.equal(lessons.length, 15);
+  for (const l of lessons) {
+    const code = lessonCode(l);
+    const lines = new Set(sig(code));
+    const defs = new Set(publicDefs(code));
+    for (const [challengeId, ref] of Object.entries(REFERENCE_SOLUTIONS)) {
+      const refLines = sig(ref);
+      const hits = refLines.filter((x) => lines.has(x)).length;
+      assert.ok(hits < 4 && hits / refLines.length < 0.5, `${l.id} repeats ${hits}/${refLines.length} lines of ${challengeId}`);
+      const shared = publicDefs(ref).filter((d) => defs.has(d));
+      assert.deepEqual(shared, [], `${l.id} defines ${shared.join(", ")}, which ${challengeId} asks the learner to write`);
+    }
+  }
+});
