@@ -12,7 +12,8 @@ export const LEVELS: readonly LevelDefinition[] = [
   { level: 4, title: "Debugging Specialist", minXp: 750 },
   { level: 5, title: "Quality Steward", minXp: 1200 },
   { level: 6, title: "Reproducibility Lead", minXp: 1800 },
-  { level: 7, title: "Principal Research Programmer", minXp: 2500 },
+  // Reachable: the academy awards 2,100 XP (1,800 from challenges, 300 from lessons).
+  { level: 7, title: "Principal Research Programmer", minXp: 2000 },
 ];
 
 export interface LevelInfo {

@@ -19,7 +19,7 @@ import {
 import { ACTIVE_VALIDATORS, VALIDATORS, validatorForChallenge } from "../content/validators/index.ts";
 import { REFERENCE_SOLUTIONS } from "../content/validators/reference-solutions.ts";
 import { interpretVerdicts } from "./evaluation.ts";
-import { levelForXp } from "./levels.ts";
+import { LEVELS, levelForXp } from "./levels.ts";
 import { deriveProgress, emptySnapshot, expectedValidatorId } from "./progression.ts";
 import type { ItemCompletedEvent, MissionItem, ProgressSnapshot } from "./types.ts";
 
@@ -260,6 +260,31 @@ test("level curve", () => {
   assert.equal(levelForXp(150).level, 2);
   assert.equal(levelForXp(99999).nextLevelXp, null);
   assert.equal(levelForXp(99999).fraction, 1);
+});
+
+test("every level is reachable, thresholds increase, and a fully completed learner is at the top level", () => {
+  const available = catalog.missions.flatMap((m) => m.items).reduce((n, i) => n + i.xp, 0);
+  assert.equal(available, 2100);
+  for (let i = 1; i < LEVELS.length; i++) assert.ok(LEVELS[i].minXp > LEVELS[i - 1].minXp, `level ${i + 1}`);
+  assert.ok(LEVELS.at(-1)!.minXp <= available, "top level must be reachable");
+  // Fresh, intermediate, and fully completed learners.
+  const fresh = deriveProgress(emptySnapshot(), catalog);
+  assert.equal(fresh.level.level, 1);
+  assert.equal(fresh.level.xpNeededForNext, 150);
+  const all = deriveProgress(buildScenarioSnapshot(DEV_SCENARIOS[2], catalog), catalog);
+  assert.equal(all.totalXp, 2100);
+  assert.equal(all.level.level, LEVELS.length);
+  assert.equal(all.level.xpNeededForNext, null, "no impossible 'XP to next level' at the top");
+  assert.equal(all.unlockedAchievementCount, 8);
+  // A Phase 2 learner with every challenge but no lessons: 1,800 XP, Level 6, 200 XP from the top.
+  const everyEvent = buildScenarioSnapshot(DEV_SCENARIOS[2], catalog).events;
+  const challengesOnly = deriveProgress(
+    { ...emptySnapshot(), events: everyEvent.filter((e) => e.itemKind === "challenge") },
+    catalog,
+  );
+  assert.equal(challengesOnly.totalXp, 1800);
+  assert.equal(challengesOnly.level.level, 6);
+  assert.equal(challengesOnly.level.xpNeededForNext, 200);
 });
 
 /* ---------------------------- Phase 3A: lessons ---------------------------- */

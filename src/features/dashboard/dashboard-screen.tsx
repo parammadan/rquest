@@ -52,10 +52,15 @@ export function DashboardScreen() {
                 <div className="mt-2">
                   <XPProgressBar level={progress.level} ready={ready} />
                 </div>
-                {progress.level.xpNeededForNext !== null && (
+                {progress.level.xpNeededForNext !== null ? (
                   <p className="mt-1.5 text-xs text-fg-subtle">
                     <Hydrated ready={ready}>{formatNumber(progress.level.xpNeededForNext)}</Hydrated> XP to{" "}
                     {progress.level.nextLevelTitle}
+                  </p>
+                ) : (
+                  <p className="mt-1.5 text-xs text-emerald" data-testid="max-level">
+                    Highest level reached.
+                    {progress.academyCompletion < 1 ? " Any remaining lessons still add XP and count toward mastery." : " Every world mastered."}
                   </p>
                 )}
               </div>
