@@ -1,0 +1,4 @@
+{
+  "challengeId": "quality-control.boss",
+  "code": "qc_demographics <- function(adsl) {\n  arms <- sort(unique(adsl$ARM))\n  rows <- lapply(arms, function(a) {\n    d <- adsl[adsl$ARM == a, ]\n    data.frame(arm = a, n = nrow(d), age_mean = mean(d$AGE), age_sd = sd(d$AGE),\n               pct_female = 100 * sum(d$SEX == \"F\") / nrow(d))\n  })\n  do.call(rbind, rows)\n}\n\ncompare_tables <- function(prod, qc, tolerance = 1e-8) {\n  cols <- setdiff(intersect(names(prod), names(qc)), \"arm\")\n  out <- data.frame(arm = character(), column = character(), prod = numeric(), qc = numeric())\n  for (a in intersect(prod$arm, qc$arm)) {\n    for (cl in cols) {\n      p <- prod[[cl]][prod$arm == a]\n      q <- qc[[cl]][qc$arm == a]\n      if (abs(p - q) > tolerance) out <- rbind(out, data.frame(arm = a, column = cl, prod = p, qc = q))\n    }\n  }\n  out\n}"
+}

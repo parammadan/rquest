@@ -1,0 +1,4 @@
+{
+  "challengeId": "debugging-crisis.boss",
+  "code": "run_report <- function(data_dir) {\n  path <- file.path(data_dir, \"visits.csv\")\n  d <- utils::read.csv(path, stringsAsFactors = FALSE)\n  d <- d[!is.na(d$outcome), ]\n  arms <- sort(unique(d$arm))\n  per_arm <- function(f) vapply(arms, function(a) f(d$outcome[d$arm == a]), numeric(1), USE.NAMES = FALSE)\n  tab <- data.frame(arm = arms, n = as.integer(per_arm(length)), mean = per_arm(mean), sd = per_arm(stats::sd))\n  tab$label <- sprintf(\"%.2f (%.2f)\", tab$mean, tab$sd)\n  list(\n    table = tab,\n    session = list(\n      r_version = R.version.string,\n      packages = c(dplyr = as.character(utils::packageVersion(\"dplyr\"))),\n      input_md5 = unname(tools::md5sum(path))\n    )\n  )\n}"
+}

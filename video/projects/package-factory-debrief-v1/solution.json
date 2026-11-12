@@ -1,0 +1,4 @@
+{
+  "challengeId": "package-factory.boss",
+  "code": "#' Standardise site codes\n#'\n#' @param x Character vector of raw site codes.\n#' @return Character vector of codes in the form AAA-00, NA preserved.\n#' @examples\n#' clean_site(c(\" bos01\", \"NYC-02\", NA))\n#' @export\nclean_site <- function(x) {\n  x <- toupper(trimws(x))\n  sub(\"^([A-Z]+)-?([0-9]+)$\", \"\\\\1-\\\\2\", x)\n}\n\n#' Mean and SD of outcome by arm\n#'\n#' @param df A data frame with columns arm and outcome.\n#' @param na_rm Drop missing outcomes before summarising?\n#' @return A data frame with one row per arm and columns arm, mean, and sd.\n#' @examples\n#' summarise_arm(data.frame(arm = c(\"A\", \"A\", \"B\"), outcome = c(1, 2, 4)))\n#' @importFrom dplyr group_by summarise\n#' @importFrom stats sd\n#' @export\nsummarise_arm <- function(df, na_rm = TRUE) {\n  grouped <- group_by(df, arm)\n  summarise(grouped, mean = mean(outcome, na.rm = na_rm), sd = sd(outcome, na.rm = na_rm))\n}"
+}

@@ -1,0 +1,4 @@
+{
+  "challengeId": "data-lab.boss",
+  "code": "prepare_enrollment <- function(path) {\n  raw <- read.csv(path, colClasses = \"character\", strip.white = TRUE, na.strings = c(\"\", \"NA\"))\n  raw <- unique(raw)\n  d <- raw$enrolled\n  date <- as.Date(d, format = \"%Y-%m-%d\")\n  date[is.na(date)] <- as.Date(d[is.na(date)], format = \"%m/%d/%Y\")\n  date[is.na(date)] <- as.Date(d[is.na(date)], format = \"%d %b %Y\")\n  out <- data.frame(\n    participant_id = as.integer(raw$participant_id),\n    site = sub(\"^([A-Z]+)-?([0-9]+)$\", \"\\\\1-\\\\2\", toupper(trimws(raw$site))),\n    enrolled = date,\n    age = as.integer(raw$age),\n    arm = factor(tools::toTitleCase(tolower(trimws(raw$arm))), levels = c(\"Placebo\", \"Treatment\"))\n  )\n  out[order(out$participant_id), , drop = FALSE]\n}"
+}

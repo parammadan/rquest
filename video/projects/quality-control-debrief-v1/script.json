@@ -1,0 +1,128 @@
+[
+  {
+    "id": "x01",
+    "chapter": "brief",
+    "lessonId": null,
+    "chapterTitle": "What the boss asked",
+    "text": "This is the debrief for Independent QC, where you double-program a demographics table and report every disagreement with production. First, build an independent QC table from the specification. Second, compare it with production cell by cell, using a tolerance. Third, report one row per discrepancy, and none when the tables agree.",
+    "caption": "This is the debrief for Independent QC, where you double-program a demographics table and report every disagreement with production. First, build an independent QC table from the specification. Second, compare it with production cell by cell, using a tolerance. Third, report one row per discrepancy, and none when the tables agree.",
+    "visual": {
+      "type": "brief",
+      "title": "Double programming, end to end",
+      "items": [
+        "An independent QC table from the spec",
+        "A cell-by-cell comparison with tolerance",
+        "One row per discrepancy, none when they agree"
+      ]
+    }
+  },
+  {
+    "id": "x02",
+    "chapter": "qc-table",
+    "lessonId": null,
+    "chapterTitle": "The QC table",
+    "text": "The QC function finds the arms from the data, instead of assuming their names. For each arm, it takes that arm's subjects only. Then it computes n, the mean age, and its standard deviation. Percent female divides by the subjects in that arm, which is exactly where production went wrong.",
+    "caption": "qc_demographics() finds the arms from the data, instead of assuming their names. For each arm, it takes that arm's subjects only. Then it computes n, the mean age, and its standard deviation. pct_female divides by the subjects in that arm, which is exactly where production went wrong.",
+    "visual": {
+      "type": "code",
+      "title": "Built from the spec, not from production",
+      "file": "qc_demographics.R",
+      "from": 1,
+      "to": 9,
+      "highlights": [
+        [
+          2
+        ],
+        [
+          4
+        ],
+        [
+          5
+        ],
+        [
+          6
+        ]
+      ]
+    }
+  },
+  {
+    "id": "x03",
+    "chapter": "compare",
+    "lessonId": null,
+    "chapterTitle": "Comparing with tolerance",
+    "text": "Compare tables looks at every column the two tables share, except arm. It starts from an empty data frame with the report's columns, so a clean comparison returns zero rows of the right shape. Then it walks every arm and every column, cell by cell. A difference counts only when it exceeds the tolerance, so floating point noise is never reported.",
+    "caption": "compare_tables() looks at every column the two tables share, except arm. It starts from an empty data frame with the report's columns, so a clean comparison returns zero rows of the right shape. Then it walks every arm and every column, cell by cell. A difference counts only when it exceeds the tolerance, so floating-point noise is never reported.",
+    "visual": {
+      "type": "code",
+      "title": "Every cell, with a tolerance",
+      "file": "compare_tables.R",
+      "from": 11,
+      "to": 22,
+      "highlights": [
+        [
+          12
+        ],
+        [
+          13,
+          21
+        ],
+        [
+          14,
+          15,
+          16,
+          17
+        ],
+        [
+          18
+        ]
+      ]
+    }
+  },
+  {
+    "id": "x04",
+    "chapter": "mistakes",
+    "lessonId": null,
+    "chapterTitle": "Mistakes that fail checks",
+    "text": "Three mistakes account for most failed attempts. Comparing with double equals flags differences that are only rounding noise, and the tolerance check fails. Checking only the column you know is wrong misses discrepancies in a different production table. And returning null when everything matches, instead of an empty data frame, fails the clean check.",
+    "caption": "Three mistakes account for most failed attempts. Comparing with == flags differences that are only rounding noise, and the tolerance check fails. Checking only the column you know is wrong misses discrepancies in a different production table. And returning NULL when everything matches, instead of an empty data frame, fails the clean check.",
+    "visual": {
+      "type": "mistakes",
+      "title": "Mistakes that fail the checks",
+      "items": [
+        {
+          "mistake": "Comparing with == instead of a tolerance",
+          "check": "tolerance"
+        },
+        {
+          "mistake": "Checking only pct_female",
+          "check": "unseen-pair"
+        },
+        {
+          "mistake": "Returning NULL when the tables agree",
+          "check": "clean"
+        }
+      ]
+    }
+  },
+  {
+    "id": "x05",
+    "chapter": "checks",
+    "lessonId": null,
+    "chapterTitle": "Every check passes",
+    "text": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+    "caption": "This solution passes all seven checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+    "visual": {
+      "type": "checks",
+      "title": "All seven checks pass",
+      "items": [
+        "Both functions defined",
+        "QC table correct",
+        "QC table correct on unseen data",
+        "Finds the production bug, nothing else",
+        "Identical tables: zero rows",
+        "Noise below tolerance not flagged",
+        "Every discrepancy in an unseen pair"
+      ]
+    }
+  }
+]

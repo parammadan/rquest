@@ -1,0 +1,131 @@
+[
+  {
+    "id": "x01",
+    "chapter": "brief",
+    "lessonId": null,
+    "chapterTitle": "What the boss asked",
+    "text": "This is the debrief for The Reviewer Re-run, where a reviewer must re-create your output files byte for byte, from a clean session. First, define the analysis set and fit the specified model. Second, pin every source of randomness. Third, write outputs and provenance that never change between runs.",
+    "caption": "This is the debrief for The Reviewer Re-run, where a reviewer must re-create your output files byte for byte, from a clean session. First, define the analysis set and fit the specified model. Second, pin every source of randomness. Third, write outputs and provenance that never change between runs.",
+    "visual": {
+      "type": "brief",
+      "title": "Outputs a reviewer can re-create",
+      "items": [
+        "A defined analysis set and model",
+        "Randomness pinned to a seed and RNG kind",
+        "Outputs and provenance that never change"
+      ]
+    }
+  },
+  {
+    "id": "x02",
+    "chapter": "model",
+    "lessonId": null,
+    "chapterTitle": "Analysis set and model",
+    "text": "The analysis set is every participant with a week twelve value. Change is week twelve minus baseline, and arm becomes a factor with placebo as the reference. The model adjusts the treatment effect for baseline. The treatment row, its confidence interval, and n go into a single results row.",
+    "caption": "The analysis set is every participant with a week12 value. Change is week12 minus baseline, and arm becomes a factor with Placebo as the reference. The model adjusts the treatment effect for baseline. The treatment row, its confidence interval, and n go into a single results row.",
+    "visual": {
+      "type": "code",
+      "title": "Exactly the specified analysis",
+      "file": "run_analysis.R",
+      "from": 1,
+      "to": 10,
+      "highlights": [
+        [
+          3
+        ],
+        [
+          4,
+          5
+        ],
+        [
+          6
+        ],
+        [
+          7,
+          8,
+          9,
+          10
+        ]
+      ]
+    }
+  },
+  {
+    "id": "x03",
+    "chapter": "outputs",
+    "lessonId": null,
+    "chapterTitle": "Pinned randomness, stable files",
+    "text": "The audit sample is drawn inside with seed, from the with R package, with every random number generator kind pinned, so the draw is the same in any session, and the caller's random state is left untouched. Files are written with row names off, and nothing in them depends on the session. Provenance records the R version, the seed, and the input file's checksum.",
+    "caption": "The audit sample is drawn inside withr::with_seed() with every RNG kind pinned, so the draw is the same in any session, and the caller's random state is left untouched. Files are written with row.names = FALSE, and nothing in them depends on the session. Provenance records the R version, the seed, and the input file's checksum.",
+    "visual": {
+      "type": "code",
+      "title": "Same bytes on every re-run",
+      "file": "run_analysis.R",
+      "from": 11,
+      "to": 20,
+      "highlights": [
+        [
+          11,
+          12
+        ],
+        [
+          13,
+          14,
+          15
+        ],
+        [
+          16,
+          17,
+          18
+        ]
+      ]
+    }
+  },
+  {
+    "id": "x04",
+    "chapter": "mistakes",
+    "lessonId": null,
+    "chapterTitle": "Mistakes that fail checks",
+    "text": "Three mistakes account for most failed attempts. Calling set seed and never restoring the random state changes the caller's stream, and the clean session check fails. A timestamp in the provenance file differs on every run, so the reviewer's re-run is not byte-identical. And keeping rows with a missing week twelve value changes the model, which fails the model check.",
+    "caption": "Three mistakes account for most failed attempts. Calling set.seed() and never restoring the random state changes the caller's stream, and the clean-session check fails. A timestamp in provenance.txt differs on every run, so the reviewer's re-run is not byte-identical. And keeping rows with a missing week12 value changes the model, which fails the model check.",
+    "visual": {
+      "type": "mistakes",
+      "title": "Mistakes that fail the checks",
+      "items": [
+        {
+          "mistake": "set.seed() with the RNG never restored",
+          "check": "clean-session"
+        },
+        {
+          "mistake": "A timestamp in provenance.txt",
+          "check": "rerun"
+        },
+        {
+          "mistake": "Keeping rows with missing week12",
+          "check": "model"
+        }
+      ]
+    }
+  },
+  {
+    "id": "x05",
+    "chapter": "checks",
+    "lessonId": null,
+    "chapterTitle": "Every check passes",
+    "text": "This solution passes all eight checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+    "caption": "This solution passes all eight checks. The validator self-test runs this exact code against every one of them, so what you see here is what the boss grades. Your own solution can look different. What matters is that it passes the same checks.",
+    "visual": {
+      "type": "checks",
+      "title": "All eight checks pass",
+      "items": [
+        "Defined with the default seed",
+        "Primary model correct",
+        "Reproducible audit sample",
+        "All three files written",
+        "Reviewer re-run is byte-identical",
+        "Provenance: R, seed, input MD5",
+        "Caller's RNG and options untouched",
+        "Correct on an unseen export"
+      ]
+    }
+  }
+]
