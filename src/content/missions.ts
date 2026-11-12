@@ -8,6 +8,7 @@ import type {
   Mission,
   MissionId,
 } from "../domain/types.ts";
+import { dataLabLessons } from "./lessons/data-lab.ts";
 
 /*
  * Mission catalog — the single source of truth for academy content.
@@ -18,7 +19,7 @@ import type {
 const VIDEO_PHASE: Availability = {
   status: "planned",
   phase: 3,
-  note: "Generated instructional video with a short comprehension check.",
+  note: "Video lesson in production: the world video, written walkthrough, and knowledge check.",
 };
 
 const CHALLENGE_PHASE: Availability = {
@@ -34,8 +35,10 @@ interface LessonInput {
   outline: string[];
 }
 
+/** Placeholder lesson for worlds whose video hasn't been produced yet. */
 function lesson(missionId: MissionId, n: number, input: LessonInput): Lesson {
   const id = `${missionId}.lesson-${n}`;
+  const challengeSlug = n === 3 ? "boss" : `challenge-${n}`;
   return {
     id,
     kind: "lesson",
@@ -44,16 +47,15 @@ function lesson(missionId: MissionId, n: number, input: LessonInput): Lesson {
     summary: input.summary,
     estimatedMinutes: input.minutes,
     xp: 20,
-    video: {
-      id: `${id}.video`,
-      title: input.title,
-      plannedDurationSec: input.minutes * 60,
-      status: "planned",
-      src: null,
-      posterSrc: null,
-      transcriptSrc: null,
-      outline: input.outline,
-    },
+    briefing: input.summary,
+    objectives: input.outline,
+    keyPoints: [],
+    videoId: `${missionId}.video`,
+    chapterIds: [],
+    explanation: [],
+    walkthrough: null,
+    knowledgeCheck: [],
+    challengeId: `${missionId}.${challengeSlug}`,
     check: { validatorId: `lesson-check:${id}` },
     availability: VIDEO_PHASE,
   };
@@ -124,18 +126,8 @@ const dataLab: Mission = {
   rewardAchievementId: "data-explorer",
   theme: { visual: "lab", accent: "cyan" },
   items: [
-    lesson("data-lab", 1, {
-      title: "Vectors, types, and NA",
-      summary: "Why R has four kinds of missing value, and how type coercion silently changes your data.",
-      minutes: 12,
-      outline: ["Atomic vectors and typeof()", "Implicit coercion traps", "NA vs NULL vs NaN", "is.na() and na.rm"],
-    }),
-    lesson("data-lab", 2, {
-      title: "Data frames and tibbles",
-      summary: "Columns, rows, and the subsetting rules that trip up even experienced programmers.",
-      minutes: 15,
-      outline: ["[ vs [[ vs $", "Tibbles and printing", "Reading CSVs with explicit column types"],
-    }),
+    dataLabLessons[0],
+    dataLabLessons[1],
     challenge("data-lab", {
       slug: "challenge-1",
       type: "code-exercise",
@@ -163,12 +155,7 @@ clean_site <- function(x) {
 clean_site(sites)
 `,
     }),
-    lesson("data-lab", 3, {
-      title: "Transforming with dplyr",
-      summary: "filter, mutate, group_by, and summarise as a vocabulary for analysis.",
-      minutes: 18,
-      outline: ["The pipe and readable chains", "Grouped summaries", "across() for many columns"],
-    }),
+    dataLabLessons[2],
     challenge("data-lab", {
       slug: "challenge-2",
       type: "code-exercise",
@@ -768,10 +755,25 @@ run_analysis <- function(raw_path, out_dir, seed = 20261112) {
   ],
 };
 
+/**
+ * Each lesson sits directly before the challenge it prepares for:
+ * lesson 1 → challenge 1 → lesson 2 → challenge 2 → lesson 3 → boss.
+ */
+function withLessonOrder(mission: Mission): Mission {
+  const lessons = mission.items.filter((i) => i.kind === "lesson");
+  const ordered = lessons.flatMap((l) => {
+    const challenge = mission.items.find((i) => i.id === l.challengeId);
+    if (!challenge) throw new Error(`${l.id} links to missing challenge ${l.challengeId}`);
+    return [l, challenge];
+  });
+  if (ordered.length !== mission.items.length) throw new Error(`${mission.id}: every challenge needs exactly one lesson`);
+  return { ...mission, items: ordered };
+}
+
 export const MISSIONS: readonly Mission[] = [
   dataLab,
   packageFactory,
   debuggingCrisis,
   qualityControl,
   researchMission,
-];
+].map(withLessonOrder);

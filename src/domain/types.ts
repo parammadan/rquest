@@ -32,21 +32,63 @@ export type Availability =
   | { status: "available" }
   | { status: "planned"; phase: DeliveryPhase; note: string };
 
-export type VideoStatus = "planned" | "generating" | "ready";
+export type VideoStatus = "planned" | "ready";
 
-/** Metadata for an instructional video (generated in Phase 3). */
-export interface VideoMetadata {
+/** A chapter of a world video. Lessons reference the chapters they cover. */
+export interface VideoChapter {
   id: string;
   title: string;
-  /** Planned running time in seconds. */
-  plannedDurationSec: number;
+  startSec: number;
+  lessonId: string | null;
+}
+
+export interface CaptionCue {
+  startSec: number;
+  endSec: number;
+  text: string;
+}
+
+/**
+ * One instructional video per world, shared by that world's three lessons.
+ * Sources are configurable: an MP4 URL (self-hosted or object storage) and/or
+ * a YouTube video id. Nothing is hard-coded until the asset exists.
+ */
+export interface VideoAsset {
+  id: string;
+  missionId: MissionId;
+  title: string;
+  summary: string;
   status: VideoStatus;
-  /** Populated only when status === "ready". */
-  src: string | null;
-  posterSrc: string | null;
-  transcriptSrc: string | null;
-  /** Beats the generated video will cover, in order. */
-  outline: string[];
+  durationSec: number | null;
+  sources: { mp4: string | null; youtubeId: string | null };
+  captionsVtt: string | null;
+  poster: string | null;
+  chapters: VideoChapter[];
+  transcript: CaptionCue[];
+  /** How the narration was produced, shown to learners. */
+  narration: string | null;
+}
+
+export type LessonBlock =
+  | { kind: "text"; body: string }
+  | { kind: "code"; code: string; output?: string; caption?: string; runnable?: boolean }
+  | { kind: "callout"; tone: "tip" | "warning"; title: string; body: string };
+
+/** A step-through code demonstration: each step highlights lines and shows output. */
+export interface CodeWalkthrough {
+  title: string;
+  code: string;
+  steps: { title: string; note: string; highlight: number[]; output?: string }[];
+}
+
+export interface KnowledgeQuestion {
+  id: string;
+  prompt: string;
+  code?: string;
+  options: { id: string; label: string }[];
+  correctOptionId: string;
+  /** Shown after answering, right or wrong. */
+  explanation: string;
 }
 
 export interface Lesson {
@@ -57,8 +99,20 @@ export interface Lesson {
   summary: string;
   estimatedMinutes: number;
   xp: number;
-  video: VideoMetadata;
-  /** Validator that confirms the lesson's comprehension check (Phase 3). */
+  /** One-paragraph mission briefing shown when the lesson opens. */
+  briefing: string;
+  objectives: string[];
+  keyPoints: string[];
+  /** The world video and the chapters of it this lesson covers. */
+  videoId: string;
+  chapterIds: string[];
+  explanation: LessonBlock[];
+  walkthrough: CodeWalkthrough | null;
+  /** Completion rule: every question answered correctly. */
+  knowledgeCheck: KnowledgeQuestion[];
+  /** The challenge this lesson prepares for. */
+  challengeId: string;
+  /** Validator that confirms the knowledge check. */
   check: { validatorId: string };
   availability: Availability;
 }

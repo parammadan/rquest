@@ -246,3 +246,93 @@ test("level curve", () => {
   assert.equal(levelForXp(99999).nextLevelXp, null);
   assert.equal(levelForXp(99999).fraction, 1);
 });
+
+/* ---------------------------- Phase 3A: lessons ---------------------------- */
+
+import { gradeKnowledgeCheck } from "./knowledge-check.ts";
+import { getVideo, VIDEOS } from "../content/videos.ts";
+import { LESSON_CHECK_IDS } from "../content/validators/index.ts";
+import type { Lesson } from "./types.ts";
+
+const allItems = catalog.missions.flatMap((m) => m.items);
+const lessons = allItems.filter((i): i is Lesson => i.kind === "lesson");
+
+test("every world has three lessons, each directly before the challenge it prepares for", () => {
+  for (const m of catalog.missions) {
+    const ls = m.items.filter((i) => i.kind === "lesson");
+    assert.equal(ls.length, 3, m.id);
+    m.items.forEach((item, i) => {
+      if (item.kind === "lesson") {
+        assert.equal(m.items[i + 1]?.id, item.challengeId, `${item.id} precedes its challenge`);
+        assert.equal(catalog.getItem(item.challengeId)?.missionId, m.id);
+      }
+    });
+  }
+});
+
+test("one video per world; only World 1's is ready, the rest have no sources", () => {
+  assert.equal(VIDEOS.length, 5);
+  for (const m of catalog.missions) assert.ok(VIDEOS.some((v) => v.missionId === m.id), m.id);
+  for (const v of VIDEOS) {
+    if (v.missionId === "data-lab") {
+      assert.equal(v.status, "ready");
+      assert.ok(v.sources.mp4 && v.captionsVtt && v.transcript.length > 10 && v.chapters.length >= 3);
+      assert.ok(v.durationSec! > 150 && v.durationSec! < 260, `duration ${v.durationSec}`);
+    } else {
+      assert.equal(v.status, "planned");
+      assert.deepEqual(v.sources, { mp4: null, youtubeId: null });
+    }
+  }
+  for (const l of lessons) assert.ok(getVideo(l.videoId), `${l.id} → ${l.videoId}`);
+});
+
+test("live lessons are complete: chapters exist, questions are well-formed, check is registered", () => {
+  const live = lessons.filter((l) => l.availability.status === "available");
+  assert.deepEqual(live.map((l) => l.id), ["data-lab.lesson-1", "data-lab.lesson-2", "data-lab.lesson-3"]);
+  for (const l of live) {
+    const video = getVideo(l.videoId)!;
+    for (const c of l.chapterIds) assert.ok(video.chapters.some((ch) => ch.id === c && ch.lessonId === l.id), `${l.id} chapter ${c}`);
+    assert.ok(l.knowledgeCheck.length >= 2);
+    assert.equal(new Set(l.knowledgeCheck.map((q) => q.id)).size, l.knowledgeCheck.length);
+    for (const q of l.knowledgeCheck) assert.ok(q.options.some((o) => o.id === q.correctOptionId), `${l.id}/${q.id}`);
+    assert.ok(LESSON_CHECK_IDS.includes(l.check.validatorId));
+    assert.ok(ACTIVE_VALIDATORS.has(l.check.validatorId));
+  }
+  for (const l of lessons.filter((x) => x.availability.status === "planned")) {
+    assert.ok(!ACTIVE_VALIDATORS.has(l.check.validatorId), `${l.id} must not be completable`);
+  }
+});
+
+test("knowledge check: complete only when every answer is correct", () => {
+  const l = catalog.getItem("data-lab.lesson-1") as Lesson;
+  const right = Object.fromEntries(l.knowledgeCheck.map((q) => [q.id, q.correctOptionId]));
+  assert.equal(gradeKnowledgeCheck(l, right).allCorrect, true);
+  const oneWrong = { ...right, [l.knowledgeCheck[0].id]: l.knowledgeCheck[0].options.find((o) => o.id !== l.knowledgeCheck[0].correctOptionId)!.id };
+  assert.equal(gradeKnowledgeCheck(l, oneWrong).allCorrect, false);
+  assert.equal(gradeKnowledgeCheck(l, {}).allCorrect, false);
+});
+
+test("a lesson awards its XP once and doesn't clear a world; challenges + lessons = mastered", () => {
+  const l1 = catalog.getItem("data-lab.lesson-1")!;
+  const receipt = { validatorId: expectedValidatorId(l1), verdict: "passed" as const, checkedAt: "t" };
+  const first = submitCompletion(emptySnapshot(), catalog, ACTIVE_VALIDATORS, { itemId: l1.id, receipt });
+  assert.ok(first.ok);
+  const p1 = deriveProgress(snap([first.event]), catalog);
+  assert.equal(p1.totalXp, 20);
+  assert.equal(p1.missions["data-lab"].status, "in-progress");
+  assert.equal(p1.missions["package-factory"].status, "locked");
+  assert.deepEqual(submitCompletion(snap([first.event]), catalog, ACTIVE_VALIDATORS, { itemId: l1.id, receipt }), { ok: false, reason: "duplicate" });
+  const everything = deriveProgress(snap(world1.items.map((it, i) => completion(it, i))), catalog);
+  assert.equal(everything.missions["data-lab"].status, "completed");
+  assert.equal(everything.missions["data-lab"].fraction, 1);
+});
+
+test("legacy Phase 2 progress (challenges only) keeps every world cleared and every achievement", () => {
+  const challengesOnly = allItems.filter((i) => i.kind === "challenge").map((it, i) => completion(it, i));
+  const p = deriveProgress(snap(challengesOnly), catalog);
+  assert.deepEqual(p.rejected, []);
+  assert.equal(p.clearedMissionCount, 5);
+  assert.equal(p.totalXp, 1800);
+  assert.equal(p.unlockedAchievementCount, catalog.achievements.length);
+  for (const m of catalog.missions) assert.equal(p.missions[m.id].status, "cleared");
+});
