@@ -75,7 +75,7 @@ const STATUS_META: Record<
   available: { label: "Unlocked", icon: Play, cls: "border-cyan/35 bg-cyan/10 text-cyan" },
   "in-progress": { label: "In progress", icon: Play, cls: "border-violet/35 bg-violet/10 text-violet" },
   cleared: { label: "Cleared", icon: Flag, cls: "border-gold/35 bg-gold/10 text-gold" },
-  completed: { label: "Completed", icon: CircleCheck, cls: "border-emerald/35 bg-emerald/10 text-emerald" },
+  completed: { label: "Mastered", icon: CircleCheck, cls: "border-emerald/35 bg-emerald/10 text-emerald" },
 };
 
 export function StatusChip({ status, className }: { status: MissionStatus; className?: string }) {

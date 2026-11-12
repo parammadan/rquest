@@ -42,3 +42,9 @@ next-env.d.ts
 
 # lesson videos: published as GitHub Release assets, not committed
 /public/media/
+
+# video pipeline: generated/local artefacts
+/video/node_modules
+/video/audio/
+/video/public/audio
+/video/out/

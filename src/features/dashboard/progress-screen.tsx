@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CompletionRing } from "@/components/ui/completion-ring";
 import { Dialog } from "@/components/ui/dialog";
 import { Hydrated, ProgressBar, SectionHeading, StatusChip } from "@/components/ui/primitives";
+import { ProgressLegend } from "@/components/progress-legend";
 import { catalog } from "@/content/catalog";
 import { useProgress, useProgressActions } from "@/features/progress/progress-provider";
 import { LevelIndicator, XPProgressBar } from "@/features/shell/learner-widgets";
@@ -75,6 +76,11 @@ export function ProgressScreen() {
           ))}
         </section>
       </div>
+
+      <section aria-labelledby="states-h" className="mt-10">
+        <SectionHeading id="states-h" eyebrow="Definitions" title="How progress works" />
+        <ProgressLegend />
+      </section>
 
       <section aria-labelledby="mastery" className="mt-10">
         <SectionHeading id="mastery" eyebrow="By world" title="Mission mastery" />

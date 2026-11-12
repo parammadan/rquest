@@ -353,7 +353,7 @@ function MapLegend() {
     { label: "Unlocked", dot: "bg-cyan" },
     { label: "In progress", dot: "bg-violet" },
     { label: "Cleared", dot: "bg-gold" },
-    { label: "Completed", dot: "bg-emerald" },
+    { label: "Mastered", dot: "bg-emerald" },
     { label: "Locked", dot: "bg-ink-600 ring-1 ring-line-strong" },
   ];
   return (

@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { ComingSoonPanel } from "@/components/coming-soon-panel";
 import { DifficultyMeter } from "@/components/ui/primitives";
 import type { Challenge, Lesson, MissionItem } from "@/domain/types";
+import { getVideo } from "@/content/videos";
 import { formatMinutes } from "@/lib/format";
 import { RCode } from "./r-code";
 
@@ -18,39 +19,59 @@ const STRATEGY_LABEL: Record<Challenge["evaluation"]["strategy"], string> = {
   "mutation-testing": "running your tests against the real function and against deliberately broken copies of it",
 };
 
-function VideoLessonPlaceholder({ lesson }: { lesson: Lesson }) {
+function LessonPreview({ lesson, completed }: { lesson: Lesson; completed: boolean }) {
+  const live = lesson.availability.status === "available";
+  const video = getVideo(lesson.videoId);
+  const chapters = video?.chapters.filter((c) => lesson.chapterIds.includes(c.id)) ?? [];
+  if (!live) {
+    return (
+      <ComingSoonPanel phase={3} icon={Clapperboard} title="Video lesson in production">
+        <p>{lesson.summary}</p>
+        <p className="mt-3 font-medium text-fg">This lesson will cover</p>
+        <ul className="mt-2 list-inside list-disc space-y-1">
+          {lesson.objectives.map((o) => (
+            <li key={o}>{o}</li>
+          ))}
+        </ul>
+        <p className="mt-4 text-xs text-fg-subtle">
+          The world’s challenges are playable now. Lessons add bonus XP and count toward mastery, but don’t gate the next world.
+        </p>
+      </ComingSoonPanel>
+    );
+  }
   return (
-    <ComingSoonPanel
-      phase={3}
-      icon={Clapperboard}
-      title="Video lesson"
-      frame={
-        <div className="relative aspect-video border-b border-line bg-[radial-gradient(ellipse_at_center,color-mix(in_oklab,var(--accent)_22%,transparent),transparent_70%),#060910]">
-          <div aria-hidden="true" className="absolute inset-0 bg-grid opacity-40" />
-          <div className="absolute inset-0 grid place-items-center">
-            <span aria-hidden="true" className="grid h-16 w-16 place-items-center rounded-full border border-white/15 bg-white/[0.04] text-fg-subtle">
-              <Play className="ml-1 h-6 w-6" />
-            </span>
-          </div>
-          <div className="absolute inset-x-4 bottom-3 flex items-center justify-between text-xs text-fg-muted">
-            <span className="truncate font-medium text-fg">{lesson.video.title}</span>
-            <span className="font-mono">~{formatMinutes(Math.round(lesson.video.plannedDurationSec / 60))}</span>
-          </div>
+    <section className="panel overflow-hidden" aria-label={`${lesson.title} (available)`}>
+      <div className="relative aspect-video border-b border-line bg-[#060910]">
+        {video?.poster && (
+          // eslint-disable-next-line @next/next/no-img-element -- static export, no image optimizer
+          <img src={video.poster} alt="" className="absolute inset-0 h-full w-full object-cover opacity-80" />
+        )}
+        <div className="absolute inset-0 bg-[linear-gradient(transparent_40%,rgb(4_6_11/0.9))]" />
+        <div className="absolute inset-x-4 bottom-3 flex items-center justify-between text-xs text-fg-muted">
+          <span className="font-medium text-fg">{video?.title}</span>
+          <span className="inline-flex items-center gap-1">
+            <Play className="h-3.5 w-3.5" aria-hidden="true" /> {chapters.length} chapter{chapters.length === 1 ? "" : "s"}
+          </span>
         </div>
-      }
-    >
-      <p>{lesson.summary}</p>
-      <p className="mt-3 font-medium text-fg">This lesson will cover</p>
-      <ol className="mt-2 list-inside list-decimal space-y-1">
-        {lesson.video.outline.map((o) => (
-          <li key={o}>{o}</li>
-        ))}
-      </ol>
-      <p className="mt-4 text-xs text-fg-subtle">
-        Instructional videos are produced in Phase 3. Completing a lesson will require a short comprehension check, so
-        watching alone never awards XP.
-      </p>
-    </ComingSoonPanel>
+      </div>
+      <div className="p-5 text-sm leading-relaxed text-fg-muted">
+        <p>{lesson.summary}</p>
+        <p className="mt-3 text-xs text-fg-subtle">
+          Video, written walkthrough, and a {lesson.knowledgeCheck.length}-question knowledge check. Answer every question
+          correctly to complete it ({lesson.xp} XP, once).
+        </p>
+        {completed && (
+          <p className="mt-3 inline-flex items-center gap-1.5 text-emerald">
+            <CircleCheck className="h-4 w-4" aria-hidden="true" /> Completed
+          </p>
+        )}
+        <div>
+          <ButtonLink href={`/academy/missions/${lesson.missionId}/lessons/${lesson.id}`} className="mt-5">
+            {completed ? "Review lesson" : "Start lesson"} <ArrowRight className="h-4 w-4" aria-hidden="true" />
+          </ButtonLink>
+        </div>
+      </div>
+    </section>
   );
 }
 
@@ -125,7 +146,7 @@ function ChallengePlaceholder({ challenge }: { challenge: Challenge }) {
 }
 
 export function ItemPreview({ item, completed }: { item: MissionItem; completed: boolean }) {
-  if (item.kind === "lesson") return <VideoLessonPlaceholder lesson={item} />;
+  if (item.kind === "lesson") return <LessonPreview lesson={item} completed={completed} />;
   if (item.availability.status === "available") return <LiveChallenge challenge={item} completed={completed} />;
   return <ChallengePlaceholder challenge={item} />;
 }

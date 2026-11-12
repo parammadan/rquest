@@ -1,13 +1,8 @@
 import type { EvaluationResult } from "@/domain/evaluation";
 import type { Challenge, ValidationReceipt } from "@/domain/types";
 import { validatorForChallenge } from "@/content/validators";
+import { sha256 } from "@/lib/sha256";
 import { rSession } from "./r-session";
-
-async function sha256(text: string): Promise<string> {
-  const bytes = new TextEncoder().encode(text);
-  const hash = await crypto.subtle.digest("SHA-256", bytes);
-  return Array.from(new Uint8Array(hash), (b) => b.toString(16).padStart(2, "0")).join("");
-}
 
 /**
  * The trust boundary between execution and progress: a receipt is issued

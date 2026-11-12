@@ -9,7 +9,7 @@ const KEYWORDS = new Set([
 
 const TOKEN = /(#[^\n]*)|("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')|(\b\d+(?:\.\d+)?(?:e-?\d+)?\b)|([A-Za-z_.][\w.]*)(?=\s*\()|([A-Za-z_.][\w.]*)|(<-|\|>|::|==|!=|<=|>=|[-+*/^<>=!&|$~:])/g;
 
-function highlight(line: string) {
+export function highlightLine(line: string) {
   const out: React.ReactNode[] = [];
   let last = 0;
   let m: RegExpExecArray | null;
@@ -62,7 +62,7 @@ export function RCode({ code, filename }: { code: string; filename: string }) {
               <span aria-hidden="true" className="mr-4 inline-block w-5 select-none text-right text-ink-600">
                 {i + 1}
               </span>
-              {highlight(line)}
+              {highlightLine(line)}
             </span>
           ))}
         </code>

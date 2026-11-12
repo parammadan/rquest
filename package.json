@@ -13,7 +13,8 @@
     "verify": "pnpm typecheck && pnpm lint && pnpm test && pnpm build:pages",
     "test:e2e:challenges": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-challenges.mjs",
     "test:validators": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/validator-selftest.mjs",
-    "build:pages": "NEXT_PUBLIC_BASE_PATH=/rquest next build"
+    "build:pages": "NEXT_PUBLIC_BASE_PATH=/rquest next build",
+    "test:e2e:lessons": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/e2e-lessons.mjs"
   },
   "dependencies": {
     "@codemirror/commands": "^6.11.1",

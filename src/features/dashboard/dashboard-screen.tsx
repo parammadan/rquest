@@ -142,12 +142,12 @@ export function DashboardScreen() {
           <section className="panel p-6">
             <p className="eyebrow">Academy</p>
             <h2 className="mt-1 font-display text-xl font-semibold">
-              {progress.completedMissionCount === progress.missionCount ? "Every world completed" : "Every world cleared"}
+              {progress.completedMissionCount === progress.missionCount ? "Every world mastered" : "Every world cleared"}
             </h2>
             <p className="mt-2 text-sm text-fg-muted">
               {progress.completedMissionCount === progress.missionCount
                 ? "Every lesson and challenge is validated. Revisit any world from the mission map."
-                : "Every challenge and boss is validated. Lessons (Phase 3) will take each world to full mastery."}
+                : "Every challenge and boss is validated. Complete each world\u2019s lessons to master it."}
             </p>
             <ButtonLink href="/academy/map" className="mt-4">Open mission map</ButtonLink>
           </section>
@@ -214,7 +214,7 @@ export function DashboardScreen() {
                     <span className="block font-mono text-[0.62rem] uppercase tracking-wider text-fg-subtle">{m.worldLabel}</span>
                     <span className={cn("block text-sm font-medium", locked ? "text-fg-muted" : "text-fg")}>{m.title}</span>
                     <span className="block text-xs text-fg-subtle">
-                      {mp.status === "locked" ? "Locked" : mp.status === "completed" ? "Completed" : mp.status === "cleared" ? `Cleared · ${formatPercent(mp.fraction)}` : formatPercent(mp.fraction)}
+                      {mp.status === "locked" ? "Locked" : mp.status === "completed" ? "Mastered" : mp.status === "cleared" ? `Cleared · ${formatPercent(mp.fraction)}` : formatPercent(mp.fraction)}
                     </span>
                   </span>
                 </Link>

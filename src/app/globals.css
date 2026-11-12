@@ -96,6 +96,17 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* Code must read exactly as typed: no "<-" arrows or "|>" triangles from font ligatures. */
+pre,
+code,
+kbd,
+samp,
+.font-mono,
+.cm-editor {
+  font-variant-ligatures: none;
+  font-feature-settings: "liga" 0, "calt" 0;
+}
+
 ::selection {
   background: rgb(167 139 250 / 0.35);
 }

@@ -144,14 +144,33 @@ function MissionDetail({ mission, progress }: { mission: Mission; progress: Deri
           <div className="shrink-0 rounded-2xl bg-ink-950/50 p-4 ring-1 ring-inset ring-line md:w-56">
             <p className="eyebrow">Reward</p>
             <p className="mt-1 font-display text-3xl font-semibold text-[var(--accent)]">{formatNumber(summary.totalXp)} XP</p>
-            <div className="mt-3">
-              <div className="mb-1 flex justify-between text-xs text-fg-muted">
-                <span>Earned</span>
-                <span className="font-mono">
-                  {mp.xpEarned}/{mp.xpAvailable}
-                </span>
+            <p className="text-xs text-fg-muted">
+              Earned <span className="font-mono">{mp.xpEarned}/{mp.xpAvailable}</span>
+            </p>
+            <div className="mt-3 space-y-2.5">
+              <div>
+                <div className="mb-1 flex justify-between text-xs text-fg-muted">
+                  <span>Cleared · challenges</span>
+                  <span className="font-mono">
+                    {mp.challengesCompleted}/{mp.challengesTotal}
+                  </span>
+                </div>
+                <ProgressBar
+                  value={mp.challengesTotal ? mp.challengesCompleted / mp.challengesTotal : 0}
+                  tone="accent"
+                  size="sm"
+                  label={`${mission.title} challenges validated`}
+                />
               </div>
-              <ProgressBar value={mp.fraction} tone="accent" size="sm" label={`${mission.title} progress`} valueText={formatPercent(mp.fraction)} />
+              <div>
+                <div className="mb-1 flex justify-between text-xs text-fg-muted">
+                  <span>Mastered · incl. lessons</span>
+                  <span className="font-mono">
+                    {mp.itemsCompleted}/{mp.itemsTotal}
+                  </span>
+                </div>
+                <ProgressBar value={mp.fraction} size="sm" label={`${mission.title} mastery`} valueText={formatPercent(mp.fraction)} />
+              </div>
             </div>
           </div>
         </div>
