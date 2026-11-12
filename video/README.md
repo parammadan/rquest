@@ -7,7 +7,7 @@ unlocks in the app only after that boss is validated. Each video is a project in
 
 | Video | Project | Duration | Narration QA |
 |---|---|---|---|
-| 1 · Introduction to R for Research Programmers | `projects/data-lab-v1` | 3:13 | see Phase 3A notes below |
+| 1 · Introduction to R for Research Programmers | `projects/data-lab-v1` | 3:16 | see Phase 3A notes below; s04 and s10 re-voiced |
 | 2 · From R Scripts to Research-Ready Packages | `projects/package-factory-v1` | 4:34 | `projects/package-factory-v1/narration-qa.md` |
 | 3 · When R Works on One Machine Only | `projects/debugging-crisis-v1` | 3:23 | Whisper read-back; "sprintf" voiced as "sprint F" |
 | 4 · Testing and Independent QC | `projects/quality-control-v1` | 3:10 | Whisper read-back; q04 and q09 re-voiced |
@@ -15,7 +15,7 @@ unlocks in the app only after that boss is validated. Each video is a project in
 | 6–10 · Boss debriefs | `projects/<world>-debrief-v1` | ~1:45 each | see "Boss debriefs" below |
 
 Video 1 is **World 1: The Data Lab. Introduction to R for Research Programmers**.
-It runs 3:13 (193.5 s) at 1920×1080, 30 fps, with 10 narrated scenes, an intro and an outro.
+It runs 3:16 (195.9 s) at 1920×1080, 30 fps, with 10 narrated scenes, an intro and an outro.
 
 ## Pipeline
 
@@ -45,7 +45,7 @@ visuals stay in step with the voice. Video 1's captions were regenerated this wa
 | s01 | Why R for research → L1 | Provenance chain: file → code → run; "re-run it" banner; Free / Scriptable / Re-runnable chips; lesson roadmap | Scripts make every number reproducible |
 | s02 | Vectors → L1 | Console types `sites <- c(...)`, `typeof`, `length`, `toupper`; six indexed vector cells flip to upper case at once | One type per vector; vectorized functions |
 | s03 | Vectors → L1 | `c(1, "2")` → `"1" "2"`; cells recolour to text; a numeric column turned to text by `"9.8 kg"` | Silent coercion; check types on arrival |
-| s04 | Writing a function → L1 | `clean_site()` typed with line highlights; `" bos01"` → `trimws()` → `toupper()` → `sub()` → `"BOS-01"`; result vector | Functions, vectorized cleaning, last value returned |
+| s04 | Writing a function → L1 | `clean_visit()` (the lesson's example, not the challenge's `clean_site()`) typed with line highlights; `" WEEK-12"` → `trimws()` → `tolower()` → `sub()` → `"Week 12"`; result vector | Functions, vectorized cleaning, last value returned |
 | s05 | Missing observations → L1 | `mean()` → `NA`; `is.na()` mask under cells; `sum(is.na())` → 1; `na.rm = TRUE` → 10.53333 | NA is contagious; drop only on purpose |
 | s06 | Data frames → L2 | Six-row synthetic trial table; `trial$outcome`; Baseline rows fade for the Week 12 filter | Data frame = equal-length vectors; `$` and logical rows |
 | s07 | Grouped summaries → L2 | dplyr pipeline with highlighted verbs; rows grouped by arm → summary (Placebo rows 2, n 1) | `n()` counts rows, not observations |
@@ -87,6 +87,24 @@ testthat 3.3.2. `R CMD check` gave `Status: OK`; the deliberately broken variant
 3. Add `src/videos/<world>/` (copy `package-factory/Lesson.tsx`) and register the composition in `src/Root.tsx`.
 4. Add scenes using the shared kit in `src/kit.tsx`: `Frame`, `Code` (typing, highlighting, output), `Cells`, `Table`, `Chip`, `Panel`, and `useBeats()` for word-aligned timing.
 5. Render, upload the MP4 to a `media-*` release, then mark the world's entry in `src/content/videos.ts` as `ready`, with its sources and generated chapters and transcript.
+
+## No answers on screen
+
+A world video teaches the ideas a challenge needs, never the challenge's answer. The unit test
+"no world video shows a challenge's reference solution on screen" reads every string in each
+`src/videos/<world>/scenes.tsx` and fails if it reproduces half (or three or more lines) of the reference
+solution to a challenge in that world or a later one. Starter code and earlier worlds' solutions don't count:
+the learner has already seen or written them. Boss debriefs are exempt because they unlock only after the boss
+is solved.
+
+The test caught four leaks, now fixed with different worked examples:
+
+| Video | Scene | Was | Now |
+|---|---|---|---|
+| 1 | s04 | the full `clean_site()` (World 1 challenge 1) | `clean_visit()` on visit labels, as in the lesson; s04 and s10 re-voiced |
+| 3 | d04 | the fixed `outcome_table()` (World 3 challenge 1) | `baseline_table()` with the same qualified `dplyr::` calls |
+| 4 | q02 | a `summarise_arm()` test matching one the challenge asks for | tests for World 1's `clean_site()`, run with testthat 3.3.2 |
+| 5 | r06 | `week12_sentence()`, nearly line for line (World 5 challenge 2) | `change_summary()`: median and IQR by arm via `split()`, real R 4.6.1 output; r06 re-voiced |
 
 ## Boss debriefs
 

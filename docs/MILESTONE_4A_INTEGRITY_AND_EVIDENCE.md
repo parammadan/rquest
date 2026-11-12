@@ -283,9 +283,13 @@ All of them were run locally and against production for this milestone.
 
 ## 12. Remaining limitations
 
-1. **The World 1 video still builds the full `clean_site()` solution on screen.**
-   - It also calls it "the function from this lesson", which now differs from the lesson walkthrough.
-   - Videos were out of scope for this milestone. Fixing this needs a re-voiced and re-rendered "functions" chapter of Video 1.
+1. ~~**The World 1 video still builds the full `clean_site()` solution on screen.**~~ **Fixed in a follow-up.**
+   - Video 1 now builds the lesson's `clean_visit()`. Its s04 and s10 narration was re-voiced, and the video was re-rendered.
+   - A new unit test checks every world video's on-screen code against the reference solutions. It found three more leaks this report had missed:
+     - Video 3 showed the fixed `outcome_table()`;
+     - Video 4 showed a test the challenge asks for;
+     - Video 5 showed `week12_sentence()` almost line for line.
+   - All three were fixed and re-rendered. Details are in `video/README.md`, under "No answers on screen".
 2. **Browser-level hardening, not verification.**
    - Deliberate call-stack walking with `unlockBinding` on the grader's environments, or crafted S3 classes against non-`identical` checks, can still interfere.
    - Learners can edit `localStorage` directly.
