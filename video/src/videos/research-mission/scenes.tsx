@@ -179,7 +179,7 @@ export const R05: React.FC = () => {
         <Appear at={b[2]} style={{ flex: 1 }}>
           <Panel title="report.qmd  ✓ computed" style={{ borderColor: "rgba(52,211,153,0.5)" }}>
             <div style={{ padding: "20px 26px", fontSize: 30, lineHeight: 1.6 }}>
-              <span style={{ fontFamily: FONT.mono, color: C.emerald }}>`r week12_sentence(week12)`</span>
+              <span style={{ fontFamily: FONT.mono, color: C.emerald }}>`r change_summary(week12)`</span>
               <div style={{ fontSize: 22, color: C.subtle, marginTop: 10 }}>computed every time the document renders</div>
             </div>
           </Panel>
@@ -194,43 +194,43 @@ export const R05: React.FC = () => {
 
 export const R06: React.FC = () => {
   const b = useBeats("r06");
+  // Word times in sentence 2 (words.json): "median", "format".
+  const SPLIT_END = b[1] + 2.4;
+  const FORMAT = b[1] + 4.3;
   return (
     <Frame chapter="Computed reporting">
       <H n={4} title="Build the sentence from data" />
       <Row style={{ marginTop: 40 }} gap={30}>
         <div style={{ width: 1180 }}>
           <File
-            name="week12_sentence.R"
+            name="change_summary.R"
             at={b[0] + 0.3}
             fontSize={23}
             lines={[
-              "week12_sentence <- function(df) {",
-              "  arms <- sort(unique(df$arm))",
-              "  parts <- vapply(arms, function(a) {",
-              "    x <- df$change[df$arm == a & !is.na(df$change)]",
-              "    n <- length(x); m <- mean(x)",
-              "    h <- qt(0.975, n - 1) * sd(x) / sqrt(n)",
-              '    sprintf("%s: mean change %.2f (95%% CI %.2f to %.2f; n = %d).",',
-              "            a, m, m - h, m + h, n)",
-              "  }, character(1))",
+              "change_summary <- function(df) {",
+              "  ok <- df[!is.na(df$change), ]",
+              "  by_arm <- split(ok$change, ok$arm)",
+              "  q <- vapply(by_arm, quantile, numeric(3), probs = c(0.25, 0.5, 0.75))",
+              '  parts <- sprintf("%s: median change %.2f (IQR %.2f to %.2f; n = %d).",',
+              "                   colnames(q), q[2, ], q[1, ], q[3, ], lengths(by_arm))",
               '  paste(parts, collapse = " ")',
               "}",
             ]}
             highlight={[
-              { lines: [3], from: b[1], to: b[1] + 2.4, color: A },
-              { lines: [4, 5], from: b[1] + 2.4, to: b[1] + 5, color: A },
-              { lines: [6, 7], from: b[1] + 5, to: b[2], color: A },
+              { lines: [1, 2], from: b[1], to: SPLIT_END, color: A },
+              { lines: [3], from: SPLIT_END, to: FORMAT, color: A },
+              { lines: [4, 5], from: FORMAT, to: b[2], color: A },
             ]}
           />
         </div>
       </Row>
       <Appear at={b[2]} style={{ marginTop: 22 }}>
         <Console
-          title="week12_sentence(week12)  (real output, synthetic data)"
+          title="change_summary(week12)  (real output, synthetic data)"
           fontSize={24}
           lines={[
-            { text: "Placebo: mean change 2.19 (95% CI 0.94 to 3.44; n = 25).", color: C.emerald, at: b[2] + 0.3 },
-            { text: "Treatment: mean change 1.60 (95% CI 0.71 to 2.49; n = 29).", color: C.emerald, at: b[2] + 0.9 },
+            { text: "Placebo: median change 1.66 (IQR 0.52 to 3.28; n = 25).", color: C.emerald, at: b[2] + 0.3 },
+            { text: "Treatment: median change 1.68 (IQR -0.33 to 3.52; n = 29).", color: C.emerald, at: b[2] + 0.9 },
           ]}
         />
       </Appear>

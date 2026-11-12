@@ -73,19 +73,19 @@ export const Q02: React.FC = () => {
       <Row style={{ marginTop: 44 }} gap={36}>
         <div style={{ width: 1120 }}>
           <File
-            name="tests/testthat/test-summarise_arm.R"
+            name="tests/testthat/test-clean_site.R"
             at={b[0] + 0.4}
             fontSize={25}
             lines={[
-              'test_that("summarise_arm ignores missing outcomes", {',
-              '  df <- data.frame(arm = c("A", "A", "B"), outcome = c(1, NA, 3))',
-              "  r <- summarise_arm(df)",
-              '  expect_equal(r$mean[r$arm == "A"], 1)',
-              '  expect_identical(r$n[r$arm == "A"], 1L)',
+              'test_that("clean_site standardises spaces, case and hyphens", {',
+              '  codes <- c(" bos01", "NYC-02", "chi03")',
+              "  r <- clean_site(codes)",
+              '  expect_equal(r, c("BOS-01", "NYC-02", "CHI-03"))',
+              "  expect_identical(clean_site(NA_character_), NA_character_)",
               "})",
               "",
-              'test_that("empty input is refused", {',
-              "  expect_error(summarise_arm(df[0, ]))",
+              'test_that("a call with no input is refused", {',
+              "  expect_error(clean_site())",
               "})",
             ]}
             highlight={[

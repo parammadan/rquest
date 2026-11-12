@@ -4,8 +4,8 @@
   "fps": 30,
   "intro": 3.5,
   "outro": 4,
-  "totalSec": 193.53333333333336,
-  "totalFrames": 5806,
+  "totalSec": 195.93333333333334,
+  "totalFrames": 5878,
   "sentenceStarts": {
     "s01": [
       0.6,
@@ -30,8 +30,8 @@
     "s04": [
       0.6,
       3.16,
-      10.96,
-      14
+      12.66,
+      15.64
     ],
     "s05": [
       0.6,
@@ -68,9 +68,9 @@
     ],
     "s10": [
       0.6,
-      6.86,
+      6.92,
       8.44,
-      13.78
+      14.46
     ]
   },
   "segments": [
@@ -115,12 +115,12 @@
       "chapter": "functions",
       "chapterTitle": "Writing a function",
       "lessonId": "data-lab.lesson-1",
-      "text": "When you repeat a step, turn it into a function. clean site takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub, a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every code, in every file.",
-      "caption": "When you repeat a step, turn it into a function. clean_site() takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub(), a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every code, in every file.",
+      "text": "When you repeat a step, turn it into a function. clean visit takes a vector of raw visit labels, trims stray spaces, converts to lower case, and rewrites each spelling to the word Week, followed by the number, using sub, a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every label, in every file.",
+      "caption": "When you repeat a step, turn it into a function. clean_visit() takes a vector of raw visit labels, trims stray spaces, converts to lower case, and rewrites each spelling to the word Week, followed by the number, using sub(), a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every label, in every file.",
       "startSec": 57.43333333333334,
       "startFrame": 1723,
-      "frames": 553,
-      "audioSec": 17.024
+      "frames": 603,
+      "audioSec": 18.688
     },
     {
       "id": "s05",
@@ -129,8 +129,8 @@
       "lessonId": "data-lab.lesson-1",
       "text": "Real data has gaps. R marks a missing value as N A, and N A is contagious: the mean of a vector containing N A is itself N A. That is deliberate. R refuses to guess. Find the gaps using the function is dot N A, count them with sum, and drop them only on purpose, by setting n a dot r m to true.",
       "caption": "Real data has gaps. R marks a missing value as NA, and NA is contagious: the mean of a vector containing NA is itself NA. That is deliberate. R refuses to guess. Find the gaps using the function is.na(), count them with sum(), and drop them only on purpose, by setting na.rm = TRUE.",
-      "startSec": 75.86666666666667,
-      "startFrame": 2276,
+      "startSec": 77.53333333333333,
+      "startFrame": 2326,
       "frames": 555,
       "audioSec": 17.109333
     },
@@ -141,8 +141,8 @@
       "lessonId": "data-lab.lesson-2",
       "text": "A data frame is a table built from vectors. Each column is a vector, and every column has the same length. Our synthetic trial has an I D, a treatment arm, a visit, and an outcome. Pull out a column with the dollar sign, keep rows with a logical condition, and you are already asking real questions of the data.",
       "caption": "A data frame is a table built from vectors. Each column is a vector, and every column has the same length. Our synthetic trial has an id, a treatment arm, a visit, and an outcome. Pull out a column with $, keep rows with a logical condition, and you are already asking real questions of the data.",
-      "startSec": 94.36666666666667,
-      "startFrame": 2831,
+      "startSec": 96.03333333333333,
+      "startFrame": 2881,
       "frames": 555,
       "audioSec": 17.109333
     },
@@ -153,8 +153,8 @@
       "lessonId": "data-lab.lesson-2",
       "text": "Most reports summarise by group. The dee plier package gives you a readable vocabulary: filter keeps the week twelve visit, group by splits by arm, and summarise computes each statistic. Watch the missing outcome. The n function counts rows, not observations, so count the non-missing values explicitly. Precise definitions make a table trustworthy.",
       "caption": "Most reports summarise by group. The dplyr package gives you a readable vocabulary: filter() keeps the Week 12 visit, group_by() splits by arm, and summarise() computes each statistic. Watch the missing outcome. n() counts rows, not observations, so count the non-missing values explicitly. Precise definitions make a table trustworthy.",
-      "startSec": 112.86666666666667,
-      "startFrame": 3386,
+      "startSec": 114.53333333333333,
+      "startFrame": 3436,
       "frames": 629,
       "audioSec": 19.562667
     },
@@ -165,8 +165,8 @@
       "lessonId": "data-lab.lesson-3",
       "text": "Now a realistic case. A collaborator sends an enrollment export. Site codes are inconsistent, some ages are blank, one participant appears twice, and the enrollment date is written three different ways. Read every column as text first, so nothing is silently converted. Then fix each problem with a small, named step.",
       "caption": "Now a realistic case. A collaborator sends an enrollment export. Site codes are inconsistent, some ages are blank, one participant appears twice, and the enrollment date is written three different ways. Read every column as text first, so nothing is silently converted. Then fix each problem with a small, named step.",
-      "startSec": 133.83333333333334,
-      "startFrame": 4015,
+      "startSec": 135.5,
+      "startFrame": 4065,
       "frames": 557,
       "audioSec": 17.152
     },
@@ -177,8 +177,8 @@
       "lessonId": "data-lab.lesson-3",
       "text": "Dates need care. Parse the ISO format first, then fill the remaining gaps with the other formats, one at a time. Turn the arm column into a factor with its levels stated explicitly, remove exact duplicate rows with unique, and sort by participant. Finally, check the result: one row per participant, and no unexpected missing values.",
       "caption": "Dates need care. Parse the ISO format first, then fill the remaining gaps with the other formats, one at a time. Turn the arm column into a factor with its levels stated explicitly, remove exact duplicate rows with unique(), and sort by participant. Finally, check the result: one row per participant, and no unexpected missing values.",
-      "startSec": 152.4,
-      "startFrame": 4572,
+      "startSec": 154.06666666666666,
+      "startFrame": 4622,
       "frames": 595,
       "audioSec": 18.432
     },
@@ -187,12 +187,12 @@
       "chapter": "your-mission",
       "chapterTitle": "Your first mission",
       "lessonId": "data-lab.lesson-3",
-      "text": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean site, the function from this lesson, and the validator will test it on codes you have never seen. Pass every check to earn your first X P.",
-      "caption": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean_site(), the function from this lesson, and the validator will test it on codes you have never seen. Pass every check to earn your first XP.",
-      "startSec": 172.23333333333335,
-      "startFrame": 5167,
-      "frames": 519,
-      "audioSec": 15.893333
+      "text": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean site, a new function built from the same steps, and the validator will test it on codes you have never seen. Pass every check to earn your first X P.",
+      "caption": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean_site(), a new function built from the same steps, and the validator will test it on codes you have never seen. Pass every check to earn your first XP.",
+      "startSec": 173.9,
+      "startFrame": 5217,
+      "frames": 541,
+      "audioSec": 16.618667
     }
   ]
 }

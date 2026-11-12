@@ -4,8 +4,8 @@
   "fps": 30,
   "intro": 3.5,
   "outro": 4,
-  "totalSec": 182.73333333333332,
-  "totalFrames": 5482,
+  "totalSec": 183.29999999999998,
+  "totalFrames": 5499,
   "sentenceStarts": {
     "r01": [
       0.6,
@@ -39,8 +39,8 @@
     ],
     "r06": [
       0.6,
-      2.4,
-      7.96
+      2.46,
+      8.6
     ],
     "r07": [
       0.6,
@@ -131,12 +131,12 @@
       "chapter": "computed-reporting",
       "lessonId": "research-mission.lesson-2",
       "chapterTitle": "Computed reporting",
-      "text": "Write a function that builds the sentence from data. For each arm, take the non missing values, compute the mean and a t interval, and format with sprint F to two decimals. For our synthetic week twelve data, Placebo shows a mean change of two point one nine, with twenty five participants, all computed.",
-      "caption": "Write a function that builds the sentence from data. For each arm, take the non-missing values, compute the mean and a t-interval, and format with sprintf() to two decimals. For our synthetic Week 12 data, Placebo shows a mean change of 2.19, with 25 participants, all computed.",
+      "text": "Write a function that builds the sentence from data. Split the non missing changes by arm, take each median and interquartile range, and format with sprint F to two decimals. For our synthetic week twelve data, Placebo shows a median change of one point six six, with twenty five participants, all computed.",
+      "caption": "Write a function that builds the sentence from data. Split the non-missing changes by arm, take each median and interquartile range, and format with sprintf() to two decimals. For our synthetic Week 12 data, Placebo shows a median change of 1.66, with 25 participants, all computed.",
       "startSec": 90.53333333333333,
       "startFrame": 2716,
-      "frames": 544,
-      "audioSec": 16.746667
+      "frames": 561,
+      "audioSec": 17.301333
     },
     {
       "id": "r07",
@@ -145,8 +145,8 @@
       "chapterTitle": "The analysis",
       "text": "Now the full analysis. The analysis set keeps participants with a week twelve value and computes change from baseline. The primary model is a linear model of change on arm and baseline. In our synthetic trial, seventy two participants qualify, and treatment lowers the change by about three point five points.",
       "caption": "Now the full analysis. The analysis set keeps participants with a Week 12 value and computes change from baseline. The primary model is lm(change ~ arm + baseline). In our synthetic trial, 72 participants qualify, and treatment lowers the change by about 3.5 points.",
-      "startSec": 108.66666666666666,
-      "startFrame": 3260,
+      "startSec": 109.23333333333333,
+      "startFrame": 3277,
       "frames": 554,
       "audioSec": 17.066667
     },
@@ -157,8 +157,8 @@
       "chapterTitle": "Byte-identical outputs",
       "text": "Every output goes to a file: the results table, the audit sample of participants for source data checks, and a provenance note with the R version, the seed, and a checksum of the input. Run it twice, and the files are byte for byte identical. A timestamp or an unpinned random draw would break that instantly.",
       "caption": "Every output goes to a file: the results table, the audit sample of participants for source data checks, and a provenance note with the R version, the seed, and a checksum of the input. Run it twice, and the files are byte for byte identical. A timestamp or an unpinned random draw would break that instantly.",
-      "startSec": 127.13333333333333,
-      "startFrame": 3814,
+      "startSec": 127.7,
+      "startFrame": 3831,
       "frames": 549,
       "audioSec": 16.896
     },
@@ -169,8 +169,8 @@
       "chapterTitle": "Byte-identical outputs",
       "text": "That is the reviewer's test. Re-run from another directory, with different options and generator settings, then compare checksums of every output file. When they match, the analysis is reproducible, and anyone can trace each number back to the code and data that produced it.",
       "caption": "That is the reviewer's test. Re-run from another directory, with different options and generator settings, then compare checksums of every output file. When they match, the analysis is reproducible, and anyone can trace each number back to the code and data that produced it.",
-      "startSec": 145.43333333333334,
-      "startFrame": 4363,
+      "startSec": 146,
+      "startFrame": 4380,
       "frames": 488,
       "audioSec": 14.869333
     },
@@ -181,8 +181,8 @@
       "chapterTitle": "Your Research Mission",
       "text": "Your final missions follow this path. Make a bootstrap reproducible under any generator settings, without disturbing the caller. Generate report text where every number is computed. Then the final boss: an analysis whose output files a reviewer re-creates exactly, from a clean session.",
       "caption": "Your final missions follow this path. Make a bootstrap reproducible under any generator settings, without disturbing the caller. Generate report text where every number is computed. Then the final boss: an analysis whose output files a reviewer re-creates exactly, from a clean session.",
-      "startSec": 161.7,
-      "startFrame": 4851,
+      "startSec": 162.26666666666665,
+      "startFrame": 4868,
       "frames": 511,
       "audioSec": 15.637333
     }

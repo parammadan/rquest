@@ -57,125 +57,125 @@ This silent coercion is a classic source of bugs: one stray character in a numer
 Check the types whenever data arrives.
 
 15
-00:00:58.030 --> 00:01:00.200
+00:00:58.030 --> 00:01:00.180
 When you repeat a step, turn it into a function.
 
 16
-00:01:00.590 --> 00:01:08.140
-clean_site() takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub(), a pattern replacement.
+00:01:00.590 --> 00:01:09.840
+clean_visit() takes a vector of raw visit labels, trims stray spaces, converts to lower case, and rewrites each spelling to the word Week, followed by the number, using sub(), a pattern replacement.
 
 17
-00:01:08.390 --> 00:01:11.080
+00:01:10.090 --> 00:01:12.720
 The last value computed is what the function returns.
 
 18
-00:01:11.430 --> 00:01:14.620
-Now one tested function cleans every code, in every file.
+00:01:13.070 --> 00:01:16.280
+Now one tested function cleans every label, in every file.
 
 19
-00:01:16.470 --> 00:01:17.840
+00:01:18.130 --> 00:01:19.500
 Real data has gaps.
 
 20
-00:01:17.870 --> 00:01:23.030
+00:01:19.530 --> 00:01:24.690
 R marks a missing value as NA, and NA is contagious: the mean of a vector containing NA is itself NA.
 
 21
-00:01:23.030 --> 00:01:24.560
+00:01:24.690 --> 00:01:26.220
 That is deliberate.
 
 22
-00:01:24.650 --> 00:01:25.450
+00:01:26.310 --> 00:01:27.110
 R refuses to guess.
 
 23
-00:01:25.450 --> 00:01:33.160
+00:01:27.110 --> 00:01:34.820
 Find the gaps using the function is.na(), count them with sum(), and drop them only on purpose, by setting na.rm = TRUE.
 
 24
-00:01:34.970 --> 00:01:37.280
+00:01:36.630 --> 00:01:38.940
 A data frame is a table built from vectors.
 
 25
-00:01:37.390 --> 00:01:40.700
+00:01:39.050 --> 00:01:42.360
 Each column is a vector, and every column has the same length.
 
 26
-00:01:41.030 --> 00:01:44.820
+00:01:42.690 --> 00:01:46.480
 Our synthetic trial has an id, a treatment arm, a visit, and an outcome.
 
 27
-00:01:45.030 --> 00:01:51.620
+00:01:46.690 --> 00:01:53.280
 Pull out a column with $, keep rows with a logical condition, and you are already asking real questions of the data.
 
 28
-00:01:53.470 --> 00:01:55.360
+00:01:55.130 --> 00:01:57.020
 Most reports summarise by group.
 
 29
-00:01:55.450 --> 00:02:03.590
+00:01:57.110 --> 00:02:05.250
 The dplyr package gives you a readable vocabulary: filter() keeps the Week 12 visit, group_by() splits by arm, and summarise() computes each statistic.
 
 30
-00:02:03.590 --> 00:02:05.190
+00:02:05.250 --> 00:02:06.850
 Watch the missing outcome.
 
 31
-00:02:05.190 --> 00:02:09.880
+00:02:06.850 --> 00:02:11.540
 n() counts rows, not observations, so count the non-missing values explicitly.
 
 32
-00:02:10.170 --> 00:02:12.520
+00:02:11.830 --> 00:02:14.180
 Precise definitions make a table trustworthy.
 
 33
-00:02:14.430 --> 00:02:15.820
+00:02:16.100 --> 00:02:17.490
 Now a realistic case.
 
 34
-00:02:15.870 --> 00:02:18.000
+00:02:17.540 --> 00:02:19.670
 A collaborator sends an enrollment export.
 
 35
-00:02:18.350 --> 00:02:24.820
+00:02:20.020 --> 00:02:26.490
 Site codes are inconsistent, some ages are blank, one participant appears twice, and the enrollment date is written three different ways.
 
 36
-00:02:25.050 --> 00:02:28.560
+00:02:26.720 --> 00:02:30.230
 Read every column as text first, so nothing is silently converted.
 
 37
-00:02:28.670 --> 00:02:31.200
+00:02:30.340 --> 00:02:32.870
 Then fix each problem with a small, named step.
 
 38
-00:02:33.000 --> 00:02:33.990
+00:02:34.670 --> 00:02:35.660
 Dates need care.
 
 39
-00:02:34.020 --> 00:02:38.570
+00:02:35.690 --> 00:02:40.240
 Parse the ISO format first, then fill the remaining gaps with the other formats, one at a time.
 
 40
-00:02:38.940 --> 00:02:45.750
+00:02:40.610 --> 00:02:47.420
 Turn the arm column into a factor with its levels stated explicitly, remove exact duplicate rows with unique(), and sort by participant.
 
 41
-00:02:46.220 --> 00:02:50.930
+00:02:47.890 --> 00:02:52.600
 Finally, check the result: one row per participant, and no unexpected missing values.
 
 42
-00:02:52.830 --> 00:02:58.980
+00:02:54.500 --> 00:03:00.570
 That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data.
 
 43
-00:02:59.090 --> 00:03:00.480
+00:03:00.820 --> 00:03:02.210
 Your first mission is waiting.
 
 44
-00:03:00.670 --> 00:03:05.720
-Write clean_site(), the function from this lesson, and the validator will test it on codes you have never seen.
+00:03:02.340 --> 00:03:08.150
+Write clean_site(), a new function built from the same steps, and the validator will test it on codes you have never seen.
 
 45
-00:03:06.010 --> 00:03:08.180
+00:03:08.360 --> 00:03:10.550
 Pass every check to earn your first XP.

@@ -179,10 +179,10 @@ export const D04: React.FC = () => {
       <Row style={{ marginTop: 50 }} gap={40}>
         <div style={{ width: 1000 }}>
           <File
-            name="outcome_table.R"
+            name="baseline_table.R"
             at={b[1]}
             fontSize={28}
-            lines={["outcome_table <- function(df) {", "  df |>", "    dplyr::select(arm, outcome) |>", "    dplyr::filter(!is.na(outcome))", "}"]}
+            lines={["baseline_table <- function(df) {", "  df |>", "    dplyr::select(id, arm, baseline) |>", "    dplyr::filter(baseline > 0)", "}"]}
             highlight={[{ lines: [2, 3], from: b[1] + 1, color: C.emerald }]}
           />
           <Appear at={b[2]} style={{ marginTop: 26 }}>

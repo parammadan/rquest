@@ -44,8 +44,8 @@
     "chapter": "computed-reporting",
     "lessonId": "research-mission.lesson-2",
     "chapterTitle": "Computed reporting",
-    "text": "Write a function that builds the sentence from data. For each arm, take the non missing values, compute the mean and a t interval, and format with sprint F to two decimals. For our synthetic week twelve data, Placebo shows a mean change of two point one nine, with twenty five participants, all computed.",
-    "caption": "Write a function that builds the sentence from data. For each arm, take the non-missing values, compute the mean and a t-interval, and format with sprintf() to two decimals. For our synthetic Week 12 data, Placebo shows a mean change of 2.19, with 25 participants, all computed."
+    "text": "Write a function that builds the sentence from data. Split the non missing changes by arm, take each median and interquartile range, and format with sprint F to two decimals. For our synthetic week twelve data, Placebo shows a median change of one point six six, with twenty five participants, all computed.",
+    "caption": "Write a function that builds the sentence from data. Split the non-missing changes by arm, take each median and interquartile range, and format with sprintf() to two decimals. For our synthetic Week 12 data, Placebo shows a median change of 1.66, with 25 participants, all computed."
   },
   {
     "id": "r07",

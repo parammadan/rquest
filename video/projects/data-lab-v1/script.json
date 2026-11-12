@@ -28,8 +28,8 @@
     "chapter": "functions",
     "chapterTitle": "Writing a function",
     "lessonId": "data-lab.lesson-1",
-    "text": "When you repeat a step, turn it into a function. clean site takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub, a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every code, in every file.",
-    "caption": "When you repeat a step, turn it into a function. clean_site() takes a vector of raw codes, trims stray spaces, converts to upper case, and inserts the missing hyphen with sub(), a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every code, in every file."
+    "text": "When you repeat a step, turn it into a function. clean visit takes a vector of raw visit labels, trims stray spaces, converts to lower case, and rewrites each spelling to the word Week, followed by the number, using sub, a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every label, in every file.",
+    "caption": "When you repeat a step, turn it into a function. clean_visit() takes a vector of raw visit labels, trims stray spaces, converts to lower case, and rewrites each spelling to the word Week, followed by the number, using sub(), a pattern replacement. The last value computed is what the function returns. Now one tested function cleans every label, in every file."
   },
   {
     "id": "s05",
@@ -76,7 +76,7 @@
     "chapter": "your-mission",
     "chapterTitle": "Your first mission",
     "lessonId": "data-lab.lesson-3",
-    "text": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean site, the function from this lesson, and the validator will test it on codes you have never seen. Pass every check to earn your first X P.",
-    "caption": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean_site(), the function from this lesson, and the validator will test it on codes you have never seen. Pass every check to earn your first XP."
+    "text": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean site, a new function built from the same steps, and the validator will test it on codes you have never seen. Pass every check to earn your first X P.",
+    "caption": "That is the Data Lab toolkit: vectors, functions, missing values, and data frames, applied to messy research data. Your first mission is waiting. Write clean_site(), a new function built from the same steps, and the validator will test it on codes you have never seen. Pass every check to earn your first XP."
   }
 ]

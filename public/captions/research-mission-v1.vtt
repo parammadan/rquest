@@ -81,69 +81,69 @@ In a Quarto or R Markdown report, inline code computes each number as the docume
 The sentence in the report and the analysis can never disagree.
 
 21
-00:01:31.130 --> 00:01:32.930
+00:01:31.130 --> 00:01:32.990
 Write a function that builds the sentence from data.
 
 22
-00:01:32.930 --> 00:01:38.490
-For each arm, take the non-missing values, compute the mean and a t-interval, and format with sprintf() to two decimals.
+00:01:32.990 --> 00:01:39.130
+Split the non-missing changes by arm, take each median and interquartile range, and format with sprintf() to two decimals.
 
 23
-00:01:38.490 --> 00:01:47.400
-For our synthetic Week 12 data, Placebo shows a mean change of 2.19, with 25 participants, all computed.
+00:01:39.130 --> 00:01:47.960
+For our synthetic Week 12 data, Placebo shows a median change of 1.66, with 25 participants, all computed.
 
 24
-00:01:49.270 --> 00:01:50.560
+00:01:49.830 --> 00:01:51.120
 Now the full analysis.
 
 25
-00:01:50.630 --> 00:01:54.590
+00:01:51.190 --> 00:01:55.150
 The analysis set keeps participants with a Week 12 value and computes change from baseline.
 
 26
-00:01:54.590 --> 00:01:58.190
+00:01:55.150 --> 00:01:58.750
 The primary model is lm(change ~ arm + baseline).
 
 27
-00:01:58.190 --> 00:02:05.820
+00:01:58.750 --> 00:02:06.380
 In our synthetic trial, 72 participants qualify, and treatment lowers the change by about 3.5 points.
 
 28
-00:02:07.730 --> 00:02:17.080
+00:02:08.300 --> 00:02:17.650
 Every output goes to a file: the results table, the audit sample of participants for source data checks, and a provenance note with the R version, the seed, and a checksum of the input.
 
 29
-00:02:17.470 --> 00:02:20.360
+00:02:18.040 --> 00:02:20.930
 Run it twice, and the files are byte for byte identical.
 
 30
-00:02:20.610 --> 00:02:24.080
+00:02:21.180 --> 00:02:24.650
 A timestamp or an unpinned random draw would break that instantly.
 
 31
-00:02:26.030 --> 00:02:27.560
+00:02:26.600 --> 00:02:28.130
 That is the reviewer's test.
 
 32
-00:02:27.690 --> 00:02:33.860
+00:02:28.260 --> 00:02:34.430
 Re-run from another directory, with different options and generator settings, then compare checksums of every output file.
 
 33
-00:02:34.210 --> 00:02:40.540
+00:02:34.780 --> 00:02:41.110
 When they match, the analysis is reproducible, and anyone can trace each number back to the code and data that produced it.
 
 34
-00:02:42.300 --> 00:02:44.380
+00:02:42.870 --> 00:02:44.950
 Your final missions follow this path.
 
 35
-00:02:44.380 --> 00:02:48.550
+00:02:44.950 --> 00:02:49.120
 Make a bootstrap reproducible under any generator settings, without disturbing the caller.
 
 36
-00:02:48.800 --> 00:02:51.510
+00:02:49.370 --> 00:02:52.080
 Generate report text where every number is computed.
 
 37
-00:02:51.680 --> 00:02:57.410
+00:02:52.250 --> 00:02:57.980
 Then the final boss: an analysis whose output files a reviewer re-creates exactly, from a clean session.

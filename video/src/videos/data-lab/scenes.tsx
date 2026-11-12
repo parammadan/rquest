@@ -199,11 +199,15 @@ export const S03: React.FC = () => {
 export const S04: React.FC = () => {
   const b = useBeats("s04");
   const t = useSec();
+  // Word times in sentence 2 (words.json): "trims", "lower case", "sub".
+  const TRIM = b[1] + 2.4;
+  const LOWER = b[1] + 4.1;
+  const SUB = b[1] + 7.8;
   const steps = [
-    { fn: "input", v: '" bos01"', at: b[1] },
-    { fn: "trimws()", v: '"bos01"', at: b[1] + 1.6 },
-    { fn: "toupper()", v: '"BOS01"', at: b[1] + 3.0 },
-    { fn: "sub()", v: '"BOS-01"', at: b[1] + 4.8 },
+    { fn: "input", v: '" WEEK-12"', at: b[1] },
+    { fn: "trimws()", v: '"WEEK-12"', at: TRIM },
+    { fn: "tolower()", v: '"week-12"', at: LOWER },
+    { fn: "sub()", v: '"Week 12"', at: SUB },
   ];
   return (
     <Frame chapter="Writing a function">
@@ -211,19 +215,20 @@ export const S04: React.FC = () => {
       <Row style={{ marginTop: 50 }} gap={60}>
         <Code
           style={{ width: 1040 }}
-          title="clean_site.R"
-          fontSize={26}
+          title="clean_visit.R"
+          fontSize={24}
           lines={[
-            { code: "clean_site <- function(x) {", at: b[0] + 0.8 },
-            { code: "  x <- toupper(trimws(x))", at: b[0] + 1.6 },
-            { code: '  sub("^([A-Z]+)-?([0-9]+)$", "\\\\1-\\\\2", x)', at: b[0] + 2.6 },
+            { code: "clean_visit <- function(x) {", at: b[0] + 0.8 },
+            { code: "  x <- tolower(trimws(x))", at: b[0] + 1.6 },
+            { code: '  sub("^w(ee)?k[ -]?([0-9]+)$", "Week \\\\2", x)', at: b[0] + 2.6 },
             { code: "}", at: b[0] + 4.0 },
             { code: "", at: b[3] },
-            { code: "clean_site(sites)", at: b[3] + 0.3, out: '[1] "BOS-01" "BOS-01" "NYC-02" "NYC-02" NA       "CHI-03"', outColor: C.emerald },
+            { code: 'visits <- c("Week 12", "wk12", " WEEK-12", "week 4", NA, "Wk 4 ")', at: b[3] + 0.2 },
+            { code: "clean_visit(visits)", at: b[3] + 0.8, out: '[1] "Week 12" "Week 12" "Week 12" "Week 4"  NA        "Week 4" ', outColor: C.emerald },
           ]}
           highlight={[
-            { lines: [1], from: b[1], to: b[1] + 4.6 },
-            { lines: [2], from: b[1] + 4.6, to: b[2] },
+            { lines: [1], from: b[1], to: SUB - 0.2 },
+            { lines: [2], from: SUB - 0.2, to: b[2] },
             { lines: [2], from: b[2], to: b[3] },
           ]}
         />
@@ -252,14 +257,14 @@ export const S04: React.FC = () => {
           ))}
           <Appear at={b[2]} style={{ marginTop: 10 }}>
             <div style={{ fontSize: 26, color: C.muted, lineHeight: 1.45 }}>
-              <span style={{ color: C.violet, fontFamily: FONT.mono }}>sub()</span> pattern: letters, an optional hyphen,
-              digits → rebuilt as <span style={{ fontFamily: FONT.mono }}>AAA-00</span>. The last value is returned.
+              <span style={{ color: C.violet, fontFamily: FONT.mono }}>sub()</span> pattern: wk or week, an optional space
+              or hyphen, digits → rebuilt as <span style={{ fontFamily: FONT.mono }}>"Week 12"</span>. The last value is returned.
             </div>
           </Appear>
         </div>
       </Row>
       <Appear at={b[3] + 1.2} style={{ marginTop: 30 }}>
-        <Chip color={C.emerald}>{"One tested function → every code, every file"}</Chip>
+        <Chip color={C.emerald}>{"One tested function → every label, every file"}</Chip>
       </Appear>
     </Frame>
   );
@@ -517,7 +522,7 @@ export const S08: React.FC = () => {
         />
       </div>
       <Appear at={b[4]} style={{ marginTop: 22, fontFamily: FONT.mono, fontSize: 26, color: C.emerald }}>
-        then: clean_site() → parse dates → fix types → unique() → order()
+        then: clean site codes → parse dates → fix types → unique() → order()
       </Appear>
     </Frame>
   );
