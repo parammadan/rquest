@@ -7,7 +7,7 @@ import { startSite } from "./lib/site.mjs";
 import { REFERENCE_SOLUTIONS } from "../src/content/validators/reference-solutions.ts";
 
 const PORT = 3111;
-const KEY = "rquest:progress:v1";
+const KEY = "rquest:progress:v2";
 const SHOTS = process.env.SHOTS === "1";
 const SHOT_DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
 if (SHOTS) mkdirSync(SHOT_DIR, { recursive: true });
@@ -41,7 +41,9 @@ async function totalsText() {
   await page.waitForFunction((q) => /^\s*\d/.test(document.querySelector(q)?.innerText ?? ""), sel, { timeout: 15_000 });
   return page.locator(sel).innerText();
 }
-const events = () => page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? '{"events":[]}').events.length, KEY);
+// Completions only: graded submissions also record challenge.attempted evidence (see e2e-attempts.mjs).
+const events = () =>
+  page.evaluate((k) => JSON.parse(localStorage.getItem(k) ?? '{"events":[]}').events.filter((e) => e.type === "item.completed").length, KEY);
 
 async function setCode(code) {
   const editor = page.locator(".cm-content");
@@ -54,7 +56,7 @@ async function setCode(code) {
 }
 async function submit(timeout = 240_000) {
   await page.getByRole("button", { name: "Submit for validation" }).click();
-  const banner = page.locator('[role="status"]').filter({ hasText: /checks passed|raised an error|Time limit|problem/ });
+  const banner = page.locator('[role="status"]').filter({ hasText: /checks passed|raised an error|syntax error|Grading refused|Time limit|problem/ });
   await banner.first().waitFor({ timeout });
   return banner.first().innerText();
 }

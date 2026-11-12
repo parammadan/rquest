@@ -7,7 +7,7 @@ import { pathRe, startSite } from "./lib/site.mjs";
 const PORT = Number(process.env.PORT ?? 3107);
 const SHOTS = process.env.SHOTS === "1";
 const SHOT_DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
-const KEY = "rquest:progress:v1";
+const KEY = "rquest:progress:v2";
 
 let failures = 0;
 const results = [];

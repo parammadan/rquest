@@ -8,7 +8,7 @@ import { getDebrief, getVideo } from "../src/content/videos.ts";
 import { expectedValidatorId } from "../src/domain/progression.ts";
 import { startSite } from "./lib/site.mjs";
 
-const KEY = "rquest:progress:v1";
+const KEY = "rquest:progress:v2";
 const site = await startSite(3121);
 const BASE = site.base;
 const browser = await chromium.launch({ channel: "chrome", headless: true, args: ["--mute-audio"] });

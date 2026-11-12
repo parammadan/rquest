@@ -20,7 +20,7 @@ and count toward full mastery.
 pnpm install
 pnpm dev                 # http://localhost:3000 (dev scenarios at /academy/dev)
 
-pnpm verify              # typecheck + lint + unit tests + production build
+pnpm verify              # typecheck + lint + unit tests + production build + validator self-test (webR)
 pnpm build:pages                       # static export to out/ (base path /rquest, as on GitHub Pages)
 pnpm test:e2e                          # site-wide browser checks against out/ (system Chrome via playwright-core)
 pnpm test:e2e:lessons                  # lesson experience: video, captions, transcript, live R, completion rules
@@ -28,11 +28,32 @@ pnpm test:e2e:all-lessons              # every live lesson end to end, plus boss
 pnpm test:e2e:world2                   # Package Factory: diagrams, evolving walkthroughs, feedback, assembly, boss briefing
 pnpm test:browsers                     # Chrome, Firefox, WebKit: webR, validation, all 10 videos + captions, layout
 pnpm test:e2e:challenges               # all 15 challenges through the real UI with webR (needs network)
-pnpm test:validators                   # every reference solution passes; every starter fails
+pnpm test:validators                   # real webR: references pass, starters fail, grader bypasses blocked
+pnpm test:e2e:attempts                 # real webR: attempt evidence, v1→v2 migration, learning insights
 SITE_URL=https://parammadan.github.io/rquest pnpm test:e2e   # any suite, against production
 SHOTS=1 pnpm test:e2e                  # also writes docs/screenshots/
 NEXT_PUBLIC_RQUEST_DEV_TOOLS=1 pnpm build && node scripts/scenario-shots.mjs   # seeded-state screenshots
 ```
+
+### What CI runs
+
+`.github/workflows/pages.yml` runs, before every deploy: typecheck, lint, unit tests, the static build,
+`test:e2e` (offline), `test:validators` and `test:e2e:attempts` (real webR from r-wasm.org, retried once for a
+network failure). Any failure blocks the deploy.
+
+Local-only, and why: `test:e2e:challenges` (solves all 15 challenges through the UI; ~10 minutes of webR
+package installs), `test:e2e:lessons`, `test:e2e:all-lessons` and `test:e2e:world2` (they stream the lesson
+videos and run lesson R examples; slow and media-heavy), and `test:browsers` (needs Playwright's Firefox and
+WebKit builds, which aren't on the runner). Run them before a release, and against production with `SITE_URL`.
+
+## Grading integrity (Milestone 4A)
+
+The R grader (`src/features/runtime/harness.ts`) is installed before any learner code runs and is held as a
+JavaScript handle; nothing is bound in R's global environment. Checks see pristine base R and a copy of the
+challenge setup taken before the learner's code ran, and grading is refused if learner code changes base R.
+This is **browser-level hardening against R-level interference, not tamper-proof grading**: learner code runs
+in the same process, progress lives in the learner's own browser, and only a server that re-runs the code
+could make grades trustworthy for certification. Details: `docs/MILESTONE_4A_INTEGRITY_AND_EVIDENCE.md`.
 
 ## Architecture
 

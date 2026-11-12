@@ -71,6 +71,23 @@ function NavList({ variant, pathname }: { variant: "sidebar" | "tabbar"; pathnam
   );
 }
 
+/** Shown when stored progress couldn't be read. It is left untouched until the learner resets. */
+function StorageIssueBanner({ className }: { className?: string }) {
+  const { snapshot } = useProgress();
+  if (!snapshot.storageIssue) return null;
+  return (
+    <div role="alert" data-testid="storage-issue" className={cn("border-b border-coral/40 bg-coral/10 px-4 py-2 text-center text-xs text-coral", className)}>
+      Saved progress in this browser couldn&apos;t be read
+      {snapshot.storageIssue === "unsupported-version" ? " (it was written by a newer version of RQuest)" : ""}. It has been
+      left untouched and nothing new is being saved.{" "}
+      <Link href="/academy/progress" className="font-medium underline">
+        Reset progress
+      </Link>{" "}
+      to start again.
+    </div>
+  );
+}
+
 /** Banner shown whenever seeded developer data is being displayed. */
 function DevScenarioBanner({ className }: { className?: string }) {
   const { progress } = useProgress();
@@ -147,10 +164,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
           <LearnerCard compact />
         </header>
+        <StorageIssueBanner />
         <DevScenarioBanner />
       </div>
 
       <main id="main" className="pb-28 lg:pb-12 lg:pl-64">
+        <StorageIssueBanner className="hidden lg:block" />
         <DevScenarioBanner className="sticky top-0 z-20 hidden lg:flex" />
         <div className="mx-auto w-full max-w-6xl px-4 pt-6 sm:px-6 lg:px-10 lg:pt-10">{children}</div>
       </main>

@@ -7,7 +7,7 @@ import { catalog } from "../src/content/catalog.ts";
 import { startSite } from "./lib/site.mjs";
 
 const PORT = 3116;
-const KEY = "rquest:progress:v1";
+const KEY = "rquest:progress:v2";
 const SHOTS = process.env.SHOTS === "1";
 const SHOT_DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
 if (SHOTS) mkdirSync(SHOT_DIR, { recursive: true });

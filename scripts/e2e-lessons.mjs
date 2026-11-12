@@ -6,7 +6,7 @@ import { catalog } from "../src/content/catalog.ts";
 import { startSite } from "./lib/site.mjs";
 
 const PORT = 3115;
-const KEY = "rquest:progress:v1";
+const KEY = "rquest:progress:v2";
 const SHOTS = process.env.SHOTS === "1";
 const SHOT_DIR = new URL("../docs/screenshots/", import.meta.url).pathname;
 if (SHOTS) mkdirSync(SHOT_DIR, { recursive: true });
@@ -109,8 +109,9 @@ try {
     assert(out.includes('"character"') && out.includes("[1] 6"), out.slice(-200));
     const lig = await page.locator("main pre").first().evaluate((el) => getComputedStyle(el).fontVariantLigatures);
     assert(lig === "none", `code ligatures must be off (got ${lig})`);
-    for (let i = 0; i < 3; i++) await page.getByRole("button", { name: "Next step" }).click();
-    assert(await page.getByText("Step 4 of 4").isVisible(), "step 4");
+    const steps = lesson1.walkthrough.steps.length;
+    for (let i = 1; i < steps; i++) await page.getByRole("button", { name: "Next step" }).click();
+    assert(await page.getByText(`Step ${steps} of ${steps}`).isVisible(), `step ${steps}`);
     if (SHOTS) await page.screenshot({ path: SHOT_DIR + "22-lesson-learn.png" });
   });
 

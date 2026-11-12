@@ -623,3 +623,71 @@ test("active time counts only attended, non-idle time", () => {
   m.tick(10_000_000, true); // laptop asleep: one long gap counts at most 5 s
   assert.ok(m.take(10_000_000, true) <= 5_000);
 });
+
+/* --------------------- Milestone 4A: skills and learning insights --------------------- */
+
+import { CHECK_SKILLS, SKILLS } from "../content/skills.ts";
+import { deriveInsights } from "../features/insights/derive-insights.ts";
+
+test("every validator check has exactly one known skill tag", () => {
+  const ids = new Set(SKILLS.map((s) => s.id));
+  let n = 0;
+  for (const v of VALIDATORS) {
+    const tags = CHECK_SKILLS[v.challengeId];
+    assert.ok(tags, `${v.challengeId} untagged`);
+    assert.deepEqual(Object.keys(tags).sort(), v.checks.map((c) => c.id).sort(), `${v.challengeId} tags match its checks`);
+    for (const t of Object.values(tags)) assert.ok(ids.has(t), `${v.challengeId}: unknown skill ${t}`);
+    n += v.checks.length;
+  }
+  assert.equal(n, 88);
+  const used = new Set(Object.values(CHECK_SKILLS).flatMap((t) => Object.values(t)));
+  assert.deepEqual([...used].sort(), [...ids].sort(), "every skill is used");
+});
+
+test("insights come only from recorded attempts; earlier completions are kept apart", () => {
+  const empty = deriveInsights(emptySnapshot(), catalog);
+  assert.equal(empty.attempts, 0);
+  assert.equal(empty.practice.length, 0);
+  assert.equal(empty.firstTry.of, 0);
+
+  // A migrated learner: completions only, no attempts.
+  const legacy = deriveInsights({ ...emptySnapshot(), events: fullEvents() }, catalog);
+  assert.equal(legacy.attempts, 0);
+  assert.equal(legacy.challengesAttempted, 0);
+  assert.equal(legacy.earlierCompletions, 15);
+
+  let snap = emptySnapshot();
+  const add = (challengeId: string, outcome: ChallengeAttemptedEvent["outcome"], failed: string[] = []) => {
+    const def = validatorForChallenge(challengeId)!;
+    const r = buildAttempt(snap, catalog, { challengeId, outcome, failedCheckIds: failed, activeMs: 60_000, checkIds: def.checks.map((c) => c.id) });
+    assert.ok(r.ok);
+    snap = { ...snap, events: [...snap.events, r.event] };
+  };
+  add("data-lab.challenge-1", "passed"); // first try
+  add("data-lab.challenge-2", "failed", ["missing", "values"]);
+  add("data-lab.challenge-2", "syntax-error");
+  add("data-lab.challenge-2", "failed", ["missing"]);
+  add("data-lab.challenge-2", "passed");
+  add("data-lab.boss", "failed", ["dates", "types"]); // still unsolved
+  const i = deriveInsights(snap, catalog);
+  assert.equal(i.attempts, 6);
+  assert.equal(i.challengesAttempted, 3);
+  assert.equal(i.challengesSolved, 2);
+  assert.deepEqual(i.firstTry, { passed: 1, of: 3 });
+  assert.equal(i.outcomes["syntax-error"], 1);
+  assert.equal(i.activeMs, 6 * 60_000);
+  assert.deepEqual(i.topFailedChecks[0], {
+    challengeId: "data-lab.challenge-2",
+    challengeTitle: "Summarise by treatment arm",
+    checkId: "missing",
+    description: validatorForChallenge("data-lab.challenge-2")!.checks.find((c) => c.id === "missing")!.description,
+    skill: "missing-values",
+    count: 2,
+  });
+  // types-and-dates fails on an unsolved boss → first; missing-values failed in 2 attempts → listed too.
+  assert.equal(i.practice[0].skill, "types-and-dates");
+  assert.equal(i.practice[0].challengeId, "data-lab.boss");
+  assert.equal(i.practice[0].lessonId, "data-lab.lesson-3", "links the lesson that prepares that challenge");
+  assert.ok(i.practice.some((p) => p.skill === "missing-values" && p.lessonId === "data-lab.lesson-2"));
+  assert.ok(!i.practice.some((p) => p.skill === "summaries"), "one failure on a solved challenge isn't a weak spot");
+});

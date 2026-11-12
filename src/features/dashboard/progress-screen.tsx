@@ -9,6 +9,7 @@ import { Dialog } from "@/components/ui/dialog";
 import { Hydrated, ProgressBar, SectionHeading, StatusChip } from "@/components/ui/primitives";
 import { ProgressLegend } from "@/components/progress-legend";
 import { catalog } from "@/content/catalog";
+import { LearningInsights } from "@/features/insights/learning-insights";
 import { useProgress, useProgressActions } from "@/features/progress/progress-provider";
 import { LevelIndicator, XPProgressBar } from "@/features/shell/learner-widgets";
 import { PageHeader } from "@/features/shell/page-header";
@@ -17,7 +18,7 @@ import { cn } from "@/lib/cn";
 import { formatDate, formatNumber, formatPercent } from "@/lib/format";
 
 export function ProgressScreen() {
-  const { ready, progress } = useProgress();
+  const { ready, progress, snapshot } = useProgress();
   const { resetLearnerProgress } = useProgressActions();
   const [confirmReset, setConfirmReset] = useState(false);
   const isScenario = progress.origin === "dev-scenario";
@@ -35,7 +36,7 @@ export function ProgressScreen() {
       <PageHeader
         eyebrow="Learner progress"
         title="Progress overview"
-        description="Every number on this page is derived from one event log of validated completions. Nothing is estimated or simulated."
+        description="Every number on this page is derived from one event log: validated completions, plus graded challenge attempts for your insights. Nothing is estimated or simulated."
       />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)]">
@@ -76,6 +77,8 @@ export function ProgressScreen() {
           ))}
         </section>
       </div>
+
+      <LearningInsights snapshot={snapshot} ready={ready} />
 
       <section aria-labelledby="states-h" className="mt-10">
         <SectionHeading id="states-h" eyebrow="Definitions" title="How progress works" />
@@ -164,7 +167,7 @@ export function ProgressScreen() {
           <Database className="h-6 w-6 shrink-0 text-fg-subtle" aria-hidden="true" />
           <p className="flex-1 text-sm text-fg-muted">
             Progress is stored only in this browser (local storage). There is no account and nothing is sent to a
-            server.
+            server. Attempts record which checks passed or failed and the active time, never your code.
             {isScenario && " A developer scenario is active; resetting affects only your real progress."}
           </p>
           <Button variant="secondary" size="sm" onClick={() => setConfirmReset(true)} disabled={!ready}>
@@ -177,7 +180,7 @@ export function ProgressScreen() {
         open={confirmReset}
         onClose={() => setConfirmReset(false)}
         title="Reset learner progress?"
-        description="This permanently clears the completion events stored in this browser. Content is not affected."
+        description="This permanently clears the completions and attempts stored in this browser. Code drafts and content are not affected."
       >
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setConfirmReset(false)}>

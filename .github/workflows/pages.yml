@@ -39,6 +39,16 @@ jobs:
           ls -la public/media
       - name: Build static site
         run: pnpm build:pages
+      # Browser checks use the runner's preinstalled Google Chrome (playwright-core, no download).
+      - name: Site checks (offline)
+        run: pnpm test:e2e
+      # Real webR (R in WebAssembly) from r-wasm.org: all 15 validators (reference passes,
+      # starter fails), the adversarial grader cases, and the attempt/insights flow.
+      # One retry absorbs a transient CDN outage; a real regression fails both runs and blocks deploy.
+      - name: Validator self-test and grader hardening (real webR)
+        run: pnpm test:validators || { echo "::warning::retrying once (possible network failure)"; sleep 30; pnpm test:validators; }
+      - name: Attempt evidence, migration, and insights (real webR)
+        run: pnpm test:e2e:attempts || { echo "::warning::retrying once (possible network failure)"; sleep 30; pnpm test:e2e:attempts; }
       - uses: actions/upload-pages-artifact@v3
         with:
           path: out

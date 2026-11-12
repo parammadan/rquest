@@ -17,7 +17,7 @@ const LEGACY = catalog.missions.flatMap((m) =>
   })),
 );
 
-const KEY = "rquest:progress:v1";
+const KEY = "rquest:progress:v2";
 const site = await startSite(3117);
 const BASE = site.base;
 const engines = [
@@ -87,7 +87,7 @@ for (const [name, launch] of engines) {
     await page.getByText("+50 XP").waitFor({ timeout: 120_000 });
     await page.goto(`${BASE}/academy/progress/`);
     await page.waitForFunction(() => /^\s*50/.test(document.querySelector('section[aria-label="Totals"]')?.innerText ?? ""), null, { timeout: 15_000 });
-    const n = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)).events.length, KEY);
+    const n = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)).events.filter((e) => e.type === "item.completed").length, KEY);
     assert(n === 1, `events ${n}`);
   });
 
